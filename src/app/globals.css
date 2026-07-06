@@ -1,26 +1,49 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Core surfaces — slate-navy, layered */
+  --color-abyss: #0b1220;      /* app background */
+  --color-hull: #131c2e;       /* panels, sidebar */
+  --color-deck: #1c283f;       /* cards, raised surfaces */
+  --color-line: #2a3a57;       /* borders, dividers */
+
+  /* Text */
+  --color-ink: #eef2f9;        /* primary text */
+  --color-ink-soft: #9aa9c4;   /* secondary text, labels */
+
+  /* Signal — the one accent, used sparingly */
+  --color-signal: #f5a524;     /* recommended path, active state */
+  --color-signal-dim: #7a5a1e; /* signal borders, muted */
+
+  /* Semantic (verdicts) */
+  --color-clear: #35c28e;      /* eligible */
+  --color-block: #e0556e;      /* not eligible */
+
+  /* Type */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+* { border-color: var(--color-line); }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-abyss);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.input {
+  width: 100%;
+  background: var(--color-deck);
+  border: 1px solid var(--color-line);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+}
+.input:focus {
+  outline: 2px solid var(--color-signal);
+  outline-offset: -1px;
 }
