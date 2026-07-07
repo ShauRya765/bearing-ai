@@ -58,12 +58,8 @@ export default function Home() {
     }
 
     return (
-        <div className="flex min-h-screen">
-
-            <div className="flex-1 flex flex-col">
-                <header className="h-16 shrink-0 border-b flex items-center px-8">
-                    <h1 className="font-[family-name:--font-display] text-base font-medium">New assessment</h1>
-                </header>
+        <>
+            <header className="h-16 shrink-0 border-b flex items-center px-8"></header>
 
                 <main className="flex-1 p-8 grid grid-cols-[1fr_360px] gap-8">
                     {/* Form */}
@@ -196,9 +192,8 @@ export default function Home() {
                             )}
                         </div>
                     </div>
-                </main>
-            </div>
-        </div>
+               </main>
+        </>
     );
 }
 
