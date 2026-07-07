@@ -23,22 +23,47 @@ export default function RulesPage() {
         if (!question.trim() || loading) return;
         setLoading(true);
         setError(null);
-        setResult(null);
+        setResult({ answer: "", citations: [], chunksUsed: 0 });
         try {
             const res = await fetch("/api/ask", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ question }),
             });
-            if (!res.ok) throw new Error((await res.json()).error ?? "Request failed");
-            setResult(await res.json());
+            if (!res.ok || !res.body) throw new Error("Request failed");
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
+            let metaParsed = false;
+            let answer = "";
+            let citations: Citation[] = [];
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+
+                // First newline separates the metadata line from the answer stream.
+                if (!metaParsed) {
+                    const nl = buffer.indexOf("\n");
+                    if (nl === -1) continue;
+                    const meta = JSON.parse(buffer.slice(0, nl));
+                    citations = meta.citations;
+                    buffer = buffer.slice(nl + 1);
+                    metaParsed = true;
+                }
+
+                answer += buffer;
+                buffer = "";
+                setResult({ answer, citations, chunksUsed: citations.length });
+            }
         } catch (e) {
             setError(e instanceof Error ? e.message : "Something went wrong.");
         } finally {
             setLoading(false);
         }
     }
-
     return (
         <main className="flex-1 p-8 max-w-3xl">
             <div className="mb-6">
