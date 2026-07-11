@@ -5,10 +5,8 @@ import { usePathname } from "next/navigation";
 import { ruleset_2026_06 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-06";
 
 const NAV = [
-  { label: "Assessments", href: "/" },
-  { label: "Knowledge Map", href: "/map" },
+  { label: "Assessment", href: "/" },
   { label: "Rules", href: "/rules" },
-  { label: "Clients", href: "/clients" },
 ];
 
 export default function Shell({ children }: { children: React.ReactNode }) {

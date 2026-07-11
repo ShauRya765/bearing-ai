@@ -3,7 +3,7 @@ config({ path: ".env.local" });
 
 import { createClient } from "@supabase/supabase-js";
 import { GoogleGenAI } from "@google/genai";
-import { RULE_SOURCES } from "../src/lib/rag/sources";
+import { loadBundle } from "../src/lib/okf/load";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -29,31 +29,32 @@ async function embed(text: string): Promise<number[]> {
   });
   return result.embeddings![0].values!;
 }
-async function main() {
-  console.log(`Ingesting ${RULE_SOURCES.length} rule chunks...\n`);
 
-  // Clear existing rows so re-running is idempotent, not duplicative.
+async function main() {
+  const bundle = loadBundle("okf");
+  console.log(`Ingesting ${bundle.concepts.length} OKF concepts...\n`);
+
   const { error: delErr } = await supabase
     .from("rule_chunks")
     .delete()
     .neq("id", 0);
   if (delErr) throw delErr;
 
-  for (const source of RULE_SOURCES) {
-    const embedding = await embed(source.content);
+  for (const concept of bundle.concepts) {
+    const embedding = await embed(concept.body);
 
     const { error } = await supabase.from("rule_chunks").insert({
-      content: source.content,
-      source_url: source.sourceUrl,
-      source_title: source.sourceTitle,
+      content: concept.body,
+      source_url: concept.resource ?? "",
+      source_title: concept.title ?? concept.id,
       embedding,
     });
 
     if (error) throw error;
-    console.log(`  ✓ ${source.sourceTitle}`);
+    console.log(`  ✓ ${concept.id}`);
   }
 
-  console.log(`\nDone. ${RULE_SOURCES.length} chunks embedded and stored.`);
+  console.log(`\nDone. ${bundle.concepts.length} concepts embedded.`);
 }
 
 main().catch((err) => {
