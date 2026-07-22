@@ -5,8 +5,29 @@ import { scoreCore, type CrsProfile } from "@/lib/crs/engine/crs-core";
 import { ruleset_2026_06 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-06";
 import type { EducationLevel } from "@/lib/crs/ruleset/types";
 import { runGate } from "@/lib/crs/engine/gate";
+import { LanguageTestFields, defaultLanguageResult } from "@/components/LanguageTestFields";
+import { NumberField } from "@/components/NumberField";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from "@/components/ui/card";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 const EDUCATION_OPTIONS: { value: EducationLevel; label: string }[] = [
+    { value: "none", label: "No formal education" },
     { value: "secondary", label: "Secondary / high school" },
     { value: "oneYearPostSecondary", label: "1-year post-secondary" },
     { value: "twoYearPostSecondary", label: "2-year post-secondary" },
@@ -16,12 +37,16 @@ const EDUCATION_OPTIONS: { value: EducationLevel; label: string }[] = [
     { value: "doctoral", label: "Doctoral" },
 ];
 
+function Hint({ children }: { children: React.ReactNode }) {
+    return <p className="text-xs text-muted-foreground/80 leading-relaxed">{children}</p>;
+}
+
 export default function Home() {
     const [profile, setProfile] = useState<CrsProfile>({
-        age: 29,
-        education: "masters",
-        firstLanguage: { test: "IELTS", reading: 8, writing: 7, listening: 8, speaking: 7 },
-        canadianWorkYears: 3,
+        age: 0,
+        education: "none",
+        firstLanguage: { test: "IELTS", reading: 0, writing: 0, listening: 0, speaking: 0 },
+        canadianWorkYears: 0,
     });
 
     const score = scoreCore(profile, ruleset);
@@ -31,125 +56,295 @@ export default function Home() {
     const set = <K extends keyof CrsProfile>(key: K, value: CrsProfile[K]) =>
         setProfile((p) => ({ ...p, [key]: value }));
 
-    const setLang = (skill: keyof CrsProfile["firstLanguage"], value: number) =>
-        setProfile((p) => ({ ...p, firstLanguage: { ...p.firstLanguage, [skill]: value } }));
-
-    function Toggle({ label, checked, onChange }: {
-        label: string;
-        checked: boolean;
-        onChange: (v: boolean) => void;
-    }) {
-        return (
-            <button
-                type="button"
-                onClick={() => onChange(!checked)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-sm text-left transition-colors ${checked
-                        ? "border-[--color-signal] bg-[color-mix(in_srgb,var(--color-signal)_10%,transparent)]"
-                        : "border-[--color-line] hover:bg-[--color-deck]/50"
-                    }`}
-            >
-                <span className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${checked ? "bg-[--color-signal] text-[--color-abyss]" : "border border-[--color-line]"
-                    }`}>
-                    {checked && "✓"}
-                </span>
-                {label}
-            </button>
-        );
-    }
-
     return (
         <>
-            <header className="h-16 shrink-0 border-b flex items-center px-8"></header>
+            <header className="h-16 shrink-0 border-b flex items-center px-8">
+                <div>
+                    <h1 className="font-heading text-base font-semibold leading-none">Assessment</h1>
+                    <p className="text-xs text-muted-foreground mt-1">Live Comprehensive Ranking System score</p>
+                </div>
+            </header>
 
-                <main className="flex-1 p-8 grid grid-cols-[1fr_360px] gap-8">
-                    {/* Form */}
-                    <div className="space-y-6 max-w-lg">
-                        <Field label="Age">
-                            <input type="number" value={profile.age} min={17} max={45}
-                                onChange={(e) => set("age", Number(e.target.value))}
-                                className="input" />
-                        </Field>
+            <main className="flex-1 p-8 grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
+                {/* Form */}
+                <div className="space-y-6 max-w-lg">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                        Fill in your profile below — the score on the right recalculates as you type.
+                        Every point comes from IRCC&apos;s published CRS tables, never an AI estimate, and
+                        you&apos;re only compared against Express Entry draws you&apos;d actually qualify for.
+                    </p>
 
-                        <Field label="Education">
-                            <select value={profile.education}
-                                onChange={(e) => set("education", e.target.value as EducationLevel)}
-                                className="input">
-                                {EDUCATION_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                            </select>
-                        </Field>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>1. Personal & education</CardTitle>
+                            <CardDescription>
+                                Age and education are scored on their own, then again together with
+                                language under skill transferability.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs text-muted-foreground font-normal">Age</Label>
+                                    <NumberField value={profile.age} min={17} max={45}
+                                        onChange={(v) => set("age", v)} />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs text-muted-foreground font-normal">
+                                        Canadian work (years)
+                                    </Label>
+                                    <NumberField value={profile.canadianWorkYears} min={0} max={5}
+                                        onChange={(v) => set("canadianWorkYears", v)} />
+                                </div>
+                            </div>
+                            <Hint>Age scores peak from 20–29 and drop to 0 past 45.</Hint>
 
-                        <Field label="Canadian work experience (years)">
-                            <input type="number" value={profile.canadianWorkYears} min={0} max={5}
-                                onChange={(e) => set("canadianWorkYears", Number(e.target.value))}
-                                className="input" />
-                        </Field>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs text-muted-foreground font-normal">Education</Label>
+                                <Select value={profile.education}
+                                    onValueChange={(v) => set("education", v as EducationLevel)}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {EDUCATION_OPTIONS.map((o) => (
+                                            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                        <div>
-                            <p className="text-xs uppercase tracking-wider text-[--color-ink-soft] mb-3">IELTS bands</p>
-                            <div className="grid grid-cols-4 gap-3">
-                                {(["reading", "writing", "listening", "speaking"] as const).map((skill) => (
-                                    <Field key={skill} label={skill[0].toUpperCase() + skill.slice(1)}>
-                                        <input type="number" step={0.5} min={0} max={9}
-                                            value={profile.firstLanguage[skill]}
-                                            onChange={(e) => setLang(skill, Number(e.target.value))}
-                                            className="input" />
-                                    </Field>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>2. Spouse or common-law partner</CardTitle>
+                            <CardDescription>
+                                Only if they&apos;re immigrating with you — this swaps in IRCC&apos;s reduced
+                                core-factor scale and adds a separate points group for their profile.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between rounded-lg border p-3">
+                                <div>
+                                    <Label htmlFor="spouse" className="text-sm font-normal">Married / common-law, coming with you</Label>
+                                    <p className="text-xs text-muted-foreground/80 mt-0.5">
+                                        Leave off if you&apos;re single, or if your spouse isn&apos;t immigrating with you.
+                                    </p>
+                                </div>
+                                <Switch id="spouse"
+                                    checked={profile.spouseAccompanying ?? false}
+                                    onCheckedChange={(checked) =>
+                                        setProfile((p) => ({
+                                            ...p,
+                                            spouseAccompanying: checked,
+                                            spouseEducation: checked ? (p.spouseEducation ?? "none") : undefined,
+                                            spouseLanguage: checked
+                                                ? (p.spouseLanguage ?? defaultLanguageResult("IELTS", ruleset))
+                                                : undefined,
+                                            spouseCanadianWorkYears: checked ? (p.spouseCanadianWorkYears ?? 0) : undefined,
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            {profile.spouseAccompanying && (
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs text-muted-foreground font-normal">Spouse&apos;s education</Label>
+                                        <Select value={profile.spouseEducation ?? "none"}
+                                            onValueChange={(v) => set("spouseEducation", v as EducationLevel)}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {EDUCATION_OPTIONS.map((o) => (
+                                                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs text-muted-foreground font-normal">
+                                            Spouse&apos;s Canadian work experience (years)
+                                        </Label>
+                                        <NumberField value={profile.spouseCanadianWorkYears ?? 0} min={0} max={5}
+                                            onChange={(v) => set("spouseCanadianWorkYears", v)} />
+                                    </div>
+
+                                    <div>
+                                        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                                            Spouse&apos;s language test
+                                        </p>
+                                        {profile.spouseLanguage && (
+                                            <LanguageTestFields
+                                                value={profile.spouseLanguage}
+                                                onChange={(v) => set("spouseLanguage", v)}
+                                                ruleset={ruleset}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>3. Language</CardTitle>
+                            <CardDescription>
+                                Each skill converts to a CLB level on its own — IRCC never averages
+                                reading, writing, listening, and speaking together.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-5">
+                            <div>
+                                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                                    First official language
+                                </p>
+                                <LanguageTestFields
+                                    value={profile.firstLanguage}
+                                    onChange={(v) => set("firstLanguage", v)}
+                                    ruleset={ruleset}
+                                />
+                            </div>
+
+                            <Separator />
+
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                                        Second official language
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            set(
+                                                "secondLanguage",
+                                                profile.secondLanguage ? undefined : defaultLanguageResult("CELPIP", ruleset),
+                                            )
+                                        }
+                                        className="text-xs text-primary hover:underline"
+                                    >
+                                        {profile.secondLanguage ? "Remove" : "+ Add"}
+                                    </button>
+                                </div>
+                                <Hint>
+                                    Optional — most applicants don&apos;t have a second test. Worth up to 24
+                                    points, plus a bonus (25–50 points) if you test strong in French (NCLC 7+).
+                                </Hint>
+                                {profile.secondLanguage && (
+                                    <LanguageTestFields
+                                        value={profile.secondLanguage}
+                                        onChange={(v) => set("secondLanguage", v)}
+                                        ruleset={ruleset}
+                                    />
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>4. Additional factors</CardTitle>
+                            <CardDescription>Situational bonuses — leave anything that doesn&apos;t apply at zero.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs text-muted-foreground font-normal">
+                                    Foreign skilled work (years)
+                                </Label>
+                                <NumberField value={profile.foreignWorkYears ?? 0} min={0} max={10}
+                                    onChange={(v) => set("foreignWorkYears", v)} />
+                            </div>
+
+                            <div className="rounded-lg border p-3 space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="cdn-credential" className="text-sm font-normal">
+                                        Earned a Canadian degree, diploma, or certificate?
+                                    </Label>
+                                    <Switch id="cdn-credential"
+                                        checked={Boolean(profile.canadianCredential)}
+                                        onCheckedChange={(checked) =>
+                                            set("canadianCredential", checked ? "oneOrTwoYears" : undefined)
+                                        }
+                                    />
+                                </div>
+                                <Hint>
+                                    To answer yes: ESL/FSL wasn&apos;t more than half your study, no
+                                    obligation to return home to apply your skills, studied at a school
+                                    within Canada (foreign campuses don&apos;t count), and you were enrolled
+                                    full-time and physically in Canada for at least 8 months (unless the
+                                    program fell between March 2020 and August 2022).
+                                </Hint>
+                                {profile.canadianCredential && (
+                                    <Select value={profile.canadianCredential}
+                                        onValueChange={(v) => set("canadianCredential", v as "oneOrTwoYears" | "threeYearsPlus")}>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="oneOrTwoYears">1 or 2 year credential</SelectItem>
+                                            <SelectItem value="threeYearsPlus">3+ years, or Master&apos;s/professional/doctoral</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            </div>
+
+                            <div className="flex items-center justify-between rounded-lg border p-3">
+                                <div>
+                                    <Label htmlFor="pnp" className="text-sm font-normal">Provincial nomination</Label>
+                                    <p className="text-xs text-muted-foreground/80 mt-0.5">Worth 600 points on its own — effectively guarantees an invitation.</p>
+                                </div>
+                                <Switch id="pnp"
+                                    checked={profile.provincialNomination ?? false}
+                                    onCheckedChange={(v) => set("provincialNomination", v)} />
+                            </div>
+                            <div className="flex items-center justify-between rounded-lg border p-3">
+                                <div>
+                                    <Label htmlFor="sibling" className="text-sm font-normal">Sibling in Canada</Label>
+                                    <p className="text-xs text-muted-foreground/80 mt-0.5">A citizen or PR, 18+, living in Canada.</p>
+                                </div>
+                                <Switch id="sibling"
+                                    checked={profile.siblingInCanada ?? false}
+                                    onCheckedChange={(v) => set("siblingInCanada", v)} />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Live score */}
+                <div className="space-y-6 h-fit sticky top-8">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Your CRS score</CardTitle>
+                            <CardDescription>Recalculates live as you edit the form.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="font-mono text-5xl font-bold text-foreground">{score.total}</p>
+                            <div className="space-y-3 border-t mt-5 pt-4">
+                                {score.factors.map((f) => (
+                                    <div key={f.factor} className="flex justify-between text-sm">
+                                        <span className="text-muted-foreground">{f.factor}</span>
+                                        <span className="font-mono text-foreground">{f.points}<span className="text-muted-foreground"> / {f.max}</span></span>
+                                    </div>
                                 ))}
                             </div>
-                        </div>
-                        <div className="border-t pt-6 space-y-4">
-                            <p className="text-xs uppercase tracking-wider text-[--color-ink-soft]">
-                                Additional factors
-                            </p>
+                        </CardContent>
+                    </Card>
 
-                            <Field label="Foreign skilled work (years)">
-                                <input type="number" min={0} max={10}
-                                    value={profile.foreignWorkYears ?? 0}
-                                    onChange={(e) => set("foreignWorkYears", Number(e.target.value))}
-                                    className="input" />
-                            </Field>
-
-                            <Field label="Canadian study (years)">
-                                <input type="number" min={0} max={5}
-                                    value={profile.canadianStudyYears ?? 0}
-                                    onChange={(e) => set("canadianStudyYears", Number(e.target.value))}
-                                    className="input" />
-                            </Field>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <Toggle label="Provincial nomination"
-                                    checked={profile.provincialNomination ?? false}
-                                    onChange={(v) => set("provincialNomination", v)} />
-                                <Toggle label="Sibling in Canada"
-                                    checked={profile.siblingInCanada ?? false}
-                                    onChange={(v) => set("siblingInCanada", v)} />
-                                <Toggle label="Strong French (CLB 7+)"
-                                    checked={profile.frenchClb7Plus ?? false}
-                                    onChange={(v) => set("frenchClb7Plus", v)} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Live score */}
-                    <div className="bg-[--color-hull] border rounded-xl p-6 h-fit sticky top-8">
-                        <p className="text-xs uppercase tracking-wider text-[--color-ink-soft]">CRS score</p>
-                        <p className="font-[family-name:--font-mono] text-5xl font-bold mt-2 mb-6">{score.total}</p>
-                        <div className="space-y-3 border-t pt-4">
-                            {score.factors.map((f) => (
-                                <div key={f.factor} className="flex justify-between text-sm">
-                                    <span className="text-[--color-ink-soft]">{f.factor}</span>
-                                    <span className="font-[family-name:--font-mono]">{f.points}<span className="text-[--color-ink-soft]"> / {f.max}</span></span>
-                                </div>
-                            ))}
-                        </div>
-                        {/* Draw standing — gated */}
-                        <div className="border-t mt-5 pt-4">
-                            <p className="text-xs uppercase tracking-wider text-[--color-ink-soft] mb-3">
-                                Draw standing
-                            </p>
-
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Draw standing</CardTitle>
+                            <CardDescription>
+                                Only benchmarked against categories you&apos;re actually eligible for —
+                                never a bogus comparison against a draw you couldn&apos;t stand in.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
                             {gate.benchmarks.length === 0 ? (
-                                <p className="text-sm text-[--color-ink-soft] leading-relaxed">
+                                <p className="text-sm text-muted-foreground leading-relaxed">
                                     {gate.honestSummary}
                                 </p>
                             ) : (
@@ -158,17 +353,19 @@ export default function Home() {
                                         <div key={b.category} className="flex items-center justify-between text-sm">
                                             <span className="capitalize">{b.category}</span>
                                             <span className="flex items-center gap-2">
-                                                <span className="font-[family-name:--font-mono] text-[--color-ink-soft]">
+                                                <span className="font-mono text-muted-foreground">
                                                     {b.cutoff}
                                                 </span>
-                                                <span
-                                                    className={`font-[family-name:--font-mono] text-xs px-1.5 py-0.5 rounded ${b.standing === "above"
-                                                        ? "text-[--color-clear] bg-[color-mix(in_srgb,var(--color-clear)_15%,transparent)]"
-                                                        : "text-[--color-block] bg-[color-mix(in_srgb,var(--color-block)_15%,transparent)]"
-                                                        }`}
+                                                <Badge
+                                                    variant={b.standing === "above" ? "outline" : "destructive"}
+                                                    className={
+                                                        b.standing === "above"
+                                                            ? "font-mono border-clear/30 bg-clear/10 text-clear"
+                                                            : "font-mono"
+                                                    }
                                                 >
                                                     {b.gap >= 0 ? `+${b.gap}` : b.gap}
-                                                </span>
+                                                </Badge>
                                             </span>
                                         </div>
                                     ))}
@@ -177,12 +374,12 @@ export default function Home() {
 
                             {gate.excluded.length > 0 && (
                                 <details className="mt-4">
-                                    <summary className="text-xs text-[--color-ink-soft] cursor-pointer hover:text-[--color-ink]">
+                                    <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
                                         Not eligible for {gate.excluded.length} categories
                                     </summary>
                                     <div className="mt-2 space-y-1.5">
                                         {gate.excluded.map((e) => (
-                                            <div key={e.category} className="text-xs text-[--color-ink-soft] flex justify-between gap-3">
+                                            <div key={e.category} className="text-xs text-muted-foreground flex justify-between gap-3">
                                                 <span className="capitalize">{e.category}</span>
                                                 <span className="text-right opacity-70">{e.reason}</span>
                                             </div>
@@ -190,18 +387,10 @@ export default function Home() {
                                     </div>
                                 </details>
                             )}
-                        </div>
-                    </div>
-               </main>
+                        </CardContent>
+                    </Card>
+                </div>
+           </main>
         </>
-    );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-        <label className="block">
-            <span className="block text-sm text-[--color-ink-soft] mb-1.5">{label}</span>
-            {children}
-        </label>
     );
 }

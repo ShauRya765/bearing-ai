@@ -32,3 +32,20 @@ test("no eligible category yields an honest 'no comparison' summary, not a fake 
   assert.equal(result.benchmarks.length, 0);
   assert.match(result.honestSummary, /isn't eligible/);
 });
+
+test("a candidate without a qualifying French test is NOT benchmarked against the french draw", () => {
+  const result = runGate(techProfile, 484, rs, []);
+  const french = result.benchmarks.find((b) => b.category === "french");
+  assert.equal(french, undefined);
+});
+
+test("a candidate with strong French (TEF at NCLC 7+) IS benchmarked against the french draw", () => {
+  const frenchProfile: CrsProfile = {
+    ...techProfile,
+    secondLanguage: { test: "TEF", reading: 207, writing: 310, listening: 249, speaking: 310 },
+  };
+  const result = runGate(frenchProfile, 400, rs, []);
+  const french = result.benchmarks.find((b) => b.category === "french");
+  assert.ok(french);
+  assert.equal(french.cutoff, 393);
+});

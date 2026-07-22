@@ -19,6 +19,7 @@ export interface Ruleset {
     verified: boolean;
     language: Partial<Record<LanguageTest, LanguageThreshold[]>>;
     crs: CrsCoreTables;
+    spouseFactors: SpouseFactorsTable;
     transferability: TransferabilityTable;
     additional: AdditionalPointsTable;
     recentDraws: DrawRecord[];
@@ -37,14 +38,42 @@ export type EducationLevel =
 
 export interface CrsCoreTables {
     ageSingle: Record<number, number>;
+    ageWithSpouse: Record<number, number>;
     education: Record<EducationLevel, number>;
+    educationWithSpouse: Record<EducationLevel, number>;
     firstLanguagePerAbility: Partial<Record<CLB, number>>;
+    firstLanguagePerAbilityWithSpouse: Partial<Record<CLB, number>>;
+    secondLanguagePerAbility: Partial<Record<CLB, number>>;
+    secondLanguageCap: number;
     canadianExperienceSingle: Record<number, number>;
+    canadianExperienceWithSpouse: Record<number, number>;
+}
+
+/** Points for an accompanying spouse or common-law partner's own profile. Capped as a group. */
+export interface SpouseFactorsTable {
+    education: Record<EducationLevel, number>;
+    languagePerAbility: Partial<Record<CLB, number>>;
+    canadianExperience: Record<number, number>;
+    cap: number;
+}
+
+// IRCC's education-transferability tables have two tiers: a single
+// post-secondary credential vs. two-or-more credentials (one 3+ years) or a
+// Master's/professional/doctoral degree. The tier changes the payout, not
+// just the cap.
+export interface EducationTransferTier {
+    oneCredential: { clb9: number; clb7: number };
+    twoOrMoreOrAdvanced: { clb9: number; clb7: number };
+}
+
+export interface EducationWorkTransferTier {
+    oneCredential: { years2plus: number; years1: number };
+    twoOrMoreOrAdvanced: { years2plus: number; years1: number };
 }
 
 export interface TransferabilityTable {
-    educationWithLanguage: { clb9: number; clb7: number };
-    educationWithCanadianWork: { years2plus: number; years1: number };
+    educationWithLanguage: EducationTransferTier;
+    educationWithCanadianWork: EducationWorkTransferTier;
     foreignWithLanguage: {
         years3plus: { clb9: number; clb7: number };
         years1to2: { clb9: number; clb7: number };

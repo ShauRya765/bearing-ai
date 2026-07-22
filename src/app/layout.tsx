@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Space_Grotesk, Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Shell from "@/components/Shell";
 
@@ -14,6 +14,11 @@ const body = Inter({
   variable: "--font-body",
 });
 
+const mono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
+
 export const metadata: Metadata = {
   title: "Bearing",
   description: "Precise Canadian immigration casework for consultants.",
@@ -26,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+      <body className={`${display.variable} ${body.variable} ${mono.variable}`} suppressHydrationWarning>
           <Shell>{children}</Shell>
       </body>
     </html>

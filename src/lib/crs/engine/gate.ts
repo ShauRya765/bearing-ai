@@ -1,6 +1,5 @@
 import type { Ruleset, DrawCategory, DrawRecord } from "@/lib/crs/ruleset/types";
-import type { CrsProfile } from "@/lib/crs/engine/crs-core";
-import { toCLB } from "@/lib/crs/engine/clb";
+import { hasStrongFrench, type CrsProfile } from "@/lib/crs/engine/crs-core";
 
 // A NOC's TEER + category tags. In production this comes from the NOC
 // dataset; here the caller supplies the candidate's category memberships
@@ -35,7 +34,6 @@ function determineEligibility(
   ruleset: Ruleset,
   occupationCategories: DrawCategory[],
 ): CategoryEligibility[] {
-  const clb = toCLB(profile.firstLanguage, ruleset);
   const out: CategoryEligibility[] = [];
 
   out.push({
@@ -55,11 +53,12 @@ function determineEligibility(
       : "No provincial nomination.",
   });
 
+  const strongFrench = hasStrongFrench(profile, ruleset);
   out.push({
     category: "french",
-    eligible: Boolean(profile.frenchClb7Plus),
-    reason: profile.frenchClb7Plus
-      ? "Strong French (CLB 7+)."
+    eligible: strongFrench,
+    reason: strongFrench
+      ? "Strong French (CLB 7+ on a TEF/TCF result)."
       : "No qualifying French.",
   });
 
