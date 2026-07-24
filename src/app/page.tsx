@@ -6,6 +6,7 @@ import { ruleset_2026_06 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-06";
 import type { EducationLevel } from "@/lib/crs/ruleset/types";
 import { runGate } from "@/lib/crs/engine/gate";
 import { LanguageTestFields, defaultLanguageResult } from "@/components/LanguageTestFields";
+import { ImprovementSuggestions } from "@/components/ImprovementSuggestions";
 import { NumberField } from "@/components/NumberField";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -333,6 +334,8 @@ export default function Home() {
                             </div>
                         </CardContent>
                     </Card>
+
+                    <ImprovementSuggestions profile={profile} ruleset={ruleset} />
 
                     <Card>
                         <CardHeader>

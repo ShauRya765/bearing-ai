@@ -11,6 +11,11 @@
   /* Bespoke accent with no shadcn equivalent: eligible / above cutoff */
   --color-clear: #16a34a;
 
+  /* Refusal / out-of-corpus state — a calm slate, distinct from amber
+     (normal), green (verified) and red (a real error). Signals "I can't
+     answer that from the rules" without alarm. */
+  --color-refuse: #64748b;
+
   --animate-spotlight: spotlight 2s ease 0.15s 1 forwards;
 }
 

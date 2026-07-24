@@ -8,6 +8,7 @@ import { Spotlight } from "@/components/Spotlight";
 const NAV = [
   { label: "Assessment", href: "/" },
   { label: "Rules", href: "/rules" },
+  { label: "How it works", href: "/how-it-works" },
 ];
 
 export default function Shell({ children }: { children: React.ReactNode }) {

@@ -4,11 +4,7 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { HoverBorderGradient } from "@/components/HoverBorderGradient";
-
-interface Citation {
-    sourceTitle: string;
-    sourceUrl: string;
-}
+import { AnswerMarkdown, type Citation } from "@/components/AnswerMarkdown";
 
 interface RagAnswer {
     answer: string;
@@ -116,7 +112,11 @@ export default function RulesPage() {
                     <div className="space-y-6">
                         <Card>
                             <CardContent>
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{result.answer}</p>
+                                <AnswerMarkdown
+                                    text={result.answer}
+                                    citations={result.citations}
+                                    streaming={loading}
+                                />
                             </CardContent>
                         </Card>
 

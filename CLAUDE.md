@@ -13,7 +13,7 @@ AI immigration assessment for Canadian PR applicants (end users first; RCICs lat
 
 ## Stack facts
 - Node 22 via nvm (.nvmrc). Embeddings: gemini-embedding-001, 768 dims, RETRIEVAL_DOCUMENT for ingest / RETRIEVAL_QUERY for queries — must match or vectors don't compare.
-- Generation: gemini-flash-latest, streaming. Free tier = no commercial use (launch blocker).
+- Generation: gemini-2.5-flash (pinned, not the -latest alias, for predictable cost/behaviour), streaming, maxOutputTokens capped in src/lib/rag/retrieve.ts. Free tier = no commercial use (launch blocker).
 - pgvector: NO index at current scale (ivfflat dropped rows — real bug we hit). Add hnsw only past ~thousands of chunks, then re-verify completeness.
 - service_role key is server-only. Client goes through API routes.
 - Keys in .env.local: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY.
