@@ -8,15 +8,30 @@ const supabase = createClient(
 );
 const genAI = new GoogleGenAI({ apiKey: serverEnv.geminiApiKey });
 
-// Pinned model ids — NOT the "-latest" alias — so cost and behaviour stay
-// predictable and don't shift under us when Google rolls the alias forward.
-// Bump these deliberately (and re-ingest if the embedding model changes).
+// Model ids. Embedding is pinned (must match ingestion, or vectors don't
+// compare). Generation defaults to the "-latest" alias because a specific
+// pinned id (e.g. gemini-2.5-flash) is gated to existing API projects and 404s
+// for newer keys — pin via GEMINI_GENERATION_MODEL only to an id your key can
+// actually call (list them with the models.list endpoint first).
 const EMBEDDING_MODEL = "gemini-embedding-001";
-const GENERATION_MODEL = "gemini-2.5-flash";
+const GENERATION_MODEL =
+  process.env.GEMINI_GENERATION_MODEL ?? "gemini-3.6-flash";
 
 // Cap generation length. Answers are short grounded explanations; this bounds
 // worst-case output cost (output is ~8x the input rate) and stops runaways.
-const MAX_OUTPUT_TOKENS = 1024;
+//
+// gemini-flash-latest is a Gemini 2.5+ thinking model: reasoning tokens count
+// against maxOutputTokens. At 1024 a multi-section answer burned the budget
+// thinking and truncated mid-sentence (finishReason MAX_TOKENS) with no error.
+// We can't reliably disable thinking here — passing thinkingConfig
+// { thinkingBudget: 0 } makes the "-latest" alias's current model 400 with
+// INVALID_ARGUMENT — so instead give a budget generous enough that thinking
+// AND the full visible answer both fit. 4096 is still a hard cost ceiling.
+const MAX_OUTPUT_TOKENS = 4096;
+
+const GENERATION_CONFIG = {
+  maxOutputTokens: MAX_OUTPUT_TOKENS,
+} as const;
 
 export interface Citation {
   sourceTitle: string;
@@ -99,7 +114,7 @@ export async function askRules(question: string): Promise<RagAnswer> {
   const response = await genAI.models.generateContent({
     model: GENERATION_MODEL,
     contents: buildPrompt(chunks, question),
-    config: { maxOutputTokens: MAX_OUTPUT_TOKENS },
+    config: GENERATION_CONFIG,
   });
 
   return {
@@ -127,7 +142,7 @@ export async function askRulesStream(question: string) {
   const response = await genAI.models.generateContentStream({
     model: GENERATION_MODEL,
     contents: buildPrompt(chunks, question),
-    config: { maxOutputTokens: MAX_OUTPUT_TOKENS },
+    config: GENERATION_CONFIG,
   });
 
   const stream = (async function* () {

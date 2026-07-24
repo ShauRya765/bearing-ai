@@ -13,7 +13,7 @@ AI immigration assessment for Canadian PR applicants (end users first; RCICs lat
 
 ## Stack facts
 - Node 22 via nvm (.nvmrc). Embeddings: gemini-embedding-001, 768 dims, RETRIEVAL_DOCUMENT for ingest / RETRIEVAL_QUERY for queries — must match or vectors don't compare.
-- Generation: gemini-2.5-flash (pinned, not the -latest alias, for predictable cost/behaviour), streaming, maxOutputTokens capped in src/lib/rag/retrieve.ts. Free tier = no commercial use (launch blocker).
+- Generation: gemini-flash-latest by default (override with GEMINI_GENERATION_MODEL — but a specific pinned id like gemini-2.5-flash 404s for newer API keys; only pin to an id your key can call), streaming, maxOutputTokens capped in src/lib/rag/retrieve.ts. Free tier = no commercial use (launch blocker).
 - pgvector: NO index at current scale (ivfflat dropped rows — real bug we hit). Add hnsw only past ~thousands of chunks, then re-verify completeness.
 - service_role key is server-only. Client goes through API routes.
 - Keys in .env.local: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY.
@@ -33,3 +33,4 @@ AI immigration assessment for Canadian PR applicants (end users first; RCICs lat
 - Just added: CELPIP/PTE/TEF/TCF tables (UNVERIFIED), second-official-language points, derived French bonus (frenchClb7Plus toggle removed), per-test language form UI (test picker + per-skill ranges), a full light-theme/shadcn/Aceternity redesign, and the spouse/common-law-partner factor (with-spouse core tables + separate capped "Spouse factors" group — engine + tests only, no form UI yet). Cross-checked several tables against IRCC's own "Check your score" worked example (canada.ca, accessed 2026-07-16) — this caught and fixed a real bug: education-transferability was missing the "two or more credentials / advanced degree" tier and was underscoring Master's/doctoral/two-or-more-credential holders (13/25 instead of the correct 25/50). See crs-core.test.ts's worked-example test for the source numbers.
 - Next: spouse fields in the form UI; gap levers (counterfactual re-runs of the engine, one variable perturbed — exact deltas, never LLM-estimated).
 - Later: OKF corpus expansion, persistence, rate limiting on /api/ask, paid Gemini before launch.
+- Deferred (cost, only if /api/ask hits thousands/day): exact-match answer cache keyed on (normalized question + corpus version), TTL'd, busted on ingest — NOT semantic caching. At current scale ~$0.002/question, so not worth the staleness risk yet.
