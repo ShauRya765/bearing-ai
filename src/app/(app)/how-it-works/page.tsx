@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { HoverBorderGradient } from "@/components/HoverBorderGradient";
 import { AnswerMarkdown, type Citation } from "@/components/AnswerMarkdown";
+import { TrackView, track } from "@/components/TrackView";
 
 function hostname(url: string): string {
     try {
@@ -45,6 +46,7 @@ export default function HowItWorksPage() {
         setAnswer("");
         setCitations([]);
         setRefused(false);
+        track("question_asked");
         try {
             const res = await fetch("/api/ask", {
                 method: "POST",
@@ -88,6 +90,7 @@ export default function HowItWorksPage() {
 
     return (
         <>
+            <TrackView name="how_it_works_view" />
             <header className="h-16 shrink-0 border-b flex items-center px-8">
                 <div>
                     <h1 className="font-heading text-base font-semibold leading-none">How it works</h1>

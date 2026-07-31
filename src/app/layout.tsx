@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Shell from "@/components/Shell";
 
 const display = Space_Grotesk({
   subsets: ["latin"],
@@ -20,8 +19,12 @@ const mono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bearing",
-  description: "Precise Canadian immigration casework for consultants.",
+  title: {
+    default: "TrueBearing — Know where you actually stand",
+    template: "%s — TrueBearing",
+  },
+  description:
+    "A Canadian Express Entry CRS calculator that computes every point from IRCC's published tables, cites its sources, and never benchmarks you against a draw you aren't eligible for.",
 };
 
 export default function RootLayout({
@@ -32,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${display.variable} ${body.variable} ${mono.variable}`} suppressHydrationWarning>
-          <Shell>{children}</Shell>
+          {children}
       </body>
     </html>
   );

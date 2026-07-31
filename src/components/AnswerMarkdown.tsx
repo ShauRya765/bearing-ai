@@ -17,7 +17,16 @@ function labelClass(inner: string): string {
 
 // Turn inline [n] markers into real links to the matching source. Anything
 // without a matching citation (or not yet streamed in) stays plain text.
-function renderPlain(text: string, citations: Citation[]): ReactNode[] {
+//
+// `scope` namespaces the generated keys. renderInline calls this once per
+// segment between bold spans and spreads every result into ONE array, so a
+// counter local to this function would restart at 0 for each segment and
+// collide the moment two segments both contain a citation.
+function renderPlain(
+    text: string,
+    citations: Citation[],
+    scope: string,
+): ReactNode[] {
     const parts: ReactNode[] = [];
     const re = /\[(\d+)\]/g;
     let last = 0;
@@ -30,7 +39,7 @@ function renderPlain(text: string, citations: Citation[]): ReactNode[] {
         if (cite) {
             parts.push(
                 <a
-                    key={`c${key++}`}
+                    key={`${scope}c${key++}`}
                     href={cite.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -55,17 +64,24 @@ function renderInline(text: string, citations: Citation[]): ReactNode[] {
     const boldRe = /\*\*([^*]+?)\*\*/g;
     let last = 0;
     let m: RegExpExecArray | null;
-    let key = 0;
+    // One counter for every child pushed into `nodes`, bold or plain, so each
+    // segment gets a distinct key namespace.
+    let seg = 0;
     while ((m = boldRe.exec(text))) {
-        if (last < m.index) nodes.push(...renderPlain(text.slice(last, m.index), citations));
+        if (last < m.index) {
+            nodes.push(...renderPlain(text.slice(last, m.index), citations, `s${seg++}-`));
+        }
+        const boldScope = `s${seg++}-`;
         nodes.push(
-            <strong key={`b${key++}`} className={labelClass(m[1])}>
-                {renderPlain(m[1], citations)}
+            <strong key={`${boldScope}b`} className={labelClass(m[1])}>
+                {renderPlain(m[1], citations, `${boldScope}i`)}
             </strong>,
         );
         last = boldRe.lastIndex;
     }
-    if (last < text.length) nodes.push(...renderPlain(text.slice(last), citations));
+    if (last < text.length) {
+        nodes.push(...renderPlain(text.slice(last), citations, `s${seg++}-`));
+    }
     return nodes;
 }
 

@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ruleset_2026_06 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-06";
+import { ruleset_2026_07 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-07";
 import { Spotlight } from "@/components/Spotlight";
 
 const NAV = [
-  { label: "Assessment", href: "/" },
+  { label: "Assessment", href: "/assessment" },
   { label: "Rules", href: "/rules" },
   { label: "How it works", href: "/how-it-works" },
 ];
@@ -17,12 +17,15 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background">
       <aside className="w-60 shrink-0 bg-sidebar border-r flex flex-col">
-        <div className="px-5 h-16 flex items-center border-b">
+        <Link
+          href="/"
+          className="px-5 h-16 flex items-center border-b hover:bg-muted/40 transition-colors"
+        >
           <span className="font-heading text-lg font-bold tracking-tight text-foreground">
-            Bearing
+            TrueBearing
           </span>
           <span className="ml-1 text-primary font-heading font-bold">.</span>
-        </div>
+        </Link>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {NAV.map((item) => {
             const active = pathname === item.href;

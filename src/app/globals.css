@@ -8,8 +8,9 @@
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 
-  /* Bespoke accent with no shadcn equivalent: eligible / above cutoff */
-  --color-clear: #16a34a;
+  /* Bespoke accent with no shadcn equivalent: eligible / above cutoff.
+     Brightened for legibility on the near-black dark surface. */
+  --color-clear: #22c55e;
 
   /* Refusal / out-of-corpus state — a calm slate, distinct from amber
      (normal), green (verified) and red (a real error). Signals "I can't
@@ -92,35 +93,38 @@ body {
 }
 
 :root {
-  /* Warm off-white base, near-black ink, amber signal accent — light theme */
-  --background: #fafaf9;
-  --foreground: #18181b;
-  --card: #ffffff;
-  --card-foreground: #18181b;
-  --popover: #ffffff;
-  --popover-foreground: #18181b;
-  --primary: #d97706;
-  --primary-foreground: #1c1400;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #fef3c7;
-  --accent-foreground: #78350f;
-  --destructive: #dc2626;
+  color-scheme: dark;
+  /* Deep neutral near-black base, near-white ink, amber signal accent used
+     sparingly — dark theme inspired by Genius (Diagram): monochrome layered
+     surfaces, hairline borders, one restrained accent. */
+  --background: #0b0b0d;
+  --foreground: #ececee;
+  --card: #141416;
+  --card-foreground: #ececee;
+  --popover: #161618;
+  --popover-foreground: #ececee;
+  --primary: #f59e0b;
+  --primary-foreground: #1a1200;
+  --secondary: #1b1b1f;
+  --secondary-foreground: #ececee;
+  --muted: #1c1c20;
+  --muted-foreground: #8b8b93;
+  --accent: #1f1f24;
+  --accent-foreground: #ececee;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #d97706;
+  --border: #26262b;
+  --input: #26262b;
+  --ring: #f59e0b;
   --radius: 0.75rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #18181b;
-  --sidebar-primary: #d97706;
-  --sidebar-primary-foreground: #1c1400;
-  --sidebar-accent: #fef3c7;
-  --sidebar-accent-foreground: #78350f;
-  --sidebar-border: #e4e4e7;
-  --sidebar-ring: #d97706;
+  --sidebar: #0e0e10;
+  --sidebar-foreground: #ececee;
+  --sidebar-primary: #f59e0b;
+  --sidebar-primary-foreground: #1a1200;
+  --sidebar-accent: #1f1f24;
+  --sidebar-accent-foreground: #ececee;
+  --sidebar-border: #26262b;
+  --sidebar-ring: #f59e0b;
 }
 
 @layer base {

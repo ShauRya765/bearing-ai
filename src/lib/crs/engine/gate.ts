@@ -64,6 +64,7 @@ function determineEligibility(
 
   const occupational: DrawCategory[] = [
     "healthcare", "stem", "trades", "transport", "agriculture", "education",
+    "militaryRecruits",
   ];
   for (const cat of occupational) {
     const eligible = occupationCategories.includes(cat);
@@ -73,6 +74,27 @@ function determineEligibility(
       reason: eligible
         ? `NOC qualifies for the ${cat} category.`
         : `NOC is not in the ${cat} category.`,
+    });
+  }
+
+  // IRCC's 2026 physician and senior-manager categories are occupation-gated
+  // AND require Canadian work experience, so both conditions must hold. Two
+  // gates rather than one is deliberate: an occupation flag alone would let a
+  // physician with no Canadian experience be benchmarked against a draw they
+  // cannot be invited from, which is exactly the failure this module exists
+  // to prevent.
+  const withCanadianExperience: DrawCategory[] = ["physicians", "seniorManagers"];
+  for (const cat of withCanadianExperience) {
+    const rightOccupation = occupationCategories.includes(cat);
+    const hasCanadianWork = profile.canadianWorkYears >= 1;
+    out.push({
+      category: cat,
+      eligible: rightOccupation && hasCanadianWork,
+      reason: !rightOccupation
+        ? `NOC is not in the ${cat} category.`
+        : hasCanadianWork
+          ? `NOC qualifies for the ${cat} category, with 1+ year Canadian work.`
+          : `NOC qualifies for the ${cat} category, but it also requires 1+ year Canadian work.`,
     });
   }
 

@@ -104,7 +104,13 @@ export type DrawCategory =
   | "transport"
   | "agriculture"
   | "education"
-  | "french";
+  | "french"
+  // Categories IRCC introduced during 2026. Each has only ever drawn under a
+  // "2026-Version 1" instruction, so treat their cutoffs as thin evidence.
+  | "physicians"
+  | "seniorManagers"
+  | "militaryRecruits"
+  | "researchers";
 
 export interface DrawRecord {
   category: DrawCategory;
