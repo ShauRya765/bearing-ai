@@ -169,7 +169,7 @@ function scoreAdditional(profile: CrsProfile, ruleset: Ruleset): number {
             : a.frenchStrong.withoutEnglish;
     }
 
-    return points;
+    return Math.min(points, a.cap);
 }
 
 export function scoreCore(profile: CrsProfile, ruleset: Ruleset): CrsScore {
@@ -183,6 +183,7 @@ export function scoreCore(profile: CrsProfile, ruleset: Ruleset): CrsScore {
     const educationTable = withSpouse ? t.educationWithSpouse : t.education;
     const languageTable = withSpouse ? t.firstLanguagePerAbilityWithSpouse : t.firstLanguagePerAbility;
     const experienceTable = withSpouse ? t.canadianExperienceWithSpouse : t.canadianExperienceSingle;
+    const secondLanguageCap = withSpouse ? t.secondLanguageCapWithSpouse : t.secondLanguageCap;
     const ageMax = withSpouse ? 100 : 110;
     const educationMax = withSpouse ? 140 : 150;
     const languageMax = withSpouse ? 128 : 136;
@@ -204,7 +205,7 @@ export function scoreCore(profile: CrsProfile, ruleset: Ruleset): CrsScore {
             (sum, ability) => sum + (t.secondLanguagePerAbility[clb2[ability]] ?? 0),
             0,
         );
-        secondLanguagePoints = Math.min(rawSecondLanguagePoints, t.secondLanguageCap);
+        secondLanguagePoints = Math.min(rawSecondLanguagePoints, secondLanguageCap);
     }
 
     const years = Math.min(Math.max(profile.canadianWorkYears, 0), 5);
@@ -220,11 +221,11 @@ export function scoreCore(profile: CrsProfile, ruleset: Ruleset): CrsScore {
         { factor: "Age", points: agePoints, max: ageMax },
         { factor: "Education", points: educationPoints, max: educationMax },
         { factor: "First official language", points: languagePoints, max: languageMax },
-        { factor: "Second official language", points: secondLanguagePoints, max: 24 },
+        { factor: "Second official language", points: secondLanguagePoints, max: secondLanguageCap },
         { factor: "Canadian work experience", points: experiencePoints, max: experienceMax },
         { factor: "Spouse factors", points: spouseFactorPoints, max: ruleset.spouseFactors.cap },
         { factor: "Skill transferability", points: transferabilityPoints, max: 100 },
-        { factor: "Additional points", points: additionalPoints, max: 600 },
+        { factor: "Additional points", points: additionalPoints, max: ruleset.additional.cap },
     ];
 
 

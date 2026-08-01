@@ -5,12 +5,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { HoverBorderGradient } from "@/components/HoverBorderGradient";
 import { AnswerMarkdown, type Citation } from "@/components/AnswerMarkdown";
+import { AnswerFeedback } from "@/components/AnswerFeedback";
 import { TrackView, track } from "@/components/TrackView";
 
 interface RagAnswer {
     answer: string;
     citations: Citation[];
     chunksUsed: number;
+    /** Server-minted id for this exchange — what a rating is attached to. */
+    qaId: string | null;
 }
 
 // What one question cost. Retrieval is measured on the server and arrives with
@@ -51,7 +54,7 @@ export default function RulesPage() {
         if (!question.trim() || loading) return;
         setLoading(true);
         setError(null);
-        setResult({ answer: "", citations: [], chunksUsed: 0 });
+        setResult({ answer: "", citations: [], chunksUsed: 0, qaId: null });
         setTiming({ retrievalMs: null, firstTokenMs: null, totalMs: null });
 
         track("question_asked");
@@ -61,7 +64,7 @@ export default function RulesPage() {
             const res = await fetch("/api/ask", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question }),
+                body: JSON.stringify({ question, source: "rules" }),
             });
             if (!res.ok || !res.body) throw new Error("Request failed");
 
@@ -71,6 +74,7 @@ export default function RulesPage() {
             let metaParsed = false;
             let answer = "";
             let citations: Citation[] = [];
+            let qaId: string | null = null;
             let retrievalMs: number | null = null;
             let firstTokenMs: number | null = null;
 
@@ -85,6 +89,7 @@ export default function RulesPage() {
                     if (nl === -1) continue;
                     const meta = JSON.parse(buffer.slice(0, nl));
                     citations = meta.citations;
+                    qaId = meta.qaId ?? null;
                     if (meta.retrieval) {
                         retrievalMs = meta.retrieval.embedMs + meta.retrieval.searchMs;
                     }
@@ -98,7 +103,7 @@ export default function RulesPage() {
 
                 answer += buffer;
                 buffer = "";
-                setResult({ answer, citations, chunksUsed: citations.length });
+                setResult({ answer, citations, chunksUsed: citations.length, qaId });
                 setTiming({ retrievalMs, firstTokenMs, totalMs: null });
             }
 
@@ -182,6 +187,14 @@ export default function RulesPage() {
                                     citations={result.citations}
                                     streaming={loading}
                                 />
+
+                                {/* Only once the answer has finished — rating a
+                                    half-written answer isn't a judgement of it. */}
+                                {!loading && result.answer && (
+                                    <div className="mt-5 border-t pt-4">
+                                        <AnswerFeedback qaId={result.qaId} />
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
 

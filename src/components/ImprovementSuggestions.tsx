@@ -7,6 +7,7 @@ import { gapLevers, type Lever } from "@/lib/crs/engine/levers";
 import { Card, CardContent } from "@/components/ui/card";
 import { HoverBorderGradient } from "@/components/HoverBorderGradient";
 import { renderMarkdown, type Citation } from "@/components/AnswerMarkdown";
+import { AnswerFeedback } from "@/components/AnswerFeedback";
 import {
     Dialog,
     DialogPopup,
@@ -54,6 +55,11 @@ function LeverRow({ lever }: { lever: Lever }) {
                 <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
                     {lever.requirement}
                 </p>
+                {lever.cappedBy && (
+                    <p className="mt-1 text-xs leading-relaxed text-primary/80">
+                        {lever.cappedBy}
+                    </p>
+                )}
                 <a
                     href={lever.source.url}
                     target="_blank"
@@ -72,11 +78,18 @@ function Body({
     answer,
     citations,
     loading,
+    feedbackId = null,
 }: {
     levers: Lever[];
     answer: string;
     citations: Citation[];
     loading: boolean;
+    /**
+     * Id to rate this explanation by. Only the side panel passes one — the
+     * first-run dialog renders the same content, and two rating widgets over
+     * one answer would disagree with each other.
+     */
+    feedbackId?: string | null;
 }) {
     return (
         <div className="space-y-4">
@@ -126,6 +139,12 @@ function Body({
                         ))}
                     </div>
                 )}
+
+                {!loading && answer && feedbackId && (
+                    <div className="mt-4 border-t border-primary/20 pt-3">
+                        <AnswerFeedback qaId={feedbackId} />
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -145,6 +164,8 @@ export function ImprovementSuggestions({
     const [dialogOpen, setDialogOpen] = useState(false);
     const [seenPopup, setSeenPopup] = useState(false);
     const [started, setStarted] = useState(false);
+    // Server-minted id for the current explanation; what a rating attaches to.
+    const [qaId, setQaId] = useState<string | null>(null);
 
     // Recomputed from the live profile — instant, deterministic, always correct.
     const levers = useMemo(() => gapLevers(profile, ruleset), [profile, ruleset]);
@@ -159,11 +180,15 @@ export function ImprovementSuggestions({
         setError(null);
         setAnswer("");
         setCitations([]);
+        setQaId(null);
         try {
             const res = await fetch("/api/ask", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: buildQuestion(levers) }),
+                body: JSON.stringify({
+                    question: buildQuestion(levers),
+                    source: "suggestions",
+                }),
             });
             if (!res.ok || !res.body) throw new Error("Request failed");
 
@@ -181,7 +206,9 @@ export function ImprovementSuggestions({
                 if (!metaParsed) {
                     const nl = buffer.indexOf("\n");
                     if (nl === -1) continue;
-                    setCitations(JSON.parse(buffer.slice(0, nl)).citations);
+                    const meta = JSON.parse(buffer.slice(0, nl));
+                    setCitations(meta.citations);
+                    setQaId(meta.qaId ?? null);
                     buffer = buffer.slice(nl + 1);
                     metaParsed = true;
                 }
@@ -240,6 +267,7 @@ export function ImprovementSuggestions({
                             answer={answer}
                             citations={citations}
                             loading={loading}
+                            feedbackId={qaId}
                         />
                     )}
 

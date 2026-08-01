@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { HoverBorderGradient } from "@/components/HoverBorderGradient";
 import { AnswerMarkdown, type Citation } from "@/components/AnswerMarkdown";
+import { AnswerFeedback } from "@/components/AnswerFeedback";
+import { EvalMethod } from "@/components/EvalMethod";
 import { TrackView, track } from "@/components/TrackView";
 
 function hostname(url: string): string {
@@ -34,6 +36,8 @@ export default function HowItWorksPage() {
     const [answer, setAnswer] = useState("");
     const [citations, setCitations] = useState<Citation[]>([]);
     const [refused, setRefused] = useState(false);
+    // Server-minted id for the current exchange; what a rating attaches to.
+    const [qaId, setQaId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [asked, setAsked] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -46,12 +50,13 @@ export default function HowItWorksPage() {
         setAnswer("");
         setCitations([]);
         setRefused(false);
+        setQaId(null);
         track("question_asked");
         try {
             const res = await fetch("/api/ask", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: q }),
+                body: JSON.stringify({ question: q, source: "how_it_works" }),
             });
             if (!res.ok || !res.body) throw new Error("Request failed");
 
@@ -69,8 +74,10 @@ export default function HowItWorksPage() {
                 if (!metaParsed) {
                     const nl = buffer.indexOf("\n");
                     if (nl === -1) continue;
-                    const cites: Citation[] = JSON.parse(buffer.slice(0, nl)).citations;
+                    const meta = JSON.parse(buffer.slice(0, nl));
+                    const cites: Citation[] = meta.citations;
                     setCitations(cites);
+                    setQaId(meta.qaId ?? null);
                     // No sources retrieved = the question falls outside the
                     // rule corpus. That's the honest refusal, not an error.
                     setRefused(cites.length === 0);
@@ -291,11 +298,23 @@ export default function HowItWorksPage() {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* Rate it only once the answer is complete. */}
+                                    {!loading && answer && (
+                                        <div className="mt-4 border-t pt-3">
+                                            <AnswerFeedback qaId={qaId} />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
                     )}
                 </section>
+
+                {/* How we know retrieval is actually working — method, not a
+                    live run. Static content; it just happens to sit on a client
+                    page, so its question set rides along in the bundle. */}
+                <EvalMethod />
             </main>
         </>
     );

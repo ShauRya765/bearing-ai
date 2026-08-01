@@ -73,15 +73,15 @@ export const ruleset_2026_06: Ruleset = {
         // 110, Education 135, First Official Language 130. See
         // crs-core.test.ts "matches IRCC's published worked example".
         ageSingle: {
-            18: 90, 19: 95,
+            18: 99, 19: 105,
             20: 110, 21: 110, 22: 110, 23: 110, 24: 110, 25: 110, 26: 110, 27: 110, 28: 110, 29: 110,
             30: 105, 31: 99, 32: 94, 33: 88, 34: 83, 35: 77, 36: 72, 37: 66, 38: 61, 39: 55,
             40: 50, 41: 39, 42: 28, 43: 17, 44: 6,
         },
-        // VERIFY: "with a spouse or common-law partner" age table. Max 100
-        // (vs. 110 single) at 20-29, 0 past 44.
+        // Verified 2026-07-31 against IRCC's published age table (both
+        // columns). Max 100 (vs. 110 single) at 20-29, 0 past 44.
         ageWithSpouse: {
-            18: 82, 19: 91,
+            18: 90, 19: 95,
             20: 100, 21: 100, 22: 100, 23: 100, 24: 100, 25: 100, 26: 100, 27: 100, 28: 100, 29: 100,
             30: 95, 31: 90, 32: 85, 33: 80, 34: 75, 35: 70, 36: 65, 37: 60, 38: 55, 39: 50,
             40: 45, 41: 35, 42: 25, 43: 15, 44: 5,
@@ -111,7 +111,12 @@ export const ruleset_2026_06: Ruleset = {
         // VERIFY: "with a spouse or common-law partner" first-language table.
         firstLanguagePerAbilityWithSpouse: { 4: 6, 5: 6, 6: 8, 7: 16, 8: 22, 9: 29, 10: 32 },
         secondLanguagePerAbility: { 5: 1, 6: 1, 7: 3, 8: 3, 9: 6, 10: 6 },
+        // Per-ability values are the same either way (max 6), but IRCC caps
+        // the combined second-language total lower when a spouse or
+        // common-law partner is accompanying: 22 instead of 24. Without this
+        // the with-spouse ceiling comes to 502, not the published 500.
         secondLanguageCap: 24,
+        secondLanguageCapWithSpouse: 22,
         // Confirmed 2026-07-16 against IRCC's worked example: 1 year -> 40.
         canadianExperienceSingle: { 0: 0, 1: 40, 2: 53, 3: 64, 4: 72, 5: 80 },
         // VERIFY: "with a spouse or common-law partner" Canadian work table.
@@ -172,6 +177,10 @@ export const ruleset_2026_06: Ruleset = {
         // doctoral) = 30.
         canadianStudy: { oneOrTwoYears: 15, threeYearsPlus: 30 },
         frenchStrong: { withEnglish: 50, withoutEnglish: 25 },
+        // "Additional points: maximum 600 points". A provincial nomination
+        // alone exhausts it, so a nominee's sibling/study/French points are
+        // absorbed rather than added.
+        cap: 600,
     },
     // VERIFY against IRCC Express Entry rounds. Most recent per category.
     recentDraws: [

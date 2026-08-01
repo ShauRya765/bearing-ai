@@ -44,7 +44,9 @@ export interface CrsCoreTables {
     firstLanguagePerAbility: Partial<Record<CLB, number>>;
     firstLanguagePerAbilityWithSpouse: Partial<Record<CLB, number>>;
     secondLanguagePerAbility: Partial<Record<CLB, number>>;
+    /** Combined second-language cap: 24 without a spouse, 22 with one. */
     secondLanguageCap: number;
+    secondLanguageCapWithSpouse: number;
     canadianExperienceSingle: Record<number, number>;
     canadianExperienceWithSpouse: Record<number, number>;
 }
@@ -92,6 +94,8 @@ export interface AdditionalPointsTable {
   siblingInCanada: number;
   canadianStudy: { oneOrTwoYears: number; threeYearsPlus: number };
   frenchStrong: { withEnglish: number; withoutEnglish: number };
+  /** Ceiling on the whole additional-points group. */
+  cap: number;
 }
 
 export type DrawCategory =

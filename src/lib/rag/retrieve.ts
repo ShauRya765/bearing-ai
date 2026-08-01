@@ -13,7 +13,9 @@ const genAI = new GoogleGenAI({ apiKey: serverEnv.geminiApiKey });
 // pinned id (e.g. gemini-2.5-flash) is gated to existing API projects and 404s
 // for newer keys — pin via GEMINI_GENERATION_MODEL only to an id your key can
 // actually call (list them with the models.list endpoint first).
-const EMBEDDING_MODEL = "gemini-embedding-001";
+// Exported so a saved eval run records which model produced its vectors —
+// comparing recall across embedding models is comparing nothing.
+export const EMBEDDING_MODEL = "gemini-embedding-001";
 const GENERATION_MODEL =
   process.env.GEMINI_GENERATION_MODEL ?? "gemini-3.6-flash";
 
@@ -84,7 +86,9 @@ interface RuleChunk {
   source_url: string;
 }
 
-const MATCH_COUNT = 5;
+// Exported because the eval reports "every out-of-corpus query still returned k
+// chunks" — a claim that has to be made against the real k, not a copy of it.
+export const MATCH_COUNT = 5;
 
 function citationsFrom(chunks: RuleChunk[]): Citation[] {
   return chunks.map((c) => ({

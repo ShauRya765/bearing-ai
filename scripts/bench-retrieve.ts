@@ -3,7 +3,6 @@
 //   npx tsx --tsconfig tsconfig.json scripts/bench-retrieve.ts [options]
 //
 //     --reps N          repetitions per question for the latency table (default 3)
-//     --retrieval-only  score recall without generating any answers
 //     --full            also measure latency + refusals (costs tokens)
 //
 // Default is retrieval-only, because that is the run you want to be able to do
@@ -15,16 +14,25 @@
 // Refusal is a property of the prompt, not the retriever, so it can only be
 // observed by asking for real.
 //
+// Scoring lives in src/lib/eval/score.ts, not here, so the numbers are unit
+// tested against fixed inputs instead of only ever being seen in this output.
+//
 // Runs are sequential and paced on purpose — running them in parallel would
 // measure contention, not latency.
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
-import { EVAL_QUESTIONS, COVERED, UNCOVERED, HARD } from "./eval-questions";
-import type { RagTimings } from "../src/lib/rag/retrieve";
+import { EVAL_QUESTIONS, COVERED, UNCOVERED, HARD } from "@/lib/eval/questions";
+import {
+  scoreQuestion,
+  summarise,
+  percentile,
+  type QuestionScore,
+  type SetScore,
+} from "@/lib/eval/score";
+import type { RagTimings } from "@/lib/rag/retrieve";
 
 const PACE_MS = 250;
-const MATCH_COUNT = 5;
 
 // Phrases that mean "the corpus doesn't cover this". Deliberately a small,
 // explicit list: if the model starts refusing in wording not covered here the
@@ -52,31 +60,15 @@ function refused(answer: string): boolean {
   return REFUSAL_MARKERS.some((m) => a.includes(m));
 }
 
-// Nearest-rank percentile. No interpolation — at these sample sizes an
-// interpolated percentile implies precision the data doesn't support.
-function pct(values: number[], p: number): number {
-  if (values.length === 0) return NaN;
-  const sorted = [...values].sort((a, b) => a - b);
-  const rank = Math.max(1, Math.ceil((p / 100) * sorted.length));
-  return sorted[rank - 1];
-}
-
 function ms(n: number): string {
   if (Number.isNaN(n)) return "—";
   return n >= 1000 ? `${(n / 1000).toFixed(2)}s` : `${Math.round(n)}ms`;
 }
 
 function bar(fraction: number, width = 24): string {
+  if (Number.isNaN(fraction)) return "·".repeat(width);
   const filled = Math.round(fraction * width);
   return "█".repeat(filled) + "·".repeat(width - filled);
-}
-
-interface Retrieved {
-  question: string;
-  titles: string[];
-  chunksUsed: number;
-  embedMs: number;
-  searchMs: number;
 }
 
 async function main() {
@@ -91,7 +83,9 @@ async function main() {
   const reps = num("--reps", 3);
   if (!Number.isFinite(reps) || reps < 1) throw new Error("--reps must be >= 1");
 
-  const { retrieveOnly, askRulesStream } = await import("../src/lib/rag/retrieve");
+  const { retrieveOnly, askRulesStream, MATCH_COUNT } = await import(
+    "@/lib/rag/retrieve"
+  );
 
   console.log(
     `Eval set: ${EVAL_QUESTIONS.length} questions — ${COVERED.length} covered ` +
@@ -100,72 +94,60 @@ async function main() {
 
   // ---------- Retrieval pass (always) ----------
   console.log(`Retrieving ${EVAL_QUESTIONS.length} questions (no generation)...`);
-  const retrieved: Retrieved[] = [];
+  const saved: (QuestionScore & { embedMs: number; searchMs: number; chunksUsed: number })[] = [];
   for (const [i, item] of EVAL_QUESTIONS.entries()) {
     const r = await retrieveOnly(item.q);
-    retrieved.push({
-      question: item.q,
+    const score = scoreQuestion(item, {
       titles: r.citations.map((c) => c.sourceTitle),
       chunksUsed: r.chunksUsed,
       embedMs: r.embedMs,
       searchMs: r.searchMs,
+    });
+    saved.push({
+      ...score,
+      embedMs: r.embedMs,
+      searchMs: r.searchMs,
+      chunksUsed: r.chunksUsed,
     });
     process.stdout.write(`\r  ${i + 1}/${EVAL_QUESTIONS.length}`.padEnd(40));
     await new Promise((res) => setTimeout(res, PACE_MS));
   }
   console.log("\n");
 
-  const byQuestion = new Map(retrieved.map((r) => [r.question, r]));
-
-  function scoreSet(set: typeof COVERED) {
-    let recall = 0;
-    let allHit = 0;
-    const misses: string[] = [];
-    for (const item of set) {
-      const run = byQuestion.get(item.q)!;
-      const missing = item.expect.filter((e) => !run.titles.includes(e));
-      recall += (item.expect.length - missing.length) / item.expect.length;
-      if (missing.length === 0) allHit++;
-      else
-        misses.push(
-          `    "${item.q}"\n      missing: ${missing.join(", ")}\n      got:     ${run.titles.slice(0, 3).join(", ")}…`,
-        );
-    }
-    return {
-      recall: set.length ? recall / set.length : NaN,
-      allHit,
-      total: set.length,
-      misses,
-    };
-  }
-
-  const overall = scoreSet(COVERED);
-  const hard = scoreSet(HARD);
-  const easy = scoreSet(COVERED.filter((q) => !q.hard));
+  const scores: QuestionScore[] = saved;
+  const summary = summarise(
+    scores,
+    saved.map((s) => ({ embedMs: s.embedMs, searchMs: s.searchMs })),
+    MATCH_COUNT,
+    saved.filter((s) => !s.covered).map((s) => s.chunksUsed),
+  );
 
   console.log("## Retrieval quality\n");
-  const line = (label: string, s: ReturnType<typeof scoreSet>) =>
+  const line = (label: string, s: SetScore) =>
     console.log(
       `  ${label.padEnd(18)} ${bar(s.recall)}  ${(s.recall * 100).toFixed(1)}%   ` +
         `${s.allHit}/${s.total} questions got every source`,
     );
-  line("Recall@5 overall", overall);
-  line("  easy questions", easy);
-  line("  hard questions", hard);
+  line("Recall@5 overall", summary.overall);
+  line("  easy questions", summary.easy);
+  line("  hard questions", summary.hard);
 
-  if (overall.misses.length) {
+  if (summary.misses.length) {
     console.log("\n  Misses:\n");
-    console.log(overall.misses.join("\n"));
+    for (const m of summary.misses) {
+      console.log(
+        `    "${m.question}"\n      missing: ${m.missing.join(", ")}\n` +
+          `      got:     ${m.titles.slice(0, 3).join(", ")}…`,
+      );
+    }
   }
 
-  const embed = retrieved.map((r) => r.embedMs);
-  const search = retrieved.map((r) => r.searchMs);
   console.log(
-    `\n  Retrieval latency: embed p50 ${ms(pct(embed, 50))} / p95 ${ms(pct(embed, 95))}` +
-      `  ·  search p50 ${ms(pct(search, 50))} / p95 ${ms(pct(search, 95))}`,
+    `\n  Retrieval latency: embed p50 ${ms(summary.latency.embedP50)} / p95 ${ms(summary.latency.embedP95)}` +
+      `  ·  search p50 ${ms(summary.latency.searchP50)} / p95 ${ms(summary.latency.searchP95)}`,
   );
 
-  if (retrieved.every((r) => r.chunksUsed === MATCH_COUNT)) {
+  if (summary.uncovered.alwaysFullK) {
     console.log(
       `\n  Note: every query returned ${MATCH_COUNT} chunks, including the ${UNCOVERED.length} out-of-corpus\n` +
         `  ones — the RPC applies no similarity floor, so refusing is entirely the\n` +
@@ -217,11 +199,11 @@ async function main() {
   console.log("| --- | --- | --- | --- |");
   for (const [name, pick, note] of stages) {
     const vals = timings.map(pick).filter((v): v is number => v !== null);
-    console.log(`| ${name} | ${ms(pct(vals, 50))} | ${ms(pct(vals, 95))} | ${note} |`);
+    console.log(`| ${name} | ${ms(percentile(vals, 50))} | ${ms(percentile(vals, 95))} | ${note} |`);
   }
   const totals = timings.map((t) => t.totalMs);
   console.log(
-    `| **End to end** | **${ms(pct(totals, 50))}** | **${ms(pct(totals, 95))}** | Retrieval + full answer |`,
+    `| **End to end** | **${ms(percentile(totals, 50))}** | **${ms(percentile(totals, 95))}** | Retrieval + full answer |`,
   );
 
   const refusedCount = UNCOVERED.filter((item) =>
@@ -237,6 +219,7 @@ async function main() {
       console.log(`    ${a.slice(0, 160).replace(/\n/g, " ")}…`);
     }
   }
+
 }
 
 main().catch((err) => {

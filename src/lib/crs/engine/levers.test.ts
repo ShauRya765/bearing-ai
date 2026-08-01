@@ -53,3 +53,33 @@ test("drops levers already satisfied by the profile", () => {
     assert.ok(!ids.includes("trade"));
     assert.ok(!ids.includes("french"));
 });
+
+test("a lever whose points don't fit under a cap says so", () => {
+  // This profile already holds 88 of 100 skill-transferability points, so a
+  // certificate of qualification — worth 50 on its own — can only add 12.
+  // Reported without explanation, the correct +12 reads as a broken number.
+  const profile = {
+    age: 25,
+    education: "masters" as const,
+    firstLanguage: { test: "CELPIP" as const, speaking: 9, listening: 10, reading: 9, writing: 10 },
+    canadianWorkYears: 1,
+    foreignWorkYears: 1,
+    canadianCredential: "threeYearsPlus" as const,
+  };
+
+  const trade = gapLevers(profile, ruleset).find((l) => l.id === "trade")!;
+  assert.equal(trade.delta, 12);
+  assert.match(trade.cappedBy ?? "", /88\/100/);
+  assert.match(trade.cappedBy ?? "", /only 12/);
+
+  // A profile with room to spare gets the full 50 and no cap note.
+  const roomy = {
+    age: 25,
+    education: "secondary" as const,
+    firstLanguage: { test: "CELPIP" as const, speaking: 9, listening: 9, reading: 9, writing: 9 },
+    canadianWorkYears: 0,
+  };
+  const uncapped = gapLevers(roomy, ruleset).find((l) => l.id === "trade")!;
+  assert.equal(uncapped.delta, 50);
+  assert.equal(uncapped.cappedBy, undefined);
+});

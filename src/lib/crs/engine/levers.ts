@@ -10,6 +10,14 @@ export interface Lever {
     title: string;
     requirement: string;
     delta: number;
+    /**
+     * Set when `delta` is smaller than the factor is nominally worth because a
+     * group cap swallowed the rest. Without this, a profile already near the
+     * 100-point skill-transferability ceiling sees "+12" next to copy saying
+     * "worth up to 50" and reasonably concludes the number is broken. The
+     * delta is right; the shortfall needs saying out loud.
+     */
+    cappedBy?: string;
     source: { title: string; url: string };
 }
 
@@ -69,14 +77,37 @@ export function gapLevers(profile: CrsProfile, ruleset: Ruleset): Lever[] {
     const base = scoreCore(profile, ruleset).total;
     const levers: Lever[] = [];
 
+    const baseScore = scoreCore(profile, ruleset);
+
     const consider = (
-        lever: Omit<Lever, "delta">,
+        lever: Omit<Lever, "delta" | "cappedBy">,
         mutate: (p: CrsProfile) => void,
     ) => {
         const next = structuredClone(profile);
         mutate(next);
-        const delta = scoreCore(next, ruleset).total - base;
-        if (delta > 0) levers.push({ ...lever, delta });
+        const nextScore = scoreCore(next, ruleset);
+        const delta = nextScore.total - base;
+        if (delta <= 0) return;
+
+        // If a factor this lever moved ended up pinned to its own maximum, the
+        // lever was worth more than the score could absorb. Name the factor and
+        // where it already stood, so the delta reads as a ceiling rather than a
+        // miscalculation.
+        const saturatedIndex = nextScore.factors.findIndex((f, i) => {
+            const before = baseScore.factors[i];
+            return f.points > before.points && f.points === f.max && before.points < before.max;
+        });
+        let cappedBy: string | undefined;
+        if (saturatedIndex >= 0) {
+            const after = nextScore.factors[saturatedIndex];
+            const before = baseScore.factors[saturatedIndex];
+            // The factor's own gain, not the total delta — a lever can move
+            // more than one factor.
+            const fits = after.points - before.points;
+            cappedBy = `Your ${after.factor.toLowerCase()} is already at ${before.points}/${after.max}, so only ${fits} of these points fit before the cap.`;
+        }
+
+        levers.push({ ...lever, delta, ...(cappedBy ? { cappedBy } : {}) });
     };
 
     // Provincial nomination — the single biggest lever when absent.
@@ -132,7 +163,7 @@ export function gapLevers(profile: CrsProfile, ruleset: Ruleset): Lever[] {
                 id: "trade",
                 title: "Earn a certificate of qualification",
                 requirement:
-                    "A provincial/territorial certificate of qualification in a skilled trade — worth up to 50 skill-transferability points with CLB 7+.",
+                    "A provincial/territorial certificate of qualification in a skilled trade. Pays 50 skill-transferability points at CLB 7+ on all four abilities, 25 at CLB 5+.",
                 source: SRC.grid,
             },
             (p) => (p.hasTradeCertificate = true),

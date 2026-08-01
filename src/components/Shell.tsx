@@ -22,7 +22,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           className="px-5 h-16 flex items-center border-b hover:bg-muted/40 transition-colors"
         >
           <span className="font-heading text-lg font-bold tracking-tight text-foreground">
-            TrueBearing
+            Bearing West
           </span>
           <span className="ml-1 text-primary font-heading font-bold">.</span>
         </Link>

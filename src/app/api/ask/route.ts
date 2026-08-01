@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { askRulesStream } from "@/lib/rag/retrieve";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { isAskSource, type AskSource } from "@/lib/qa";
+import { logQuestion } from "@/lib/qa-log";
 
 // RAG hits Supabase + Gemini — needs the Node runtime, not Edge.
 export const runtime = "nodejs";
@@ -40,6 +42,10 @@ export async function POST(req: NextRequest) {
 
   const raw = (payload as { question?: unknown })?.question;
   const question = typeof raw === "string" ? raw.trim() : "";
+  // Which surface asked. An unrecognised value is logged as "rules" rather than
+  // rejected — a mislabelled row is better than a failed answer.
+  const rawSource = (payload as { source?: unknown })?.source;
+  const source: AskSource = isAskSource(rawSource) ? rawSource : "rules";
   if (!question) {
     return json({ error: "A question is required." }, 400);
   }
@@ -50,6 +56,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Minted here so the id can go out with the metadata line — before a single
+  // token exists — and come back on /api/feedback naming this exact exchange.
+  // Server-side so a client can't rate a row it invented.
+  const qaId = crypto.randomUUID();
+
   let meta: Awaited<ReturnType<typeof askRulesStream>>["meta"];
   let stream: Awaited<ReturnType<typeof askRulesStream>>["stream"];
   try {
@@ -58,6 +69,16 @@ export async function POST(req: NextRequest) {
     // Retrieval or embedding failed (Supabase/Gemini down, bad key, etc.).
     // Log server-side; return a clean message without leaking internals.
     console.error("[/api/ask] retrieval failed:", err);
+    // Still record the question with a null answer: questions that failed are
+    // exactly the ones worth seeing in the log.
+    await logQuestion({
+      id: qaId,
+      source,
+      question,
+      answer: null,
+      chunksUsed: 0,
+      citations: [],
+    }).catch(() => {});
     return json(
       { error: "Couldn't reach the rules service. Please try again shortly." },
       502,
@@ -67,18 +88,45 @@ export async function POST(req: NextRequest) {
   const encoder = new TextEncoder();
   const body = new ReadableStream({
     async start(controller) {
-      // First line: metadata (citations) as JSON, newline-delimited.
-      controller.enqueue(encoder.encode(JSON.stringify(meta) + "\n"));
+      // First line: metadata (citations + the id to rate this answer by) as
+      // JSON, newline-delimited.
+      controller.enqueue(encoder.encode(JSON.stringify({ ...meta, qaId }) + "\n"));
       // Then: answer text as it streams.
+      let answer = "";
       try {
         for await (const chunk of stream) {
+          answer += chunk;
           controller.enqueue(encoder.encode(chunk));
         }
       } catch (err) {
         console.error("[/api/ask] stream interrupted:", err);
-        controller.enqueue(encoder.encode("\n[stream interrupted]"));
+        // If the reader went away the controller is already closed and this
+        // throws too — which would skip the log write below and surface as an
+        // unhandled rejection. A partial answer from an abandoned request is
+        // still worth logging, so swallow it.
+        try {
+          controller.enqueue(encoder.encode("\n[stream interrupted]"));
+        } catch {}
       }
-      controller.close();
+
+      // Awaited before closing, not fired and forgotten: on a serverless host
+      // the function can be frozen the moment the response ends, and a row that
+      // never lands is feedback that can never be attached. Costs one round
+      // trip after the last token, which the reader has already rendered.
+      await logQuestion({
+        id: qaId,
+        source,
+        question,
+        answer,
+        chunksUsed: meta.chunksUsed,
+        citations: meta.citations,
+      }).catch(() => {});
+
+      try {
+        controller.close();
+      } catch {
+        // Already closed by the reader cancelling. Nothing left to do.
+      }
     },
   });
 

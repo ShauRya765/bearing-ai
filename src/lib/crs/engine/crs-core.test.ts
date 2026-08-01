@@ -138,6 +138,51 @@ test("education-transferability pays the two-or-more/advanced tier for a Master'
   assert.equal(transferability.points, 50); // advanced tier's clb9 payout, not the one-credential tier's 25
 });
 
+test("certificate of qualification: 50 at CLB 7+ on all four, 25 at CLB 5+ with one under 7, 0 below that", () => {
+  // Isolates the trade-certificate row of skill transferability: secondary
+  // education contributes nothing, and there is no Canadian or foreign work.
+  const base = {
+    age: 29,
+    education: "secondary" as const,
+    canadianWorkYears: 0,
+    hasTradeCertificate: true,
+  };
+  const transferability = (p: Parameters<typeof scoreCore>[0]) =>
+    scoreCore(p, rs).factors.find((f) => f.factor === "Skill transferability")!.points;
+
+  // CLB 7 across the board -> the top tier.
+  assert.equal(
+    transferability({ ...base, firstLanguage: { test: "IELTS", reading: 6.0, writing: 6.0, listening: 6.0, speaking: 6.0 } }),
+    50,
+  );
+
+  // CLB 6 across the board: at or above 5, but not 7 on all four.
+  assert.equal(
+    transferability({ ...base, firstLanguage: { test: "IELTS", reading: 5.0, writing: 5.5, listening: 5.5, speaking: 5.5 } }),
+    25,
+  );
+
+  // IRCC's wording is "CLB 5 or more on all ... abilities, one or more under
+  // 7" — a single weak ability drops the whole factor to the lower tier, it
+  // does not average out.
+  assert.equal(
+    transferability({ ...base, firstLanguage: { test: "IELTS", reading: 4.0, writing: 7.0, listening: 8.0, speaking: 7.0 } }),
+    25,
+  );
+
+  // One ability under CLB 5 pays nothing at all.
+  assert.equal(
+    transferability({ ...base, firstLanguage: { test: "IELTS", reading: 3.5, writing: 7.0, listening: 8.0, speaking: 7.0 } }),
+    0,
+  );
+
+  // No certificate, same language: nothing.
+  assert.equal(
+    transferability({ ...base, hasTradeCertificate: false, firstLanguage: { test: "IELTS", reading: 6.0, writing: 6.0, listening: 6.0, speaking: 6.0 } }),
+    0,
+  );
+});
+
 test("accompanying spouse switches the core tables and adds a Spouse factors line", () => {
   const withoutSpouse = scoreCore(
     {
