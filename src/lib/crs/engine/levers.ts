@@ -28,7 +28,7 @@ const SRC = {
     },
     pnp: {
         title: "IRCC — Provincial nominees (Express Entry)",
-        url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/eligibility/provincial-nominees.html",
+        url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/provincial-nominees/express-entry/eligibility.html",
     },
     language: {
         title: "IRCC — Language requirements (CLB / NCLC)",

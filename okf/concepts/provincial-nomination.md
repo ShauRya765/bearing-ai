@@ -2,7 +2,7 @@
 type: concept
 title: Provincial nomination
 description: A PNP nomination adds 600 CRS points, effectively guaranteeing an invitation.
-resource: https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/eligibility/provincial-nominees.html
+resource: https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/provincial-nominees/express-entry/eligibility.html
 tags: [pnp, crs]
 timestamp: 2026-07-07T00:00:00Z
 boosts: [programs/express-entry]

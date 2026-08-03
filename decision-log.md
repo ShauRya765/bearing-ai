@@ -1,0 +1,6 @@
+# Interview rep decision log
+
+| date | topic | grade | one-line principle | gap/follow-up |
+|---|---|---|---|---|
+| 2026-08-01 | RAG retrieval path (embed → pgvector → top-k) | Partial | Retrieval has no threshold: k=5 always returns 5, so refusal is a prompt property, not a retrieval property. | Guessed "768 dim" when asked for the distance metric — dimensionality ≠ metric; take the clean "I don't know" instead. Missed RETRIEVAL_QUERY/RETRIEVAL_DOCUMENT asymmetry. `match_rule_chunks` SQL is untracked (not in supabase/) — the metric is unrecoverable from source. |
+| 2026-08-03 | Path 2 blank-page worksheet (query path) | Solid on architecture, weak on mechanism | Knowing the hops is not knowing the machine — self-diagnosed correctly as "HLD without working". | Part A call path verified correct end to end. Part B misses: task-type purpose (asked twice), cosine, discarded `similarity`, no-threshold ⇒ 5 chunks for any question, prompt-only refusal, no index + why, "chunk" = whole OKF concept not the TS interface. Q7/Q8/Q11 had all been explained 2 days earlier and did not survive — confirms told ≠ retained, only produced sticks. Q10 answer "0" ambiguous: confirm whether they think off-topic returns 0 chunks. |

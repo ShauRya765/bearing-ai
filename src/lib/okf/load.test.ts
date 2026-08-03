@@ -4,8 +4,10 @@ import { loadBundle } from "@/lib/okf/load";
 
 const bundle = loadBundle("okf");
 
-test("loads all six concepts, skipping index.md", () => {
-  assert.equal(bundle.concepts.length, 6);
+// Bump this when adding a concept — it is what catches a file being silently
+// dropped by the walker (wrong extension, unreadable dir) rather than failing loudly.
+test("loads every concept, skipping index.md", () => {
+  assert.equal(bundle.concepts.length, 16);
   assert.equal(bundle.byId.get("index"), undefined);
 });
 
@@ -30,9 +32,18 @@ test("every edge points at a real concept — no dangling links", () => {
   }
 });
 
-test("every concept has a body and an IRCC resource", () => {
+// Federal rules cite IRCC. Provincial nominee streams have no IRCC page that
+// states their criteria, so the province's own site is the canonical source —
+// but only an official government one, never a consultant's summary.
+const OFFICIAL_SOURCE_HOSTS = ["canada.ca", "ontario.ca"];
+
+test("every concept has a body and an official government resource", () => {
   for (const c of bundle.concepts) {
     assert.ok(c.body.length > 0, `"${c.id}" has an empty body`);
-    assert.ok(c.resource?.includes("canada.ca"), `"${c.id}" lacks an IRCC resource`);
+    const host = c.resource ? new URL(c.resource).hostname : "";
+    assert.ok(
+      OFFICIAL_SOURCE_HOSTS.some((h) => host === h || host.endsWith(`.${h}`)),
+      `"${c.id}" lacks an official government resource (got "${c.resource}")`,
+    );
   }
 });

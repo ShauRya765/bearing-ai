@@ -5,6 +5,24 @@ import { TrackView } from "@/components/TrackView";
 import { GATE_CATEGORIES } from "@/components/gate-rows";
 import type { DrawCategory } from "@/lib/crs/ruleset/types";
 import { ruleset_2026_07 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-07";
+import { SITE_DESCRIPTION, SITE_NAME, absoluteUrl } from "@/lib/site";
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: SITE_NAME,
+  url: absoluteUrl("/"),
+  description: SITE_DESCRIPTION,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Any",
+  browserRequirements: "Requires JavaScript",
+  inLanguage: "en-CA",
+  isAccessibleForFree: true,
+  audience: {
+    "@type": "Audience",
+    audienceType: "Canadian permanent residence applicants",
+  },
+};
 
 // The landing page sits outside the (app) route group on purpose, so it renders
 // full-bleed instead of inside the sidebar Shell. Server component — nothing
@@ -91,6 +109,13 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <TrackView name="home_view" />
+      {/* Structured data. Deliberately limited to claims that are true today —
+          no ratings, no review counts, no price. Fabricated rich-result fields
+          are the fastest way to earn a manual action. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       {/* ---------- top nav ---------- */}
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-6 px-6">
@@ -369,6 +394,18 @@ export default function Landing() {
                 prompt holding, which is exactly what the 3/3 refusal count measures.
               </p>
             </div>
+
+            <div className="border-t border-border px-6 py-4">
+              <a
+                href="https://www.shauryasharma.dev/blog/how-rag-works-in-truebearing-ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Read the full write-up on how retrieval works
+                <span aria-hidden="true">&#8599;</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -466,6 +503,14 @@ export default function Landing() {
             <Link href="/how-it-works" className="transition-colors hover:text-foreground">
               How it works
             </Link>
+            <a
+              href="https://www.shauryasharma.dev/blog/how-rag-works-in-truebearing-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-foreground"
+            >
+              Blog
+            </a>
           </nav>
         </div>
       </footer>
