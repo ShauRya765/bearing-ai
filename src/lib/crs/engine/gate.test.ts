@@ -116,3 +116,55 @@ test("transport is live again in 2026-08, not the dead 2024 round", () => {
   assert.equal(transport.cutoff, 470);
   assert.equal(transport.invitations, 300);
 });
+// --- Staleness -------------------------------------------------------------
+// A cutoff from a category that stopped drawing is a historical fact, not a bar
+// a candidate can clear. `now` is injected so these don't rot with the clock.
+
+const NOW = new Date("2026-08-15T00:00:00Z");
+
+test("education is flagged stale — it last drew 2025-09-17", () => {
+  const result = runGate(techProfile, 484, rs08, ["education"], NOW);
+  const education = result.benchmarks.find((b) => b.category === "education");
+  assert.ok(education);
+  assert.equal(education.stale, true);
+  assert.equal(education.daysSinceDraw, 332);
+});
+
+test("a category that drew this month is not stale", () => {
+  const result = runGate(techProfile, 484, rs08, [], NOW);
+  const cec = result.benchmarks.find((b) => b.category === "cec");
+  assert.ok(cec);
+  assert.equal(cec.stale, false);
+  assert.equal(cec.daysSinceDraw, 10);
+});
+
+test("trades stays live at ~4 months — the threshold doesn't over-flag", () => {
+  const result = runGate(techProfile, 484, rs08, ["trades"], NOW);
+  const trades = result.benchmarks.find((b) => b.category === "trades");
+  assert.ok(trades);
+  assert.equal(trades.stale, false);
+});
+
+test("a stale category never outranks a live one, even with an easier cutoff", () => {
+  // Education's 462 is the lowest cutoff in the ruleset; CEC's is 516. Sorting
+  // by gap alone would put the dead draw first.
+  const result = runGate(techProfile, 484, rs08, ["education"], NOW);
+  assert.equal(result.benchmarks[0].category, "cec");
+  assert.equal(result.benchmarks.at(-1)?.category, "education");
+});
+
+test("eligible ONLY for quiet categories: the summary says so instead of claiming a win", () => {
+  // No Canadian work, so no CEC — education is the only category left, and it
+  // is dead. Score 484 is above its 462 cutoff, which is exactly the misleading
+  // "you're competitive!" this must not produce.
+  const noCanadianWork: CrsProfile = { ...techProfile, canadianWorkYears: 0 };
+  const result = runGate(noCanadianWork, 484, rs08, ["education"], NOW);
+
+  assert.equal(result.benchmarks.length, 1);
+  assert.equal(result.benchmarks[0].category, "education");
+  assert.equal(result.benchmarks[0].standing, "above");
+
+  assert.match(result.honestSummary, /gone quiet/);
+  assert.match(result.honestSummary, /2025-09-17/);
+  assert.doesNotMatch(result.honestSummary, /^Above the/);
+});

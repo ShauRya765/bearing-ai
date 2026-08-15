@@ -121,7 +121,7 @@ export default function Landing() {
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-6 px-6">
           <Link href="/" className="flex items-baseline">
             <span className="font-heading text-lg font-bold tracking-tight">
-              Bearing West
+              True Bearing
             </span>
             <span className="ml-0.5 font-heading font-bold text-primary">.</span>
           </Link>
@@ -488,7 +488,7 @@ export default function Landing() {
       <footer className="border-t border-border/60">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-3 px-6 py-8 text-xs text-muted-foreground">
           <span className="font-heading font-bold text-foreground">
-            Bearing West<span className="text-primary">.</span>
+            True Bearing<span className="text-primary">.</span>
           </span>
           <span className="font-mono text-muted-foreground/60">
             Ruleset {ruleset.version}

@@ -20,25 +20,39 @@ export function titleCase(category: string): string {
     return category.charAt(0).toUpperCase() + category.slice(1);
 }
 
-// The candidate's best shot: the lowest eligible cutoff. Null when no draw is
-// eligible — showing a cutoff comparison then would be the exact bogus
-// benchmark the GATE exists to prevent.
+// The candidate's best shot: the lowest cutoff among LIVE eligible draws. Null
+// when none is eligible — showing a cutoff comparison then would be the exact
+// bogus benchmark the GATE exists to prevent. Stale categories are excluded for
+// the same reason: education's 462 is the lowest cutoff in the ruleset and it
+// would otherwise win this every time, aiming candidates at a draw that hasn't
+// run since 2025-09-17.
+export function liveBenchmarks(gate: GateResult): Benchmark[] {
+    return gate.benchmarks.filter((b) => !b.stale);
+}
+
 export function featuredBenchmark(gate: GateResult): Benchmark | null {
-    if (gate.benchmarks.length === 0) return null;
-    return gate.benchmarks.reduce((a, b) => (b.cutoff < a.cutoff ? b : a));
+    const live = liveBenchmarks(gate);
+    if (live.length === 0) return null;
+    return live.reduce((a, b) => (b.cutoff < a.cutoff ? b : a));
 }
 
 // Single source of truth for the GATE headline, shared by the sticky bar and
 // the detail banner so they can never disagree.
 export function deriveDrawStatus(gate: GateResult): DrawStatus {
-    const eligible = gate.benchmarks;
+    // Only live draws set the headline. Being "above" a category that stopped
+    // drawing a year ago is not competitiveness, and counting it here would put
+    // an encouraging number on a door that is shut.
+    const eligible = liveBenchmarks(gate);
     const clears = eligible.filter((b) => b.standing === "above");
 
     if (eligible.length === 0) {
+        const staleOnly = gate.benchmarks.length > 0;
         return {
             tone: "refuse",
-            label: "Not benchmarked",
-            heading: "Not benchmarked against any draw",
+            label: staleOnly ? "No live draw" : "Not benchmarked",
+            heading: staleOnly
+                ? "Eligible only for categories that have gone quiet"
+                : "Not benchmarked against any draw",
             body: gate.honestSummary,
         };
     }

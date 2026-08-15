@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Work out your Comprehensive Ranking System score from IRCC's published tables — age, education, language, work experience, spouse factors and skill transferability, with every point traced to the rule that produced it.",
   alternates: { canonical: "/assessment" },
   openGraph: {
-    title: "CRS score calculator — Bearing West",
+    title: "CRS score calculator — True Bearing",
     description:
       "Work out your Comprehensive Ranking System score from IRCC's published tables, with every point traced to the rule that produced it.",
     url: "/assessment",

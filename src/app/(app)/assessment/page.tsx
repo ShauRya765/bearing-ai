@@ -510,17 +510,30 @@ export default function Home() {
                                 <div className="space-y-2">
                                     {gate.benchmarks.map((b) => (
                                         <div key={b.category} className="flex items-center justify-between text-sm">
-                                            <span className="capitalize">{b.category}</span>
+                                            <span className="flex flex-col">
+                                                <span className={b.stale ? "capitalize text-muted-foreground" : "capitalize"}>
+                                                    {b.category}
+                                                </span>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {b.stale
+                                                        ? `last drew ${b.drawDate} — no round in ${b.daysSinceDraw} days`
+                                                        : `drew ${b.drawDate}`}
+                                                </span>
+                                            </span>
                                             <span className="flex items-center gap-2">
                                                 <span className="font-mono text-muted-foreground">
                                                     {b.cutoff}
                                                 </span>
+                                                {/* A stale gap is a fact about a dead round, so it never gets
+                                                    the green "you cleared it" treatment. */}
                                                 <Badge
-                                                    variant={b.standing === "above" ? "outline" : "destructive"}
+                                                    variant={b.stale || b.standing === "above" ? "outline" : "destructive"}
                                                     className={
-                                                        b.standing === "above"
-                                                            ? "font-mono border-clear/30 bg-clear/10 text-clear"
-                                                            : "font-mono"
+                                                        b.stale
+                                                            ? "font-mono border-border bg-transparent text-muted-foreground"
+                                                            : b.standing === "above"
+                                                                ? "font-mono border-clear/30 bg-clear/10 text-clear"
+                                                                : "font-mono"
                                                     }
                                                 >
                                                     {b.gap >= 0 ? `+${b.gap}` : b.gap}
@@ -528,6 +541,13 @@ export default function Home() {
                                             </span>
                                         </div>
                                     ))}
+                                    {gate.benchmarks.some((b) => b.stale) && (
+                                        <p className="pt-1 text-xs text-muted-foreground leading-relaxed">
+                                            Greyed categories haven&apos;t drawn in over six months. Their
+                                            cutoffs are real history, but they aren&apos;t a bar you can
+                                            currently clear.
+                                        </p>
+                                    )}
                                 </div>
                             )}
 

@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   // Next warns and falls back to localhost.
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Bearing West — Know where you actually stand",
-    template: "%s — Bearing West",
+    default: "True Bearing — Know where you actually stand",
+    template: "%s — True Bearing",
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     locale: "en_CA",
     url: "/",
-    title: "Bearing West — Know where you actually stand",
+    title: "True Bearing — Know where you actually stand",
     description: SITE_DESCRIPTION,
   },
   // Card type only. Setting twitter:title/description here would be inherited by

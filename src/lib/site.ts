@@ -31,7 +31,7 @@ export const SITE_URL = resolved.url;
 // Setting NEXT_PUBLIC_SITE_URL is what switches indexing on.
 export const IS_INDEXABLE = resolved.isCanonical;
 
-export const SITE_NAME = "Bearing West";
+export const SITE_NAME = "True Bearing";
 
 export const SITE_DESCRIPTION =
   "A Canadian Express Entry CRS calculator that computes every point from IRCC's published tables, cites its sources, and never benchmarks you against a draw you aren't eligible for.";

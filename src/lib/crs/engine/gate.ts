@@ -10,6 +10,15 @@ export interface CategoryEligibility {
   reason: string;
 }
 
+// A category that hasn't drawn in this long is evidence about a past round, not
+// a target a candidate can aim at. Six months clears every category IRCC is
+// actually running on a cadence (trades, the slowest live one, went 2026-04-02
+// → still the latest at ~4 months) while catching education (last drew
+// 2025-09-17) and the general/STEM/agriculture rounds that stopped in 2024.
+export const STALE_AFTER_DAYS = 180;
+
+const MS_PER_DAY = 86_400_000;
+
 export interface Benchmark {
   category: DrawCategory;
   cutoff: number;
@@ -17,6 +26,10 @@ export interface Benchmark {
   candidateScore: number;
   standing: "above" | "below";
   gap: number; // signed: positive = candidate is above the cutoff
+  daysSinceDraw: number;
+  /** True when the category hasn't drawn in STALE_AFTER_DAYS. The cutoff is
+   *  still real, but it is a historical fact, not a live bar to clear. */
+  stale: boolean;
 }
 
 export interface GateResult {
@@ -106,6 +119,8 @@ export function runGate(
   score: number,
   ruleset: Ruleset,
   occupationCategories: DrawCategory[] = [],
+  // Injectable so staleness is testable and doesn't depend on the wall clock.
+  now: Date = new Date(),
 ): GateResult {
   const eligibility = determineEligibility(profile, ruleset, occupationCategories);
   const eligibleCats = new Set(
@@ -125,6 +140,9 @@ export function runGate(
   for (const [category, draw] of latestByCategory) {
     if (!eligibleCats.has(category)) continue;
     const gap = score - draw.cutoff;
+    const daysSinceDraw = Math.floor(
+      (now.getTime() - Date.parse(`${draw.date}T00:00:00Z`)) / MS_PER_DAY,
+    );
     benchmarks.push({
       category,
       cutoff: draw.cutoff,
@@ -132,9 +150,14 @@ export function runGate(
       candidateScore: score,
       standing: gap >= 0 ? "above" : "below",
       gap,
+      daysSinceDraw,
+      stale: daysSinceDraw > STALE_AFTER_DAYS,
     });
   }
-  benchmarks.sort((a, b) => b.gap - a.gap);
+  // Live categories first, then by gap. A stale category must never outrank a
+  // live one just because its cutoff was easier — that would point a candidate
+  // at a draw that isn't running.
+  benchmarks.sort((a, b) => Number(a.stale) - Number(b.stale) || b.gap - a.gap);
 
   const excluded = eligibility.filter((e) => !e.eligible);
 
@@ -144,8 +167,17 @@ export function runGate(
       "This candidate isn't eligible for any recent draw category. Their CRS " +
       "can't be meaningfully compared to any current cutoff — the realistic " +
       "levers are a provincial nomination or raising CRS, not any single draw.";
-  } else {
+  } else if (benchmarks.every((b) => b.stale)) {
+    // Eligible on paper for categories that have all gone quiet. Saying
+    // "above the education cutoff" here would be true and useless.
     const best = benchmarks[0];
+    honestSummary =
+      `Every category this candidate is eligible for has gone quiet — the most ` +
+      `recent is ${best.category}, which last drew on ${best.drawDate} ` +
+      `(${best.daysSinceDraw} days ago). Those cutoffs are history, not a bar ` +
+      `to clear; the realistic levers are a provincial nomination or raising CRS.`;
+  } else {
+    const best = benchmarks[0]; // sorted live-first, so this is a live category
     honestSummary =
       best.standing === "above"
         ? `Above the ${best.category} cutoff (${best.cutoff}) by ${best.gap}.`

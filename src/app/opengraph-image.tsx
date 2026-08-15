@@ -6,7 +6,7 @@ import { SITE_NAME } from "@/lib/site";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt =
-  "Bearing West — a Canadian Express Entry CRS calculator that shows where every point came from";
+  "True Bearing — a Canadian Express Entry CRS calculator that shows where every point came from";
 
 // Design tokens are duplicated as literals rather than imported from
 // globals.css: ImageResponse renders through satori, which sees no stylesheet
