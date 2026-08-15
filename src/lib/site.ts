@@ -43,6 +43,8 @@ export const PUBLIC_ROUTES = [
   { path: "/assessment", changeFrequency: "weekly", priority: 0.9 },
   { path: "/how-it-works", changeFrequency: "monthly", priority: 0.7 },
   { path: "/rules", changeFrequency: "weekly", priority: 0.7 },
+  // Changes only when a new eval run is committed, which is a deliberate act.
+  { path: "/eval", changeFrequency: "monthly", priority: 0.5 },
 ] as const;
 
 export function absoluteUrl(path: string): string {

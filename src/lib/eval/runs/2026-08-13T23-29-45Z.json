@@ -1,0 +1,1966 @@
+{
+  "meta": {
+    "schema": 1,
+    "startedAt": "2026-08-13T23:29:45.984Z",
+    "gitSha": "e7ee70f",
+    "embeddingModel": "gemini-embedding-001",
+    "generationModel": null,
+    "matchCount": 5,
+    "corpus": {
+      "chunks": 16,
+      "sources": 16
+    },
+    "questions": {
+      "total": 81,
+      "covered": 71,
+      "hard": 39,
+      "uncovered": 10
+    }
+  },
+  "summary": {
+    "overall": {
+      "recall": 1,
+      "allHit": 71,
+      "total": 71
+    },
+    "easy": {
+      "recall": 1,
+      "allHit": 32,
+      "total": 32
+    },
+    "hard": {
+      "recall": 1,
+      "allHit": 39,
+      "total": 39
+    },
+    "uncovered": {
+      "total": 10,
+      "alwaysFullK": true
+    },
+    "latency": {
+      "embedP50": 182.42716700000165,
+      "embedP95": 222.1220420000027,
+      "searchP50": 90.23583299999882,
+      "searchP95": 218.58724999999959
+    }
+  },
+  "scores": [
+    {
+      "question": "Ontario picked me from the pool. How much is that actually worth?",
+      "hard": false,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority application process",
+        "OINP closed streams (replaced June 2026)",
+        "Provincial nomination",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 281.141875,
+      "searchMs": 1422.3974170000001,
+      "chunksUsed": 5
+    },
+    {
+      "question": "What's the difference between a base and an enhanced nomination?",
+      "hard": false,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority application process",
+        "Category-based selection",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 166.22170899999992,
+      "searchMs": 239.7043749999998,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Is 600 points basically a guaranteed invite?",
+      "hard": false,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "French-language bonus points",
+        "First official language points",
+        "Skill transferability",
+        "Category-based selection"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 193.59408299999996,
+      "searchMs": 222.32833299999993,
+      "chunksUsed": 5
+    },
+    {
+      "question": "A province wants me but it's not through Express Entry. Do I still get the points?",
+      "hard": true,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "Certificate of qualification (skilled trades)",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Ontario Workforce Priority stream",
+        "Express Entry"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 170.7339579999998,
+      "searchMs": 228.05441700000029,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How do I actually claim a nomination once I have the certificate?",
+      "hard": false,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "OINP Workforce Priority application process",
+        "Certificate of qualification (skilled trades)",
+        "OINP Ontario Workforce Priority stream",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 274.37937500000044,
+      "searchMs": 218.58724999999959,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Does every province nominate people the same way Ontario does?",
+      "hard": true,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "Express Entry"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 226.9108750000005,
+      "searchMs": 100.78762499999993,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I did a two-year diploma at a college in Toronto. Does that add anything?",
+      "hard": false,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Certificate of qualification (skilled trades)",
+        "Skill transferability",
+        "OINP Workforce Priority eligibility requirements",
+        "Canadian Experience Class"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 179.87887499999943,
+      "searchMs": 93.54858300000069,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Does a degree from a Canadian university's overseas campus count?",
+      "hard": true,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Canadian Experience Class",
+        "Skill transferability",
+        "Work experience hours — full-time vs part-time",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 182.9333340000003,
+      "searchMs": 93.38887499999964,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I was on a scholarship that required me to go home after. Does my Canadian diploma still count?",
+      "hard": true,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Canadian Experience Class",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority eligibility requirements",
+        "Skill transferability"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 178.61074999999983,
+      "searchMs": 91.29312500000015,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Most of my program was English language classes. Is that a problem?",
+      "hard": true,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Skill transferability",
+        "CLB 7 in all abilities",
+        "Second official language points",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 175.8300420000005,
+      "searchMs": 86.28341699999964,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How many extra points for a master's I earned in Canada?",
+      "hard": false,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Skill transferability",
+        "Second official language points",
+        "First official language points",
+        "Certificate of qualification (skilled trades)"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 203.12187499999982,
+      "searchMs": 93.66550000000007,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I graduated from an Ontario college last year. What does that add to my CRS score?",
+      "hard": true,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Skill transferability",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 183.9945829999997,
+      "searchMs": 87.89524999999958,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I have two part-time jobs. Do they count as full-time experience?",
+      "hard": false,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Work experience hours — full-time vs part-time",
+        "Canadian Experience Class",
+        "Skill transferability",
+        "Canadian study additional points",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 155.44016600000032,
+      "searchMs": 88.74862500000017,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I work 45 hours a week. Does the extra time get me there faster?",
+      "hard": true,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Work experience hours — full-time vs part-time",
+        "Canadian Experience Class",
+        "Skill transferability",
+        "Express Entry",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 601.8829160000005,
+      "searchMs": 90.20779199999924,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Does my unpaid internship count toward my experience?",
+      "hard": true,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Work experience hours — full-time vs part-time",
+        "Canadian Experience Class",
+        "Canadian study additional points",
+        "Skill transferability",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 186.0097910000004,
+      "searchMs": 94.16491700000006,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How many hours is a year of experience?",
+      "hard": false,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Work experience hours — full-time vs part-time",
+        "Canadian Experience Class",
+        "Skill transferability",
+        "Canadian study additional points",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 160.59954199999993,
+      "searchMs": 95.98304199999984,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I took three months off in the middle. Does my experience have to be continuous?",
+      "hard": true,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian Experience Class",
+        "Work experience hours — full-time vs part-time",
+        "Canadian study additional points",
+        "Skill transferability",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 180.30204100000083,
+      "searchMs": 92.29433399999834,
+      "chunksUsed": 5
+    },
+    {
+      "question": "What's the minimum English level to even be eligible?",
+      "hard": false,
+      "expect": [
+        "CLB 7 in all abilities"
+      ],
+      "covered": true,
+      "titles": [
+        "CLB 7 in all abilities",
+        "OINP Workforce Priority eligibility requirements",
+        "Second official language points",
+        "First official language points",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "CLB 7 in all abilities"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 149.4049589999995,
+      "searchMs": 87.01837499999965,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I've seen CLB 5, 6 and 7 quoted as the minimum. Which one applies to me federally?",
+      "hard": true,
+      "expect": [
+        "CLB 7 in all abilities"
+      ],
+      "covered": true,
+      "titles": [
+        "CLB 7 in all abilities",
+        "First official language points",
+        "French-language bonus points",
+        "OINP Workforce Priority eligibility requirements",
+        "Skill transferability"
+      ],
+      "hit": [
+        "CLB 7 in all abilities"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 181.3685829999995,
+      "searchMs": 87.36891699999978,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My English is CLB 6 across the board. Does that get me into the pool?",
+      "hard": true,
+      "expect": [
+        "CLB 7 in all abilities"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "CLB 7 in all abilities",
+        "French-language bonus points",
+        "Second official language points",
+        "Skill transferability"
+      ],
+      "hit": [
+        "CLB 7 in all abilities"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 174.901084000001,
+      "searchMs": 89.03516599999966,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My reading is weak but the other three are strong. Is that a problem?",
+      "hard": true,
+      "expect": [
+        "CLB 7 in all abilities",
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Second official language points",
+        "CLB 7 in all abilities",
+        "Skill transferability",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "CLB 7 in all abilities",
+        "First official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 180.21187500000087,
+      "searchMs": 84.57854199999929,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Can I average my four test scores together?",
+      "hard": true,
+      "expect": [
+        "CLB 7 in all abilities",
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Skill transferability",
+        "Second official language points",
+        "French-language bonus points",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "CLB 7 in all abilities",
+        "First official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 188.82574999999997,
+      "searchMs": 94.78891699999986,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Is it worth pushing my speaking from an 8 to a 9?",
+      "hard": true,
+      "expect": [
+        "First official language points",
+        "Skill transferability"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Skill transferability",
+        "Second official language points",
+        "French-language bonus points",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "First official language points",
+        "Skill transferability"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 207.4980000000014,
+      "searchMs": 87.3956249999992,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How many points per skill at CLB 9?",
+      "hard": false,
+      "expect": [
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Skill transferability",
+        "CLB 7 in all abilities",
+        "Second official language points",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "First official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 175.86970800000017,
+      "searchMs": 89.90287499999977,
+      "chunksUsed": 5
+    },
+    {
+      "question": "What's the single most effective way to raise my score?",
+      "hard": true,
+      "expect": [
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Skill transferability",
+        "French-language bonus points",
+        "Second official language points",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "First official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 165.84879200000069,
+      "searchMs": 89.37483299999985,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Does having a spouse change my language points?",
+      "hard": true,
+      "expect": [
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Second official language points",
+        "Skill transferability",
+        "French-language bonus points",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "First official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 186.71558399999958,
+      "searchMs": 85.84420800000044,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How many points can a weaker second language get me?",
+      "hard": false,
+      "expect": [
+        "Second official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "First official language points",
+        "French-language bonus points",
+        "Skill transferability",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "Second official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 181.2202499999985,
+      "searchMs": 96.57145800000217,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I tested in both English and French. What does the weaker one earn?",
+      "hard": false,
+      "expect": [
+        "Second official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "French-language bonus points",
+        "First official language points",
+        "Skill transferability",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "Second official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 182.07983299999978,
+      "searchMs": 105.515625,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Is there a cap on second language points?",
+      "hard": false,
+      "expect": [
+        "Second official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "First official language points",
+        "Skill transferability",
+        "French-language bonus points",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "Second official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 197.2644169999985,
+      "searchMs": 92.91720799999894,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My English is already strong. Any reason to learn French?",
+      "hard": true,
+      "expect": [
+        "French-language bonus points",
+        "Second official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "French-language bonus points",
+        "Second official language points",
+        "First official language points",
+        "Skill transferability",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "French-language bonus points",
+        "Second official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 174.18808300000092,
+      "searchMs": 87.11795799999891,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I took the TEF and scored NCLC 8 everywhere. What do I get?",
+      "hard": false,
+      "expect": [
+        "French-language bonus points"
+      ],
+      "covered": true,
+      "titles": [
+        "French-language bonus points",
+        "First official language points",
+        "Second official language points",
+        "CLB 7 in all abilities",
+        "Skill transferability"
+      ],
+      "hit": [
+        "French-language bonus points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 184.37441600000238,
+      "searchMs": 92.60124999999971,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I speak French but never took an English test. Do I still get the bonus?",
+      "hard": true,
+      "expect": [
+        "French-language bonus points"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "French-language bonus points",
+        "First official language points",
+        "CLB 7 in all abilities",
+        "Skill transferability"
+      ],
+      "hit": [
+        "French-language bonus points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 168.69374999999854,
+      "searchMs": 94.0582080000022,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Why do French speakers seem to get in with lower scores?",
+      "hard": true,
+      "expect": [
+        "French-language bonus points",
+        "Category-based selection"
+      ],
+      "covered": true,
+      "titles": [
+        "French-language bonus points",
+        "Second official language points",
+        "First official language points",
+        "Skill transferability",
+        "Category-based selection"
+      ],
+      "hit": [
+        "French-language bonus points",
+        "Category-based selection"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 164.67116700000042,
+      "searchMs": 93.00433300000077,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I'm a plumber certified in Alberta. Does the trade ticket help my score?",
+      "hard": false,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "Certificate of qualification (skilled trades)",
+        "Skill transferability",
+        "Provincial nomination",
+        "Express Entry",
+        "First official language points"
+      ],
+      "hit": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 179.8904999999977,
+      "searchMs": 91.92520800000057,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Is a trade certificate the same as a provincial nomination?",
+      "hard": true,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "Certificate of qualification (skilled trades)",
+        "Provincial nomination",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Ontario Workforce Priority stream",
+        "Express Entry"
+      ],
+      "hit": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 181.44187500000044,
+      "searchMs": 89.48670800000036,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Who issues a certificate of qualification?",
+      "hard": false,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "Certificate of qualification (skilled trades)",
+        "Provincial nomination",
+        "OINP Workforce Priority eligibility requirements",
+        "CLB 7 in all abilities",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 182.5826249999991,
+      "searchMs": 118.1596669999999,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My English is CLB 6 and I have a trade ticket. What's it worth?",
+      "hard": true,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Certificate of qualification (skilled trades)",
+        "CLB 7 in all abilities",
+        "Skill transferability",
+        "Second official language points"
+      ],
+      "hit": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 170.57487499999843,
+      "searchMs": 94.11062500000116,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I'm in the trades with only a high school diploma. Does that limit my CRS points?",
+      "hard": true,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "Skill transferability",
+        "Certificate of qualification (skilled trades)",
+        "Canadian study additional points",
+        "OINP Workforce Priority eligibility requirements",
+        "Express Entry"
+      ],
+      "hit": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 160.75995899999907,
+      "searchMs": 90.22708300000158,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Can my degree and my work history combine into extra points?",
+      "hard": false,
+      "expect": [
+        "Skill transferability"
+      ],
+      "covered": true,
+      "titles": [
+        "Skill transferability",
+        "Canadian study additional points",
+        "Certificate of qualification (skilled trades)",
+        "First official language points",
+        "Work experience hours — full-time vs part-time"
+      ],
+      "hit": [
+        "Skill transferability"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 183.06108400000085,
+      "searchMs": 88.16783299999952,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Is there a ceiling on the combination points?",
+      "hard": false,
+      "expect": [
+        "Skill transferability"
+      ],
+      "covered": true,
+      "titles": [
+        "Skill transferability",
+        "First official language points",
+        "Second official language points",
+        "Certificate of qualification (skilled trades)",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "Skill transferability"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 186.0270840000012,
+      "searchMs": 90.27837499999805,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Do my foreign work years pair with anything?",
+      "hard": false,
+      "expect": [
+        "Skill transferability"
+      ],
+      "covered": true,
+      "titles": [
+        "Skill transferability",
+        "Work experience hours — full-time vs part-time",
+        "Canadian Experience Class",
+        "Canadian study additional points",
+        "Certificate of qualification (skilled trades)"
+      ],
+      "hit": [
+        "Skill transferability"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 181.55295900000056,
+      "searchMs": 88.72329099999843,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Why do nurses seem to get invited with lower scores than me?",
+      "hard": false,
+      "expect": [
+        "Category-based selection"
+      ],
+      "covered": true,
+      "titles": [
+        "Category-based selection",
+        "Provincial nomination",
+        "Express Entry",
+        "Skill transferability",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "Category-based selection"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 183.04816700000083,
+      "searchMs": 91.24079100000017,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My score is high but my job isn't on any list. Can I still be picked in a targeted round?",
+      "hard": true,
+      "expect": [
+        "Category-based selection"
+      ],
+      "covered": true,
+      "titles": [
+        "Category-based selection",
+        "Express Entry",
+        "Skill transferability",
+        "OINP closed streams (replaced June 2026)",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "Category-based selection"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 182.2546250000014,
+      "searchMs": 88.484457999999,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Which job fields get their own rounds?",
+      "hard": false,
+      "expect": [
+        "Category-based selection"
+      ],
+      "covered": true,
+      "titles": [
+        "Category-based selection",
+        "Express Entry",
+        "OINP closed streams (replaced June 2026)",
+        "Provincial nomination",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "Category-based selection"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 183.4067909999976,
+      "searchMs": 90.70512500000041,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I've been working in Canada on a permit for a year. Which program fits me?",
+      "hard": false,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian Experience Class",
+        "Work experience hours — full-time vs part-time",
+        "Canadian study additional points",
+        "Express Entry",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "Canadian Experience Class"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 184.88174999999683,
+      "searchMs": 97.63737500000207,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My Canadian job was TEER 3. Does that qualify me?",
+      "hard": true,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian Experience Class",
+        "OINP Workforce Priority eligibility requirements",
+        "CLB 7 in all abilities",
+        "OINP Ontario Workforce Priority stream",
+        "Skill transferability"
+      ],
+      "hit": [
+        "Canadian Experience Class"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 171.86670799999774,
+      "searchMs": 84.8526669999992,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I worked in Canada five years ago. Is that still usable?",
+      "hard": true,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian Experience Class",
+        "Work experience hours — full-time vs part-time",
+        "Skill transferability",
+        "Canadian study additional points",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Canadian Experience Class"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 189.49245800000062,
+      "searchMs": 94.6060830000024,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I've got nine months of Canadian experience. Is that enough for the federal program?",
+      "hard": true,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian Experience Class",
+        "Work experience hours — full-time vs part-time",
+        "OINP Workforce Priority eligibility requirements",
+        "Canadian study additional points",
+        "Skill transferability"
+      ],
+      "hit": [
+        "Canadian Experience Class"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 178.3454160000001,
+      "searchMs": 86.71641699999964,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My Canadian job is TEER 4. Which federal program can I use?",
+      "hard": true,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "CLB 7 in all abilities",
+        "Express Entry",
+        "OINP Workforce Priority eligibility requirements",
+        "Canadian Experience Class",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "Canadian Experience Class"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 186.04558299999917,
+      "searchMs": 88.88166700000147,
+      "chunksUsed": 5
+    },
+    {
+      "question": "What is Express Entry, in plain terms?",
+      "hard": false,
+      "expect": [
+        "Express Entry"
+      ],
+      "covered": true,
+      "titles": [
+        "Express Entry",
+        "Provincial nomination",
+        "Category-based selection",
+        "Skill transferability",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "Express Entry"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 185.15916699999798,
+      "searchMs": 99.6594159999986,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Which programs does the system actually cover?",
+      "hard": false,
+      "expect": [
+        "Express Entry"
+      ],
+      "covered": true,
+      "titles": [
+        "Express Entry",
+        "CLB 7 in all abilities",
+        "Skill transferability",
+        "OINP closed streams (replaced June 2026)",
+        "Canadian study additional points"
+      ],
+      "hit": [
+        "Express Entry"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 171.73479099999895,
+      "searchMs": 91.10087500000009,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How does anyone get picked out of the pool?",
+      "hard": true,
+      "expect": [
+        "Express Entry"
+      ],
+      "covered": true,
+      "titles": [
+        "Express Entry",
+        "Category-based selection",
+        "Provincial nomination",
+        "OINP Workforce Priority application process",
+        "Skill transferability"
+      ],
+      "hit": [
+        "Express Entry"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 180.54724999999962,
+      "searchMs": 87.02891600000294,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My employer in Toronto offered me a permanent job. Is there an Ontario stream for that?",
+      "hard": false,
+      "expect": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority application process",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority eligibility requirements",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 186.91425000000163,
+      "searchMs": 87.89799999999741,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My job is TEER 5. Can Ontario still nominate me, and do I get the 600 points?",
+      "hard": true,
+      "expect": [
+        "OINP Ontario Workforce Priority stream",
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP closed streams (replaced June 2026)",
+        "Provincial nomination",
+        "OINP Workforce Priority application process"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream",
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 186.0691250000018,
+      "searchMs": 92.94674999999916,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I let my Express Entry profile expire after Ontario nominated me. Does that matter?",
+      "hard": true,
+      "expect": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority eligibility requirements",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 177.6289590000015,
+      "searchMs": 86.69795800000065,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I'm a doctor billing OHIP with no employer. Can I still apply through Ontario?",
+      "hard": true,
+      "expect": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process",
+        "OINP Workforce Priority eligibility requirements",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 186.57574999999997,
+      "searchMs": 84.96087500000067,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Does the Ontario job offer have to be permanent, or will a contract do?",
+      "hard": false,
+      "expect": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Workforce Priority application process",
+        "OINP closed streams (replaced June 2026)",
+        "Canadian Experience Class"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 189.6469169999982,
+      "searchMs": 96.94845800000257,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Does Ontario care how old my language test is when I apply to that stream?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "OINP closed streams (replaced June 2026)",
+        "CLB 7 in all abilities",
+        "OINP Ontario Workforce Priority stream",
+        "Second official language points"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 175.60345800000505,
+      "searchMs": 93.38758299999608,
+      "chunksUsed": 5
+    },
+    {
+      "question": "What CLB does Ontario want if my job offer is TEER 4?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Ontario Workforce Priority stream",
+        "CLB 7 in all abilities",
+        "OINP closed streams (replaced June 2026)",
+        "First official language points"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 180.37112500000512,
+      "searchMs": 93.82366699999693,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How much experience does Ontario need if I've been in the job six months?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "Canadian Experience Class",
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority application process",
+        "Work experience hours — full-time vs part-time"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 176.4992080000011,
+      "searchMs": 86.76429199999984,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I only finished high school but I'm a welder. Can Ontario still take me?",
+      "hard": true,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Ontario Workforce Priority stream",
+        "Certificate of qualification (skilled trades)",
+        "OINP Workforce Priority application process"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 187.4572079999998,
+      "searchMs": 88.27545799999643,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I just graduated from a college in Ottawa. Does Ontario waive anything for me?",
+      "hard": true,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Ontario Workforce Priority stream",
+        "Canadian study additional points",
+        "Certificate of qualification (skilled trades)"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 184.809957999998,
+      "searchMs": 88.14037500000268,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How long do I have to submit my Ontario application once I'm invited?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority application process"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Ontario Workforce Priority stream",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "OINP Workforce Priority application process"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 182.42716700000165,
+      "searchMs": 89.52354199999536,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Does Ontario run a draw, or do I need an employer to start it?",
+      "hard": true,
+      "expect": [
+        "OINP Workforce Priority application process"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority eligibility requirements",
+        "Express Entry"
+      ],
+      "hit": [
+        "OINP Workforce Priority application process"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 183.73145899999508,
+      "searchMs": 86.47716600000422,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Ontario nominated me. How long before I have to file with IRCC?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority application process"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "OINP closed streams (replaced June 2026)",
+        "Provincial nomination",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "OINP Workforce Priority application process"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 190.80433300000004,
+      "searchMs": 105.11345900000015,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My employer submitted something in a portal. What am I supposed to do next?",
+      "hard": true,
+      "expect": [
+        "OINP Workforce Priority application process"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "Express Entry",
+        "Provincial nomination",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "OINP Workforce Priority application process"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 163.64620899999863,
+      "searchMs": 90.23583299999882,
+      "chunksUsed": 5
+    },
+    {
+      "question": "What happened to the Masters Graduate stream in Ontario?",
+      "hard": false,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Workforce Priority application process",
+        "Canadian study additional points"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 184.17787500000122,
+      "searchMs": 91.58608299999469,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Is Human Capital Priorities still sending notifications of interest?",
+      "hard": true,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "Express Entry",
+        "Category-based selection"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 179.92333299999882,
+      "searchMs": 86.60299999999552,
+      "chunksUsed": 5
+    },
+    {
+      "question": "My consultant said to apply through Employer Job Offer: In-Demand Skills. Is that still open?",
+      "hard": true,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "Express Entry",
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority application process",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 184.80954100000235,
+      "searchMs": 85.53958399999829,
+      "chunksUsed": 5
+    },
+    {
+      "question": "I'm a French speaker counting on Ontario's French-speaking skilled worker stream. Is it still there?",
+      "hard": true,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "French-language bonus points",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Ontario Workforce Priority stream",
+        "Second official language points"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 190.63729199999943,
+      "searchMs": 89.6080409999995,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Why did my Ontario expression of interest disappear?",
+      "hard": true,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "Express Entry",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 222.1220420000027,
+      "searchMs": 90.29995799999597,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How much money do I need to show for proof of funds?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "Provincial nomination",
+        "Work experience hours — full-time vs part-time",
+        "Canadian Experience Class",
+        "Canadian study additional points"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 157.76870799999597,
+      "searchMs": 89.05629200000112,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Can I include my brother as a dependant on my application?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Express Entry",
+        "Canadian study additional points",
+        "Provincial nomination",
+        "Canadian Experience Class",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 170.92166700000234,
+      "searchMs": 95.76283300000068,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How long does it take to get a work permit extension approved?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "Work experience hours — full-time vs part-time",
+        "Canadian Experience Class",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 175.78258300000016,
+      "searchMs": 86.84879200000432,
+      "chunksUsed": 5
+    },
+    {
+      "question": "What's the application fee for permanent residence?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Provincial nomination",
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "Express Entry",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 184.6820000000007,
+      "searchMs": 85.61708299999736,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Do I need a police certificate from every country I've lived in?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Provincial nomination",
+        "Skill transferability",
+        "Canadian Experience Class",
+        "Express Entry",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 186.52270799999678,
+      "searchMs": 88.50487499999872,
+      "chunksUsed": 5
+    },
+    {
+      "question": "How long does IRCC consider my IELTS result valid for my Express Entry profile?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "CLB 7 in all abilities",
+        "French-language bonus points",
+        "Skill transferability",
+        "Category-based selection",
+        "First official language points"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 187.4795410000006,
+      "searchMs": 90.51950000000215,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Can I appeal if my application gets refused?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Provincial nomination",
+        "Express Entry",
+        "French-language bonus points",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 180.2034580000036,
+      "searchMs": 89.35795800000051,
+      "chunksUsed": 5
+    },
+    {
+      "question": "What's the processing time for a PR card renewal?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "Work experience hours — full-time vs part-time",
+        "Canadian Experience Class",
+        "Provincial nomination",
+        "Express Entry"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 186.8058330000058,
+      "searchMs": 90.33683399999427,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Do I need a medical exam, and who can do it?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Certificate of qualification (skilled trades)",
+        "OINP Ontario Workforce Priority stream",
+        "Category-based selection",
+        "CLB 7 in all abilities",
+        "Express Entry"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 181.36654100000305,
+      "searchMs": 87.61887500000012,
+      "chunksUsed": 5
+    },
+    {
+      "question": "Can I travel outside Canada while my PR application is in progress?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Express Entry",
+        "Provincial nomination",
+        "Canadian Experience Class",
+        "Canadian study additional points",
+        "OINP Workforce Priority application process"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 183.55383299999812,
+      "searchMs": 85.68858400000317,
+      "chunksUsed": 5
+    }
+  ],
+  "generation": null
+}

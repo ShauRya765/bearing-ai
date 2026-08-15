@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { EVAL_QUESTIONS, COVERED, UNCOVERED, HARD } from "@/lib/eval/questions";
 
 // Explains how this RAG is evaluated — the method, not a live run.
@@ -9,7 +10,8 @@ import { EVAL_QUESTIONS, COVERED, UNCOVERED, HARD } from "@/lib/eval/questions";
 //
 // No numbers from an actual run appear here, deliberately. A recall figure is
 // true of one corpus at one moment; pasting one into the UI creates a claim
-// nobody re-checks. The command that produces the live figure is shown instead.
+// nobody re-checks. The command is shown instead, and the measured results live
+// on /eval, where each figure is rendered from a saved, committed run artifact.
 
 const MATCH_COUNT = 5;
 
@@ -183,20 +185,30 @@ export function EvalMethod() {
       <div className="rounded-xl border border-primary/25 bg-primary/[0.06] p-5">
         <p className="text-sm font-semibold">Running it</p>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          The eval runs in the terminal, not here — one embedding call per question, and
-          results that belong next to the corpus they scored rather than in a page
-          nobody diffs.
+          The eval runs in the terminal — one embedding call per question — and writes its
+          results next to the corpus they scored, as a file in the repository rather than
+          a number typed into a page.
         </p>
         <pre className="mt-3 overflow-x-auto rounded-lg border bg-background p-3 font-mono text-xs text-foreground">
-          npx tsx --tsconfig tsconfig.json scripts/bench-retrieve.ts
+          npx tsx --tsconfig tsconfig.json scripts/bench-retrieve.ts --full --save
         </pre>
         <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
           Retrieval only by default: recall belongs to the retriever alone, so scoring it
-          needs no generation and costs no tokens. Add{" "}
-          <code className="font-mono text-foreground/80">--full</code> to also measure
+          needs no generation and costs no tokens.{" "}
+          <code className="font-mono text-foreground/80">--full</code> also measures
           per-stage latency and whether the {UNCOVERED.length} out-of-corpus questions
-          actually get refused.
+          actually get refused;{" "}
+          <code className="font-mono text-foreground/80">--save</code> commits the run.
         </p>
+        {/* This component is the method; the numbers live on /eval, where each one
+            is attributable to a saved run rather than to prose nobody re-checks. */}
+        <Link
+          href="/eval"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          See the latest measured results
+          <span aria-hidden="true">→</span>
+        </Link>
       </div>
     </section>
   );

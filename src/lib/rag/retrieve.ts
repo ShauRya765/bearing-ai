@@ -16,7 +16,9 @@ const genAI = new GoogleGenAI({ apiKey: serverEnv.geminiApiKey });
 // Exported so a saved eval run records which model produced its vectors —
 // comparing recall across embedding models is comparing nothing.
 export const EMBEDDING_MODEL = "gemini-embedding-001";
-const GENERATION_MODEL =
+// Also exported for the eval artifact: a refusal rate is a property of one model
+// and one prompt, so a saved run has to name the model that produced it.
+export const GENERATION_MODEL =
   process.env.GEMINI_GENERATION_MODEL ?? "gemini-3.6-flash";
 
 // Cap generation length. Answers are short grounded explanations; this bounds
@@ -63,6 +65,14 @@ export interface RagTimings {
 export interface RagAnswer {
   answer: string;
   citations: Citation[];
+  /**
+   * The chunk TEXTS the answer was generated from, in rank order — not just their
+   * titles. Carried because a judged eval (faithfulness, context precision) grades
+   * the answer against the passages the model actually saw, and re-retrieving them
+   * afterwards could return a different set and quietly grade the wrong thing.
+   * Same pipeline pass, same chunks.
+   */
+  contexts: string[];
   chunksUsed: number;
   timings: RagTimings;
 }
@@ -180,6 +190,7 @@ export async function askRules(question: string): Promise<RagAnswer> {
     return {
       answer: NO_MATCH_MESSAGE,
       citations: [],
+      contexts: [],
       chunksUsed: 0,
       timings: {
         embedMs,
@@ -207,6 +218,7 @@ export async function askRules(question: string): Promise<RagAnswer> {
   return {
     answer: response.text ?? "",
     citations: citationsFrom(chunks),
+    contexts: chunks.map((c) => c.content),
     chunksUsed: chunks.length,
     timings: {
       embedMs,

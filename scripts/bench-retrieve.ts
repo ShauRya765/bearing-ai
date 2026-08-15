@@ -4,6 +4,7 @@
 //
 //     --reps N          repetitions per question for the latency table (default 3)
 //     --full            also measure latency + refusals (costs tokens)
+//     --save            write the run to src/lib/eval/runs/ for the /eval dashboard
 //
 // Default is retrieval-only, because that is the run you want to be able to do
 // casually. Recall@k is a property of the retriever alone — making the model
@@ -19,8 +20,17 @@
 //
 // Runs are sequential and paced on purpose — running them in parallel would
 // measure contention, not latency.
+//
+// --save writes the run to src/lib/eval/runs/ as a committed JSON artifact, which
+// is what the /eval dashboard renders and diffs. The console output above is for
+// the person running the command; the artifact is for everyone after them.
 import { config } from "dotenv";
 config({ path: ".env.local" });
+
+import { execFileSync } from "node:child_process";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { createClient } from "@supabase/supabase-js";
 
 import { EVAL_QUESTIONS, COVERED, UNCOVERED, HARD } from "@/lib/eval/questions";
 import {
@@ -30,9 +40,56 @@ import {
   type QuestionScore,
   type SetScore,
 } from "@/lib/eval/score";
+import {
+  RUN_SCHEMA_VERSION,
+  runFilename,
+  serializeRun,
+  type EvalRun,
+  type GenerationResult,
+  type LatencyStage,
+} from "@/lib/eval/run";
+import { RUNS_DIR } from "@/lib/eval/runs-store";
 import type { RagTimings } from "@/lib/rag/retrieve";
 
 const PACE_MS = 250;
+
+/** Short SHA of the tree the run was made from. Null if git isn't available. */
+function gitSha(): string | null {
+  try {
+    return execFileSync("git", ["rev-parse", "--short", "HEAD"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Size of the corpus the run retrieved against. Recorded because recall@k rises
+ * trivially as the corpus shrinks — comparing two runs over different corpora
+ * without knowing it is the easiest way to celebrate a deletion.
+ */
+async function corpusSize(): Promise<{ chunks: number; sources: number }> {
+  const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+  const { count, error } = await supabase
+    .from("rule_chunks")
+    .select("*", { count: "exact", head: true });
+  if (error) throw error;
+
+  const { data, error: titleErr } = await supabase
+    .from("rule_chunks")
+    .select("source_title");
+  if (titleErr) throw titleErr;
+
+  return {
+    chunks: count ?? 0,
+    sources: new Set((data ?? []).map((r) => r.source_title)).size,
+  };
+}
 
 // Phrases that mean "the corpus doesn't cover this". Deliberately a small,
 // explicit list: if the model starts refusing in wording not covered here the
@@ -65,6 +122,45 @@ function ms(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(2)}s` : `${Math.round(n)}ms`;
 }
 
+/** Writes the run artifact the /eval dashboard reads. */
+async function writeRun(input: {
+  startedAt: string;
+  matchCount: number;
+  generationModel: string | null;
+  summary: EvalRun["summary"];
+  scores: QuestionScore[];
+  generation: GenerationResult | null;
+}): Promise<void> {
+  const { EMBEDDING_MODEL } = await import("@/lib/rag/retrieve");
+
+  const run: EvalRun = {
+    meta: {
+      schema: RUN_SCHEMA_VERSION,
+      startedAt: input.startedAt,
+      gitSha: gitSha(),
+      embeddingModel: EMBEDDING_MODEL,
+      generationModel: input.generationModel,
+      matchCount: input.matchCount,
+      corpus: await corpusSize(),
+      questions: {
+        total: EVAL_QUESTIONS.length,
+        covered: COVERED.length,
+        hard: HARD.length,
+        uncovered: UNCOVERED.length,
+      },
+    },
+    summary: input.summary,
+    scores: input.scores,
+    generation: input.generation,
+  };
+
+  mkdirSync(RUNS_DIR, { recursive: true });
+  const path = join(RUNS_DIR, runFilename(input.startedAt));
+  writeFileSync(path, serializeRun(run));
+  console.log(`\nSaved run → ${path.replace(process.cwd() + "/", "")}`);
+  console.log(`Commit it to publish these numbers on /eval.`);
+}
+
 function bar(fraction: number, width = 24): string {
   if (Number.isNaN(fraction)) return "·".repeat(width);
   const filled = Math.round(fraction * width);
@@ -80,12 +176,17 @@ async function main() {
   };
 
   const full = flag("--full");
+  const save = flag("--save");
   const reps = num("--reps", 3);
   if (!Number.isFinite(reps) || reps < 1) throw new Error("--reps must be >= 1");
 
-  const { retrieveOnly, askRulesStream, MATCH_COUNT } = await import(
-    "@/lib/rag/retrieve"
-  );
+  // Stamped before any work happens, so the artifact records when the run was
+  // measured rather than when the file was written — they differ by minutes on
+  // a --full run.
+  const startedAt = new Date().toISOString();
+
+  const { retrieveOnly, askRulesStream, MATCH_COUNT, GENERATION_MODEL } =
+    await import("@/lib/rag/retrieve");
 
   console.log(
     `Eval set: ${EVAL_QUESTIONS.length} questions — ${COVERED.length} covered ` +
@@ -160,6 +261,18 @@ async function main() {
       `\nSkipped latency + refusal checks (no generation calls made).\n` +
         `Run with --full to measure those — costs ~${EVAL_QUESTIONS.length * reps} model calls.`,
     );
+    if (save) {
+      await writeRun({
+        startedAt,
+        matchCount: MATCH_COUNT,
+        // No generation calls were made, so naming a generation model here would
+        // claim the run measured something it didn't.
+        generationModel: null,
+        summary,
+        scores,
+        generation: null,
+      });
+    }
     return;
   }
 
@@ -194,32 +307,61 @@ async function main() {
     ["Full streamed answer", (t) => t.generateMs, "Length-dependent"],
   ];
 
+  // Built once, then both printed and saved — the dashboard and the console must
+  // never be able to disagree about the same run.
+  const latency: LatencyStage[] = stages.map(([stage, pick, note]) => {
+    const vals = timings.map(pick).filter((v): v is number => v !== null);
+    return { stage, p50: percentile(vals, 50), p95: percentile(vals, 95), note };
+  });
+  const totals = timings.map((t) => t.totalMs);
+  latency.push({
+    stage: "End to end",
+    p50: percentile(totals, 50),
+    p95: percentile(totals, 95),
+    note: "Retrieval + full answer",
+  });
+
   console.log("## Latency\n");
   console.log("| Stage | p50 | p95 | Note |");
   console.log("| --- | --- | --- | --- |");
-  for (const [name, pick, note] of stages) {
-    const vals = timings.map(pick).filter((v): v is number => v !== null);
-    console.log(`| ${name} | ${ms(percentile(vals, 50))} | ${ms(percentile(vals, 95))} | ${note} |`);
+  for (const s of latency) {
+    console.log(`| ${s.stage} | ${ms(s.p50)} | ${ms(s.p95)} | ${s.note} |`);
   }
-  const totals = timings.map((t) => t.totalMs);
-  console.log(
-    `| **End to end** | **${ms(percentile(totals, 50))}** | **${ms(percentile(totals, 95))}** | Retrieval + full answer |`,
-  );
 
-  const refusedCount = UNCOVERED.filter((item) =>
-    refused(answers.get(item.q) ?? ""),
-  ).length;
+  const answeredInstead = UNCOVERED.filter(
+    (item) => !refused(answers.get(item.q) ?? ""),
+  ).map((item) => ({
+    question: item.q,
+    excerpt: (answers.get(item.q) ?? "").slice(0, 240).replace(/\s+/g, " ").trim(),
+  }));
+  const refusedCount = UNCOVERED.length - answeredInstead.length;
+
   console.log(
     `\n## Refusals\n\n  ${refusedCount}/${UNCOVERED.length} out-of-corpus questions declined`,
   );
-  for (const item of UNCOVERED) {
-    const a = answers.get(item.q) ?? "";
-    if (!refused(a)) {
-      console.log(`\n  ANSWERED instead of refusing: "${item.q}"`);
-      console.log(`    ${a.slice(0, 160).replace(/\n/g, " ")}…`);
-    }
+  for (const miss of answeredInstead) {
+    console.log(`\n  ANSWERED instead of refusing: "${miss.question}"`);
+    console.log(`    ${miss.excerpt.slice(0, 160)}…`);
   }
 
+  if (save) {
+    await writeRun({
+      startedAt,
+      matchCount: MATCH_COUNT,
+      generationModel: GENERATION_MODEL,
+      summary,
+      scores,
+      generation: {
+        reps,
+        latency,
+        refusals: {
+          total: UNCOVERED.length,
+          refused: refusedCount,
+          answered: answeredInstead,
+        },
+      },
+    });
+  }
 }
 
 main().catch((err) => {

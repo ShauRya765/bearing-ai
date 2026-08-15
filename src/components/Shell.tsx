@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ruleset_2026_07 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-07";
+import { ruleset_2026_08 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-08";
 import { Spotlight } from "@/components/Spotlight";
 
 const NAV = [
   { label: "Assessment", href: "/assessment" },
   { label: "Rules", href: "/rules" },
   { label: "How it works", href: "/how-it-works" },
+  { label: "Evaluation", href: "/eval" },
 ];
 
 export default function Shell({ children }: { children: React.ReactNode }) {

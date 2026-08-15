@@ -4,7 +4,7 @@ import { GateAnimation } from "@/components/GateAnimation";
 import { TrackView } from "@/components/TrackView";
 import { GATE_CATEGORIES } from "@/components/gate-rows";
 import type { DrawCategory } from "@/lib/crs/ruleset/types";
-import { ruleset_2026_07 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-07";
+import { ruleset_2026_08 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-08";
 import { SITE_DESCRIPTION, SITE_NAME, absoluteUrl } from "@/lib/site";
 
 const structuredData = {

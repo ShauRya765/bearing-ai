@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { scoreCore, type CrsProfile } from "@/lib/crs/engine/crs-core";
-import { ruleset_2026_07 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-07";
+import { ruleset_2026_08 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-08";
 import type { EducationLevel } from "@/lib/crs/ruleset/types";
 import { runGate } from "@/lib/crs/engine/gate";
 import { findOccupation, eligibleCategories } from "@/lib/crs/ruleset/noc-categories";

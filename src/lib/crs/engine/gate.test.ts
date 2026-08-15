@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { runGate } from "@/lib/crs/engine/gate";
 import { ruleset_2026_06 as rs } from "@/lib/crs/ruleset/ruleset-2026-06";
 import { ruleset_2026_07 as rs07 } from "@/lib/crs/ruleset/ruleset-2026-07";
+import { ruleset_2026_08 as rs08 } from "@/lib/crs/ruleset/ruleset-2026-08";
 import type { CrsProfile } from "@/lib/crs/engine/crs-core";
 
 const techProfile: CrsProfile = {
@@ -82,4 +83,36 @@ test("2026-07 draw data is current: cec, french and pnp all moved", () => {
   // Round #428, 2026-07-21 — supersedes the 518 the previous ruleset carried.
   assert.equal(cec.cutoff, 516);
   assert.equal(cec.drawDate, "2026-07-21");
+});
+
+test("2026-08 draw data is current: cec, french, pnp and transport all moved", () => {
+  const result = runGate(techProfile, 484, rs08, []);
+
+  const cec = result.benchmarks.find((b) => b.category === "cec");
+  assert.ok(cec);
+  // Round #432, 2026-08-05 — same 516 cutoff, larger draw.
+  assert.equal(cec.drawDate, "2026-08-05");
+  assert.equal(cec.cutoff, 516);
+
+  // techProfile has no French, so the gate correctly withholds that benchmark —
+  // check the record itself. Round #433, 2026-08-06, cutoff fell 399 → 391.
+  const french = rs08.recentDraws.find((d) => d.category === "french");
+  assert.ok(french);
+  assert.equal(french.date, "2026-08-06");
+  assert.equal(french.cutoff, 391);
+
+  // Same for PNP: no provincial nomination, so no benchmark. Round #431.
+  const pnp = rs08.recentDraws.find((d) => d.category === "pnp");
+  assert.ok(pnp);
+  assert.equal(pnp.date, "2026-08-04");
+  assert.equal(pnp.cutoff, 768);
+});
+
+test("transport is live again in 2026-08, not the dead 2024 round", () => {
+  // Round #434, 2026-08-07, the first transport draw since #289 (2024-03-13).
+  const transport = rs08.recentDraws.find((d) => d.category === "transport");
+  assert.ok(transport);
+  assert.equal(transport.date, "2026-08-07");
+  assert.equal(transport.cutoff, 470);
+  assert.equal(transport.invitations, 300);
 });

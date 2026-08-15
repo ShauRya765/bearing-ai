@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { PUBLIC_ROUTES, absoluteUrl } from "@/lib/site";
-import { ruleset_2026_07 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-07";
+import { ruleset_2026_08 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-08";
 
 // lastModified tracks the newest draw in the ruleset, not the build time. Every
 // page here is a view onto the same rules, so a rebuild that changed nothing
