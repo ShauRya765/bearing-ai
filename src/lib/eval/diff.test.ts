@@ -149,3 +149,65 @@ test("refusal rate is null on a retrieval-only run and a rate when generation ra
   assert.equal(diff.refusalRate?.delta, null);
   assert.ok(diff.warnings.some((w) => w.includes("retrieval-only")));
 });
+
+// --- faithfulness ----------------------------------------------------------
+
+function judged(over: {
+  score?: number;
+  judgeModel?: string;
+  generationModel?: string | null;
+} = {}): EvalRun {
+  const gen: GenerationResult = {
+    reps: 1,
+    latency: [],
+    refusals: { total: 1, refused: 1, answered: [] },
+    faithfulness: {
+      judgeModel: over.judgeModel ?? "gemini-3.6-flash",
+      score: over.score ?? 0.9,
+      judged: 10,
+      skippedRefusals: 1,
+      failed: 0,
+      clean: 8,
+      unsupported: [],
+    },
+  };
+  const r = run([q("a", true)], { generation: gen });
+  if (over.generationModel !== undefined) r.meta.generationModel = over.generationModel;
+  return r;
+}
+
+test("faithfulness is null when the current run did not judge", () => {
+  const diff = diffRuns(run([q("a", true)]), judged());
+  assert.equal(diff.faithfulness, null);
+});
+
+test("faithfulness deltas against a judged previous run", () => {
+  const diff = diffRuns(judged({ score: 0.95 }), judged({ score: 0.9 }));
+  assert.ok(diff.faithfulness);
+  assert.ok(Math.abs(diff.faithfulness.delta! - 0.05) < 1e-9);
+});
+
+test("a NaN faithfulness score yields no delta, not a delta of zero", () => {
+  const diff = diffRuns(judged({ score: NaN }), judged({ score: 0.9 }));
+  assert.ok(diff.faithfulness);
+  assert.equal(diff.faithfulness.delta, null);
+  assert.ok(Number.isNaN(diff.faithfulness.current));
+});
+
+test("changing the judge warns that the delta measures the judges", () => {
+  const diff = diffRuns(judged({ judgeModel: "other-judge" }), judged());
+  assert.ok(diff.warnings.some((w) => /Judge model changed/.test(w)));
+});
+
+test("a first judged run warns that faithfulness has no baseline", () => {
+  const diff = diffRuns(judged(), run([q("a", true)]));
+  assert.ok(diff.warnings.some((w) => /not judged/.test(w)));
+});
+
+test("changing the generation model warns, since refusal and faithfulness are its properties", () => {
+  const diff = diffRuns(
+    judged({ generationModel: "model-b" }),
+    judged({ generationModel: "model-a" }),
+  );
+  assert.ok(diff.warnings.some((w) => /Generation model changed/.test(w)));
+});

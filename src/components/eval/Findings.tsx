@@ -244,3 +244,117 @@ export function RefusalPanel({
         </section>
     );
 }
+
+export function FaithfulnessPanel({
+    generation,
+    diff,
+}: {
+    generation: GenerationResult | null;
+    diff: RunDiff;
+}) {
+    const f = generation?.faithfulness;
+
+    return (
+        <section>
+            <p className="mb-3 font-mono text-[0.7rem] uppercase tracking-wider text-muted-foreground/70">
+                Answer quality — is the prose supported?
+            </p>
+
+            <div className="rounded-xl border bg-card p-5">
+                <p className="max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
+                    Recall proves the right passage was retrieved. It says nothing about what the
+                    model then wrote with it. Every answer here is broken into atomic claims and
+                    each claim is checked against the passages that answer was generated from —
+                    not against the world. A claim that is true in reality but absent from the
+                    sources counts as <span className="text-foreground">unsupported</span>, because
+                    inventing a correct-sounding number is the failure this product exists to
+                    avoid.
+                </p>
+
+                {!f ? (
+                    <p className="mt-4 rounded-lg border border-dashed px-4 py-3 text-xs text-muted-foreground">
+                        Not measured in this run. Re-run with{" "}
+                        <code className="font-mono text-primary">--judge</code> to grade answer
+                        faithfulness.
+                    </p>
+                ) : (
+                    <>
+                        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                            <span className="font-mono text-2xl font-semibold tabular-nums text-foreground">
+                                {pct(f.score)}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                                of claims supported, across {f.judged} judged answers
+                            </span>
+                            {diff.faithfulness && (
+                                <DeltaBadge
+                                    delta={diff.faithfulness}
+                                    higherIsBetter
+                                    format={deltaPp}
+                                />
+                            )}
+                        </div>
+
+                        <p className="mt-2 font-mono text-[0.7rem] text-muted-foreground">
+                            {f.clean}/{f.judged} answers fully supported · {f.skippedRefusals}{" "}
+                            refusals skipped · {f.failed} judge failures · judged by {f.judgeModel}
+                        </p>
+
+                        <p className="mt-3 max-w-[74ch] border-t pt-3 text-xs leading-relaxed text-muted-foreground">
+                            Refusals are skipped rather than scored: an answer that asserts nothing
+                            about the sources is trivially faithful, and counting those as perfect
+                            would let a system that refuses everything post 100% here. Judge
+                            failures are excluded from the average for the same reason NaN is never
+                            rendered as zero elsewhere on this page — an ungraded answer is not a
+                            failed one.
+                        </p>
+
+                        {f.unsupported.length > 0 && (
+                            <div className="mt-4 rounded-xl border border-destructive/40 bg-destructive/[0.06] p-4">
+                                <p className="flex items-center gap-2">
+                                    <span
+                                        className="h-1.5 w-1.5 rounded-full bg-destructive"
+                                        aria-hidden="true"
+                                    />
+                                    <span className="text-sm font-semibold text-destructive">
+                                        Unsupported claims ({f.unsupported.length})
+                                    </span>
+                                </p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                    Every sentence the judge could not find in the retrieved
+                                    passages, quoted. A faithfulness percentage nobody can check is
+                                    not evidence.
+                                </p>
+                                <ul className="mt-3 space-y-3">
+                                    {f.unsupported.map((u, i) => (
+                                        <li key={`${u.question}-${i}`} className="text-xs">
+                                            <p className="text-foreground">
+                                                &ldquo;{u.question}&rdquo;
+                                            </p>
+                                            <p className="mt-1 font-mono text-[0.7rem] leading-relaxed text-muted-foreground">
+                                                <span className="text-destructive/80">claim:</span>{" "}
+                                                {u.claim}
+                                                <br />
+                                                <span className="text-muted-foreground/60">
+                                                    judge:
+                                                </span>{" "}
+                                                {u.note}
+                                            </p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {f.unsupported.length === 0 && f.judged > 0 && (
+                            <p className="mt-4 text-sm font-medium text-clear">
+                                Every claim in every judged answer was supported by its retrieved
+                                passages.
+                            </p>
+                        )}
+                    </>
+                )}
+            </div>
+        </section>
+    );
+}

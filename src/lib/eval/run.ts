@@ -47,6 +47,38 @@ export interface RunMeta {
   questions: { total: number; covered: number; hard: number; uncovered: number };
 }
 
+/**
+ * Faithfulness judging. Optional on the interface, not merely nullable, and that
+ * distinction is load-bearing:
+ *
+ *   undefined — this run predates judging, or was made without --judge. The
+ *               dashboard shows "not measured".
+ *   null      — judging ran and produced nothing usable.
+ *
+ * Adding it as an optional field is why RUN_SCHEMA_VERSION stays at 1. Bumping
+ * it would make every previously committed run unreadable and blank the
+ * dashboard's history, which is a steep price for a field older readers can
+ * simply not find.
+ */
+export interface FaithfulnessResult {
+  /** A faithfulness figure belongs to one judge. Comparing across judges is not
+   *  a comparison — the same trap the embedding model poses for recall. */
+  judgeModel: string;
+  /** Mean per-question faithfulness, 0–1. NaN when nothing was judged. */
+  score: number;
+  /** Questions the judge scored. The denominator of `score`. */
+  judged: number;
+  /** Refusals, excluded rather than counted as perfectly faithful. */
+  skippedRefusals: number;
+  /** Questions where the JUDGE failed. Not counted as unfaithful. */
+  failed: number;
+  /** Questions where every claim was supported. */
+  clean: number;
+  /** Every unsupported claim, kept verbatim. Publishing the failures is the
+   *  point — a faithfulness percentage with no examples cannot be checked. */
+  unsupported: { question: string; claim: string; note: string }[];
+}
+
 /** Results of the generation pass. Null unless the run was made with --full. */
 export interface GenerationResult {
   /** Repetitions per question, for the latency percentiles. */
@@ -60,6 +92,8 @@ export interface GenerationResult {
     /** The failures, kept verbatim — a refusal rate with no examples isn't debuggable. */
     answered: { question: string; excerpt: string }[];
   };
+  /** Undefined on runs that didn't judge. See FaithfulnessResult. */
+  faithfulness?: FaithfulnessResult | null;
 }
 
 export interface LatencyStage {
@@ -106,6 +140,29 @@ function numFromJson(n: number | null | undefined): number {
 type SetScoreJson = Omit<SetScore, "recall"> & { recall: number | null };
 type QuestionScoreJson = Omit<QuestionScore, "recall"> & { recall: number | null };
 
+// `generation` is otherwise passed through untouched, but faithfulness.score is
+// NaN-able and so needs the same explicit mapping as recall. Without it a run
+// where the judge never succeeded would serialise NaN to null and read back as
+// 0 — a fabricated 0% faithfulness, which is the worst possible direction for
+// this particular number to be wrong in.
+type GenerationJson = Omit<GenerationResult, "faithfulness"> & {
+  faithfulness?: (Omit<FaithfulnessResult, "score"> & { score: number | null }) | null;
+};
+
+function generationToJson(g: GenerationResult | null): GenerationJson | null {
+  if (!g) return null;
+  const { faithfulness: f, ...rest } = g;
+  if (f === undefined) return rest;
+  return { ...rest, faithfulness: f ? { ...f, score: numToJson(f.score) } : null };
+}
+
+function generationFromJson(g: GenerationJson | null): GenerationResult | null {
+  if (!g) return null;
+  const { faithfulness: f, ...rest } = g;
+  if (f === undefined) return rest;
+  return { ...rest, faithfulness: f ? { ...f, score: numFromJson(f.score) } : null };
+}
+
 interface EvalRunJson {
   meta: RunMeta;
   summary: {
@@ -118,7 +175,7 @@ interface EvalRunJson {
     misses?: never;
   };
   scores: QuestionScoreJson[];
-  generation: GenerationResult | null;
+  generation: GenerationJson | null;
 }
 
 function setToJson(s: SetScore): SetScoreJson {
@@ -145,7 +202,7 @@ export function serializeRun(run: EvalRun): string {
       },
     },
     scores: run.scores.map((s) => ({ ...s, recall: numToJson(s.recall) })),
-    generation: run.generation,
+    generation: generationToJson(run.generation),
   };
   // Trailing newline so the files are well-behaved in git diffs.
   return JSON.stringify(json, null, 2) + "\n";
@@ -198,7 +255,7 @@ export function parseRun(text: string, filename = "<unknown>"): EvalRun {
       misses: scores.filter((s) => s.covered && !s.complete),
     },
     scores,
-    generation: json.generation,
+    generation: generationFromJson(json.generation),
   };
 }
 

@@ -117,3 +117,65 @@ test("filenames sort chronologically as plain strings", () => {
   // No colons: they are illegal in filenames on Windows and awkward everywhere.
   assert.ok(names.every((n) => !n.includes(":")));
 });
+
+// --- faithfulness ----------------------------------------------------------
+
+function withGeneration(over: Partial<NonNullable<EvalRun["generation"]>> = {}) {
+  return run({
+    generation: {
+      reps: 1,
+      latency: [],
+      refusals: { total: 1, refused: 1, answered: [] },
+      ...over,
+    },
+  });
+}
+
+test("a faithfulness result round-trips, including the unsupported claims", () => {
+  const original = withGeneration({
+    faithfulness: {
+      judgeModel: "gemini-3.6-flash",
+      score: 0.875,
+      judged: 8,
+      skippedRefusals: 2,
+      failed: 1,
+      clean: 6,
+      unsupported: [{ question: "q", claim: "50 points", note: "source says 25" }],
+    },
+  });
+
+  const restored = parseRun(serializeRun(original));
+  assert.deepEqual(restored.generation?.faithfulness, original.generation?.faithfulness);
+});
+
+test("a NaN faithfulness score does not come back as a confident 0%", () => {
+  // Every judge call failing must read as "not measured", never as "0% of claims
+  // were supported" — which would be the most alarming possible false alarm.
+  const original = withGeneration({
+    faithfulness: {
+      judgeModel: "gemini-3.6-flash",
+      score: NaN,
+      judged: 0,
+      skippedRefusals: 0,
+      failed: 12,
+      clean: 0,
+      unsupported: [],
+    },
+  });
+
+  const json = JSON.parse(serializeRun(original));
+  assert.equal(json.generation.faithfulness.score, null); // null on the wire
+
+  const restored = parseRun(serializeRun(original));
+  assert.ok(Number.isNaN(restored.generation!.faithfulness!.score));
+});
+
+test("a generation block with no faithfulness field stays absent, not null", () => {
+  // This is what every run committed before judging existed looks like. It must
+  // keep parsing, and it must be distinguishable from "judged and got nothing".
+  const original = withGeneration();
+  const restored = parseRun(serializeRun(original));
+
+  assert.equal(restored.generation?.faithfulness, undefined);
+  assert.ok(!("faithfulness" in JSON.parse(serializeRun(original)).generation));
+});

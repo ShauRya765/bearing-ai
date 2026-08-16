@@ -233,6 +233,18 @@ export async function askRules(question: string): Promise<RagAnswer> {
 
 export interface RagStreamResult {
   meta: RagStreamStart;
+  /**
+   * The chunk TEXTS this answer is being generated from, in rank order.
+   *
+   * Server-side only — deliberately NOT on `meta`, which is serialised to the
+   * browser on the opening line of the SSE stream. The client needs citations,
+   * not five passages of rule text.
+   *
+   * The judged eval needs them: faithfulness grades an answer against the
+   * passages the model actually saw, and re-retrieving afterwards could return a
+   * different set and quietly grade the wrong thing.
+   */
+  contexts: string[];
   stream: AsyncGenerator<string>;
   /**
    * Resolves once the stream finishes — including when the consumer abandons it
@@ -272,6 +284,7 @@ export async function askRulesStream(
         chunksUsed: 0,
         retrieval: { embedMs, searchMs },
       },
+      contexts: [],
       stream: (async function* () {
         yield NO_MATCH_MESSAGE;
       })(),
@@ -317,6 +330,7 @@ export async function askRulesStream(
       chunksUsed: chunks.length,
       retrieval: { embedMs, searchMs },
     },
+    contexts: chunks.map((c) => c.content),
     stream,
     timings,
   };

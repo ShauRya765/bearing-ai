@@ -52,6 +52,8 @@ export interface RunDiff {
   };
   /** Out-of-corpus questions correctly declined. Null on a retrieval-only run. */
   refusalRate: MetricDelta | null;
+  /** Mean per-question faithfulness. Null when the current run didn't judge. */
+  faithfulness: MetricDelta | null;
 
   /** Passed before, fails now. The list to look at first. */
   newMisses: QuestionScore[];
@@ -75,6 +77,16 @@ function refusalRate(run: EvalRun): number | null {
   const g = run.generation;
   if (!g || g.refusals.total === 0) return null;
   return g.refusals.refused / g.refusals.total;
+}
+
+/**
+ * Null means "this run did not judge" — a different thing from NaN, which means
+ * "it judged and the judge produced nothing". Both must stay distinguishable
+ * from 0, which would mean "it judged and nothing was supported".
+ */
+function faithfulnessScore(run: EvalRun): number | null {
+  const f = run.generation?.faithfulness;
+  return f ? f.score : null;
 }
 
 function comparabilityWarnings(
@@ -117,6 +129,32 @@ function comparabilityWarnings(
   }
   if (current.generation && !previous.generation) {
     w.push(`Previous run was retrieval-only, so it has no latency or refusal figures.`);
+  }
+
+  // A faithfulness figure is a property of one judge and one judging prompt. Two
+  // runs graded by different judges are as incomparable as recall across two
+  // embedding models, and the delta would read as a change in the answers.
+  const judgeNow = current.generation?.faithfulness?.judgeModel;
+  const judgeBefore = previous.generation?.faithfulness?.judgeModel;
+  if (judgeNow && judgeBefore && judgeNow !== judgeBefore) {
+    w.push(
+      `Judge model changed (${judgeBefore} → ${judgeNow}). A faithfulness delta ` +
+        `across two judges measures the judges, not the answers.`,
+    );
+  }
+  if (judgeNow && !judgeBefore) {
+    w.push(
+      `Previous run was not judged, so faithfulness has no baseline to move from.`,
+    );
+  }
+
+  // Refusal and faithfulness are both properties of the generating model, so a
+  // model swap moves them without anything in the retriever or corpus changing.
+  if (a.generationModel && b.generationModel && a.generationModel !== b.generationModel) {
+    w.push(
+      `Generation model changed (${b.generationModel} → ${a.generationModel}). ` +
+        `Refusal and faithfulness are properties of the model that wrote the answers.`,
+    );
   }
   return w;
 }
@@ -205,6 +243,11 @@ export function diffRuns(current: EvalRun, previous: EvalRun | null): RunDiff {
       const rate = refusalRate(current);
       if (rate === null) return null;
       return metricDelta(rate, previous ? refusalRate(previous) : null);
+    })(),
+    faithfulness: (() => {
+      const score = faithfulnessScore(current);
+      if (score === null) return null;
+      return metricDelta(score, previous ? faithfulnessScore(previous) : null);
     })(),
     newMisses,
     fixedMisses,

@@ -7,7 +7,7 @@ const bundle = loadBundle("okf");
 // Bump this when adding a concept — it is what catches a file being silently
 // dropped by the walker (wrong extension, unreadable dir) rather than failing loudly.
 test("loads every concept, skipping index.md", () => {
-  assert.equal(bundle.concepts.length, 16);
+  assert.equal(bundle.concepts.length, 62);
   assert.equal(bundle.byId.get("index"), undefined);
 });
 

@@ -4,6 +4,7 @@
 //
 //     --reps N          repetitions per question for the latency table (default 3)
 //     --full            also measure latency + refusals (costs tokens)
+//     --judge           also grade answer faithfulness with an LLM judge (implies --full)
 //     --save            write the run to src/lib/eval/runs/ for the /eval dashboard
 //
 // Default is retrieval-only, because that is the run you want to be able to do
@@ -19,7 +20,15 @@
 // tested against fixed inputs instead of only ever being seen in this output.
 //
 // Runs are sequential and paced on purpose — running them in parallel would
-// measure contention, not latency.
+// measure contention, not latency. Every API call is retried through transient
+// failures (see withRetry): a judged run is ~330 calls over half an hour, and one
+// 503 in the middle of it should not discard everything before it.
+//
+// --judge adds the faithfulness pass: every answer that wasn't a refusal is
+// broken into claims and each claim is checked against the passages that answer
+// was generated from. It roughly doubles the model calls, which is why it is a
+// separate flag rather than part of --full. See src/lib/eval/judge.ts for what
+// the number does and does not mean.
 //
 // --save writes the run to src/lib/eval/runs/ as a committed JSON artifact, which
 // is what the /eval dashboard renders and diffs. The console output above is for
@@ -41,6 +50,12 @@ import {
   type SetScore,
 } from "@/lib/eval/score";
 import {
+  judgeAnswer,
+  summariseFaithfulness,
+  JUDGE_MODEL,
+  type FaithfulnessVerdict,
+} from "@/lib/eval/judge";
+import {
   RUN_SCHEMA_VERSION,
   runFilename,
   serializeRun,
@@ -52,6 +67,50 @@ import { RUNS_DIR } from "@/lib/eval/runs-store";
 import type { RagTimings } from "@/lib/rag/retrieve";
 
 const PACE_MS = 250;
+
+// Transient API failures that are worth waiting out rather than abandoning a run
+// for. A judged run is ~330 model calls over half an hour, and a single 503 in
+// the middle of it used to discard every call that came before — the shape of
+// failure where the harness is more fragile than the thing it measures.
+const RETRYABLE = /\b(429|500|502|503|504)\b|UNAVAILABLE|RESOURCE_EXHAUSTED|ECONNRESET|ETIMEDOUT|fetch failed/i;
+
+// Backoff schedule, in ms. Deliberately patient: a demand spike on a shared
+// model lasts tens of seconds, and waiting a minute is far cheaper than
+// re-running everything.
+const BACKOFF_MS = [2_000, 5_000, 12_000, 25_000, 45_000];
+
+/**
+ * Retries a call through transient failures.
+ *
+ * Non-retryable errors (a bad model id, a missing key, a malformed request)
+ * throw immediately — retrying those just delays a failure you need to see.
+ *
+ * If the retries are exhausted the error propagates and the run aborts with
+ * nothing saved. That is deliberate: a run missing a handful of answers would
+ * still produce a refusal rate and a faithfulness score, and those numbers would
+ * be quietly computed over a different question set than the one the artifact
+ * claims. A missing run is obvious; a silently short one is not.
+ */
+async function withRetry<T>(
+  label: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const message = (err as Error)?.message ?? String(err);
+      if (!RETRYABLE.test(message) || attempt >= BACKOFF_MS.length) throw err;
+
+      const wait = BACKOFF_MS[attempt];
+      process.stdout.write(
+        `\n  ⚠ ${label}: ${message.slice(0, 90).replace(/\s+/g, " ")}\n` +
+          `    retrying in ${wait / 1000}s (attempt ${attempt + 2}/${BACKOFF_MS.length + 1})\n`,
+      );
+      await new Promise((res) => setTimeout(res, wait));
+    }
+  }
+}
 
 /** Short SHA of the tree the run was made from. Null if git isn't available. */
 function gitSha(): string | null {
@@ -175,7 +234,9 @@ async function main() {
     return i > -1 ? Number(argv[i + 1]) : d;
   };
 
-  const full = flag("--full");
+  const judge = flag("--judge");
+  // Judging grades answers, and there are no answers without a generation pass.
+  const full = flag("--full") || judge;
   const save = flag("--save");
   const reps = num("--reps", 3);
   if (!Number.isFinite(reps) || reps < 1) throw new Error("--reps must be >= 1");
@@ -197,7 +258,9 @@ async function main() {
   console.log(`Retrieving ${EVAL_QUESTIONS.length} questions (no generation)...`);
   const saved: (QuestionScore & { embedMs: number; searchMs: number; chunksUsed: number })[] = [];
   for (const [i, item] of EVAL_QUESTIONS.entries()) {
-    const r = await retrieveOnly(item.q);
+    const r = await withRetry(`retrieve "${item.q.slice(0, 40)}"`, () =>
+      retrieveOnly(item.q),
+    );
     const score = scoreQuestion(item, {
       titles: r.citations.map((c) => c.sourceTitle),
       chunksUsed: r.chunksUsed,
@@ -282,15 +345,33 @@ async function main() {
 
   const timings: RagTimings[] = [];
   const answers = new Map<string, string>();
+  // The chunks each answer was actually generated from, captured in the same
+  // pipeline pass. Re-retrieving them for the judge could return a different set
+  // and grade the answer against passages the model never saw.
+  const contexts = new Map<string, string[]>();
   let done = 0;
 
   for (let rep = 0; rep < reps; rep++) {
     for (const item of EVAL_QUESTIONS) {
-      const { stream, timings: t } = await askRulesStream(item.q);
-      let answer = "";
-      for await (const piece of stream) answer += piece;
-      timings.push(await t);
-      if (rep === 0) answers.set(item.q, answer);
+      let captured: string[] = [];
+      // The whole exchange retries as one unit. Retrying only the initial call
+      // would leave a half-consumed stream behind and a timings promise that
+      // never settles.
+      const { answer, t } = await withRetry(
+        `generate "${item.q.slice(0, 40)}"`,
+        async () => {
+          const { stream, timings, contexts: ctx } = await askRulesStream(item.q);
+          let text = "";
+          for await (const piece of stream) text += piece;
+          captured = ctx;
+          return { answer: text, t: await timings };
+        },
+      );
+      timings.push(t);
+      if (rep === 0) {
+        answers.set(item.q, answer);
+        contexts.set(item.q, captured);
+      }
 
       done++;
       process.stdout.write(`\r  ${done}/${total}  ${item.q.slice(0, 44)}`.padEnd(96));
@@ -344,6 +425,71 @@ async function main() {
     console.log(`    ${miss.excerpt.slice(0, 160)}…`);
   }
 
+  // ---------- Faithfulness pass (--judge only) ----------
+  let faithfulness: GenerationResult["faithfulness"] = undefined;
+
+  if (judge) {
+    const { judgeGenerate } = await import("@/lib/eval/judge-gemini");
+
+    // Refusals are skipped, not scored: an answer that asserts nothing about the
+    // sources is trivially faithful, and averaging those in as 1.0 would let a
+    // system that refuses everything post a perfect score. Out-of-corpus
+    // questions that got ANSWERED are judged — that is exactly where invention
+    // lives.
+    const toJudge = EVAL_QUESTIONS.filter(
+      (item) => !refused(answers.get(item.q) ?? ""),
+    );
+    const skippedRefusals = EVAL_QUESTIONS.length - toJudge.length;
+
+    console.log(
+      `\nJudging faithfulness: ${toJudge.length} answers with ${JUDGE_MODEL} ` +
+        `(${skippedRefusals} refusals skipped)\n`,
+    );
+
+    const verdicts: FaithfulnessVerdict[] = [];
+    for (const [i, item] of toJudge.entries()) {
+      verdicts.push(
+        await judgeAnswer({
+          question: item.q,
+          answer: answers.get(item.q) ?? "",
+          contexts: contexts.get(item.q) ?? [],
+          // Retried here rather than inside judgeAnswer, so a demand spike
+          // doesn't get recorded as the judge failing to grade an answer.
+          generate: (prompt) =>
+            withRetry(`judge "${item.q.slice(0, 40)}"`, () => judgeGenerate(prompt)),
+        }),
+      );
+      process.stdout.write(`\r  ${i + 1}/${toJudge.length}`.padEnd(40));
+      await new Promise((res) => setTimeout(res, PACE_MS));
+    }
+    console.log("\n");
+
+    const f = summariseFaithfulness(verdicts, skippedRefusals);
+    faithfulness = { judgeModel: JUDGE_MODEL, ...f };
+
+    console.log("## Faithfulness\n");
+    console.log(
+      `  ${bar(f.score)}  ${Number.isNaN(f.score) ? "—" : (f.score * 100).toFixed(1) + "%"}   ` +
+        `${f.clean}/${f.judged} answers fully supported`,
+    );
+    console.log(
+      `\n  Judged ${f.judged}, skipped ${f.skippedRefusals} refusals, ` +
+        `${f.failed} judge failures (excluded from the average, NOT scored as 0).`,
+    );
+
+    if (f.unsupported.length) {
+      console.log(`\n  Unsupported claims (${f.unsupported.length}):\n`);
+      for (const u of f.unsupported.slice(0, 20)) {
+        console.log(`    "${u.question}"`);
+        console.log(`      claim: ${u.claim}`);
+        console.log(`      judge: ${u.note}`);
+      }
+      if (f.unsupported.length > 20) {
+        console.log(`    …and ${f.unsupported.length - 20} more (all saved to the artifact).`);
+      }
+    }
+  }
+
   if (save) {
     await writeRun({
       startedAt,
@@ -359,6 +505,9 @@ async function main() {
           refused: refusedCount,
           answered: answeredInstead,
         },
+        // Omitted entirely on an unjudged run, so the dashboard can tell "not
+        // measured" from "measured and found nothing".
+        ...(faithfulness ? { faithfulness } : {}),
       },
     });
   }

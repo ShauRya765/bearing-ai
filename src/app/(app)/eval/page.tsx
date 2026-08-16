@@ -13,7 +13,7 @@ import { diffRuns } from "@/lib/eval/diff";
 import { deltaCount, deltaPp, pct } from "@/lib/eval/format";
 import { loadHistory } from "@/lib/eval/runs-store";
 import { MetricTile, RecallBar } from "@/components/eval/Metrics";
-import { MissPanel, RefusalPanel } from "@/components/eval/Findings";
+import { FaithfulnessPanel, MissPanel, RefusalPanel } from "@/components/eval/Findings";
 import { QuestionSet } from "@/components/eval/QuestionSet";
 import { LatencyTable, RunHistory, RunProvenance, Warnings } from "@/components/eval/Runs";
 
@@ -22,8 +22,20 @@ import { LatencyTable, RunHistory, RunProvenance, Warnings } from "@/components/
 // cheaper than being caught by them.
 const LIMITS: { title: string; body: string }[] = [
     {
-        title: "Recall@k is not answer quality",
-        body: "It asks one question: did the passage that answers this land in the top k? A run can retrieve every correct source and still produce a wrong answer from it. Nothing on this page grades the prose.",
+        title: "Faithfulness is not correctness",
+        body: "The judge grades each claim against the passages the answer was generated from, and nothing else. An answer faithfully derived from the wrong retrieved chunk scores 100%, and so does one derived from a corpus card that is itself wrong. Faithfulness bounds invention, not truth — it is the floor under answer quality, not the ceiling.",
+    },
+    {
+        title: "The judge is a model from the same family as the generator",
+        body: "Faithfulness here is graded by Gemini on answers written by Gemini, which is a system partly marking its own work. Shared blind spots — a number both models read the same wrong way — pass unnoticed. A judge from a different vendor, or a human sample audit over the same answers, would be stronger evidence than this. The judge model is recorded in every run and a change to it raises a comparability warning, because a faithfulness delta across two judges measures the judges.",
+    },
+    {
+        title: "Claim decomposition is itself a judgement call",
+        body: "The score is supported claims over total claims, so how an answer gets split into claims moves the denominator. A verbose answer broken into fifteen claims and a terse one broken into three are not scored on the same scale, which is why the average is taken per question rather than per claim. Run-to-run variation of a point or two is decomposition noise, not a change in the answers.",
+    },
+    {
+        title: "Recall@k measures retrieval, not the answer",
+        body: "It asks one question: did the passage that answers this land in the top k? A run can retrieve every correct source and still write something unsupported from it — which is what the faithfulness section above is for. The two are separate ceilings and both have to hold.",
     },
     {
         title: "The eval set was written by the same person as the corpus",
@@ -35,7 +47,7 @@ const LIMITS: { title: string; body: string }[] = [
     },
     {
         title: "A small corpus makes recall@k easy",
-        body: "With few enough sources competing for k slots, retrieval can score highly without being discriminating. Read the recall figure against the corpus size in the provenance line, and treat a rising corpus with flat recall as the real result.",
+        body: "With few enough sources competing for k slots, retrieval can score highly without being discriminating. Read the recall figure against the corpus size in the provenance line, and treat a rising corpus with flat recall as the real result. The corpus went from 16 sources to 62 on 2026-08-15 for exactly this reason: at 16 sources and k=5, nearly a third of the corpus came back for every query, and a high recall figure was close to unavoidable.",
     },
     {
         title: "Latency is measured from one machine, sequentially",
@@ -55,7 +67,7 @@ export default function EvalPage() {
                         No eval runs have been committed yet. Produce one with:
                     </p>
                     <pre className="mt-3 overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs text-foreground">
-                        npx tsx --tsconfig tsconfig.json scripts/bench-retrieve.ts --full --save
+                        npx tsx --tsconfig tsconfig.json scripts/bench-retrieve.ts --full --judge --save
                     </pre>
                     <p className="mt-3 text-xs text-muted-foreground">
                         Then commit the file it writes to{" "}
@@ -135,6 +147,57 @@ export default function EvalPage() {
                 />
             </section>
 
+            {/* Answer quality sits in its own row rather than competing with the
+                retrieval tiles: it is measured differently (by a model, not by set
+                arithmetic) and carries caveats the retrieval numbers don't. */}
+            <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <MetricTile
+                    label="Faithfulness"
+                    value={
+                        generation?.faithfulness ? pct(generation.faithfulness.score) : "—"
+                    }
+                    sub={
+                        generation?.faithfulness
+                            ? `claims supported, ${generation.faithfulness.judged} answers judged`
+                            : "not measured in this run"
+                    }
+                    delta={diff.faithfulness ?? undefined}
+                    higherIsBetter
+                    format={deltaPp}
+                    warn={!generation?.faithfulness}
+                />
+                <MetricTile
+                    label="Fully supported"
+                    value={
+                        generation?.faithfulness
+                            ? `${generation.faithfulness.clean}/${generation.faithfulness.judged}`
+                            : "—"
+                    }
+                    sub="answers with no unsupported claim"
+                    warn={!generation?.faithfulness}
+                />
+                <MetricTile
+                    label="Unsupported claims"
+                    value={
+                        generation?.faithfulness
+                            ? String(generation.faithfulness.unsupported.length)
+                            : "—"
+                    }
+                    sub="listed in full below"
+                    warn={!generation?.faithfulness}
+                />
+                <MetricTile
+                    label="Judge failures"
+                    value={
+                        generation?.faithfulness
+                            ? String(generation.faithfulness.failed)
+                            : "—"
+                    }
+                    sub="unjudged, excluded from the average"
+                    warn={!generation?.faithfulness}
+                />
+            </section>
+
             {/* Retrieval detail */}
             <section>
                 <p className="mb-3 font-mono text-[0.7rem] uppercase tracking-wider text-muted-foreground/70">
@@ -179,6 +242,8 @@ export default function EvalPage() {
 
             <MissPanel diff={diff} />
 
+            <FaithfulnessPanel generation={generation} diff={diff} />
+
             <RefusalPanel
                 generation={generation}
                 diff={diff}
@@ -218,13 +283,15 @@ export default function EvalPage() {
                 </p>
                 <div className="rounded-xl border bg-card p-5">
                     <pre className="overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs text-foreground">
-                        npx tsx --tsconfig tsconfig.json scripts/bench-retrieve.ts --full --save
+                        npx tsx --tsconfig tsconfig.json scripts/bench-retrieve.ts --full --judge --save
                     </pre>
                     <p className="mt-3 max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
                         Scoring is a pure function over retrieved source titles, unit tested against
                         fixed inputs, and shared by the command line and this page — so the two
-                        cannot disagree about the same run. The command writes a JSON artifact;
-                        committing it is what publishes these numbers.
+                        cannot disagree about the same run. The same is true of faithfulness: the
+                        judging prompt, the parsing and the arithmetic are pure and tested, and only
+                        the model call itself touches the network. The command writes a JSON
+                        artifact; committing it is what publishes these numbers.
                     </p>
                 </div>
             </section>
