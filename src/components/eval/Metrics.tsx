@@ -2,7 +2,14 @@
 // this page is static data read at build time, so none of it needs to ship JS.
 
 import type { MetricDelta } from "@/lib/eval/diff";
-import { NONE, deltaPp, pct, trend, type Trend } from "@/lib/eval/format";
+import {
+    NONE,
+    deltaPp,
+    isFirstMeasurement,
+    pct,
+    trend,
+    type Trend,
+} from "@/lib/eval/format";
 
 const TREND_CLASS: Record<Trend, string> = {
     better: "text-clear",
@@ -17,6 +24,57 @@ const TREND_GLYPH: Record<Trend, string> = {
     flat: "→",
     none: "",
 };
+
+/**
+ * A collapsed section, closed by default.
+ *
+ * This page publishes its own failure lists, which is the strongest thing it
+ * does and also the reason it grew to five thousand words. The evidence is for
+ * checking a number, not for reading front to back — so it lives one click
+ * away rather than in the scroll. Native <details>, so it still costs no JS and
+ * still opens under ctrl-F and print.
+ */
+export function Disclosure({
+    label,
+    count,
+    tone = "neutral",
+    children,
+}: {
+    label: string;
+    /** Shown beside the label. Omit when a count would be meaningless. */
+    count?: number | string;
+    /** `bad` marks a list of failures, so a non-empty one reads as one. */
+    tone?: "neutral" | "bad";
+    children: React.ReactNode;
+}) {
+    // A disclosure with a count of zero has nothing to disclose, and a row of
+    // "Fixed 0 / Standing 0" toggles is exactly the noise this pass is for.
+    if (count === 0) return null;
+
+    return (
+        <details className="group mt-3 rounded-lg border bg-background/40">
+            <summary className="flex cursor-pointer list-none items-baseline gap-2 px-3 py-2 hover:bg-muted/40">
+                <span
+                    className="font-mono text-[0.65rem] text-muted-foreground/50 transition-transform group-open:rotate-90"
+                    aria-hidden="true"
+                >
+                    ▸
+                </span>
+                <span className="flex-1 text-xs font-medium text-foreground">{label}</span>
+                {count !== undefined && (
+                    <span
+                        className={`font-mono text-xs tabular-nums ${
+                            tone === "bad" ? "text-destructive" : "text-muted-foreground"
+                        }`}
+                    >
+                        {count}
+                    </span>
+                )}
+            </summary>
+            <div className="border-t border-border/50 px-3 py-3">{children}</div>
+        </details>
+    );
+}
 
 /**
  * A change against the previous run. Renders nothing but a dash when there is no
@@ -35,6 +93,22 @@ export function DeltaBadge({
     const label = format(delta);
 
     if (t === "none") {
+        // A metric measured for the first time is not an unchanged one. It gets
+        // a label rather than the dash, because a bare dash beside a strong
+        // number invites the reader to supply the missing comparison — and it
+        // is deliberately NOT coloured, since there is nothing yet to be better
+        // than. The real arrow appears on its own once a baseline exists.
+        if (isFirstMeasurement(delta)) {
+            return (
+                <span
+                    className="font-mono text-[0.7rem] text-muted-foreground/70"
+                    title="Measured in this run only — the previous run did not measure it, so there is no change to report"
+                >
+                    first measured
+                </span>
+            );
+        }
+
         return (
             <span
                 className="font-mono text-xs text-muted-foreground/50"
@@ -108,6 +182,7 @@ export function RecallBar({
     total,
     delta,
     indent,
+    caption,
 }: {
     label: string;
     recall: number;
@@ -115,6 +190,9 @@ export function RecallBar({
     total: number;
     delta?: MetricDelta;
     indent?: boolean;
+    /** Replaces the default "n/m retrieved every expected source" line, for
+     *  bars measuring something other than recall. */
+    caption?: string;
 }) {
     const defined = !Number.isNaN(recall);
     const width = defined ? `${Math.max(recall * 100, 0.5)}%` : "0%";
@@ -153,7 +231,8 @@ export function RecallBar({
             <p className="mt-1 text-xs text-muted-foreground">
                 {total === 0
                     ? "no questions in this group"
-                    : `${allHit}/${total} questions retrieved every expected source`}
+                    : (caption ??
+                      `${allHit}/${total} questions retrieved every expected source`)}
             </p>
         </div>
     );

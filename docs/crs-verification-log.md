@@ -188,3 +188,92 @@ the note, and a profile with headroom gets the full +50 and no note.
 that actually bind are what make marginal deltas smaller than headline factor
 values — so expect more of these as ceilings are enforced correctly. Any lever
 whose delta is smaller than its headline value now has to explain itself.
+
+---
+
+## 2026-08-15 — gold answers for the eval correctness metric
+
+**Not a ruleset audit.** This section records a different verification pass, but
+it belongs in the same file for the same reason: numbers taken from IRCC, with
+what was read and when, so a disputed figure has an answer that isn't someone's
+recollection.
+
+**What it is for.** `/eval` gained a correctness metric. Every other figure on
+that page grades the system against `okf/`, so all of them read 100% on an
+answer that is faithfully derived from a corpus card that is wrong — `judge.ts`
+has said so in a comment since the faithfulness work. Correctness grades against
+IRCC instead, which is the only way to catch that failure. The ground truth is
+`GOLD` in `src/lib/eval/questions.ts`.
+
+**Sources of truth,** all read 2026-08-15 (each page's own "Page details" date
+noted where it was shown):
+
+- Federal Skilled Worker Program —
+  <https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/who-can-apply/federal-skilled-workers.html>
+- Canadian Experience Class —
+  <https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/who-can-apply/canadian-experience-class.html>
+- Federal Skilled Trades Program —
+  <https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/who-can-apply/federal-skilled-trades.html>
+- Language requirements —
+  <https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/documents/language-requirements.html>
+- CRS criteria (page details 2026-06-22) —
+  <https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html>
+- Provincial nominees via Express Entry (page details 2026-05-21) —
+  <https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/provincial-nominees/express-entry/eligibility.html>
+
+**Coverage:** 48 of the 154 covered eval questions, 28 of them marked hard, 83
+individual facts. Weighted toward numeric thresholds, where a wrong answer is
+unambiguous rather than a matter of framing. No new questions were written — the
+labels went onto questions that already existed, so the run-to-run diff of
+recall and faithfulness stays honest.
+
+**Facts recorded** (the ones worth restating here, because they are the ones a
+plausible-sounding wrong answer gets wrong):
+
+- Skilled work experience is **1 year continuous OR 1,560 hours total at 30
+  hours/week** — the two are alternatives, not a single requirement. Hours above
+  30/week are not counted. Volunteer work and unpaid internships do not count.
+  FSW looks back **10 years**; CEC requires the experience in the **3 years
+  before you apply** and it must have been performed **physically in Canada**.
+- CEC excludes **self-employment** and work done while a **full-time student**,
+  including co-op terms. FSW has no such exclusion for student work provided it
+  was paid and continuous.
+- **FST is 3,120 hours / 2 years**, not 1,560 — and requires either a job offer
+  of at least 1 year **or** a certificate of qualification, not both.
+- Per-program language floors differ and the corpus is a natural place to
+  conflate them: FSW **CLB 7** in all four; CEC **CLB 7** for TEER 0/1 and
+  **CLB 5** for TEER 2/3; FST **CLB 5** speaking/listening and **CLB 4**
+  reading/writing.
+- FSW selection grid is scored **out of 100 with a 67-point pass**, and the page
+  states outright that these are *not* the CRS points.
+- Additional points confirmed: nomination **600**, French **25** (NCLC 7+ with
+  CLB 4 or lower, or no English test) or **50** (NCLC 7+ with CLB 5+ English),
+  Canadian post-secondary **15** (one or two years) or **30** (three years or
+  longer), sibling **15**, group maximum **600**. Job-offer points remain
+  removed as of **2025-03-25**.
+- Core maxima confirmed: **500** without a spouse, **460** with. Selected cells
+  re-read for the gold set: age 30 = 105 and age 31 = 99 (without spouse), 45+ =
+  0; master's 135/126; two-or-more-credentials 128/120 vs bachelor's 120/112;
+  Canadian work 1 year 40 and 2 years 53, 5+ years 80/70; first-language CLB 9 =
+  31/29 and CLB 8 = 23/22; second-language group cap 24/22.
+- **Quebec does not have a provincial nominee program**, so the 600 points are
+  not reachable that way.
+
+**No defects found in the rulesets by this pass.** Every figure above that also
+appears in `src/lib/crs/ruleset` matched it. That is a weaker statement than the
+2026-07-31 audit — this pass read the cells the gold questions needed, not every
+cell — so it does not move the `verified` flag.
+
+**Deliberate omission:** `mustNotState` is kept sparse. The deterministic half of
+the correctness check is a substring match whose hits force a score of zero, so
+a forbidden string that a *correct* answer might use in passing ("it used to be
+50 points", "CLB 6 isn't a threshold") would manufacture a failure. Only
+distinctive wrong values that no correct answer would utter are listed;
+everything subtler is left to the judge, which is instructed to count a
+forbidden claim only when the answer asserts it as true.
+
+**Shelf life.** These are facts as the pages stood on 2026-08-15. IRCC edits
+them — job-offer points vanished outright in March 2025 — so a stale gold record
+marks a *correct* answer wrong, which is the more dangerous direction for this
+metric to fail. Re-read the pages before trusting a correctness delta that
+crosses a long gap, and update `READ` in questions.ts when you do.

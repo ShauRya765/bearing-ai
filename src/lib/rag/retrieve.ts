@@ -90,15 +90,49 @@ export interface RagStreamStart {
 }
 
 // Shape of a row returned by the match_rule_chunks RPC.
+//
+// `similarity` was on the wire all along and simply not declared here (see
+// scripts/debug-retrieve.ts, which has always printed it). It is carried now so
+// the eval can report WHERE in the ranking a chunk landed and how close the
+// match actually was — the RPC applies no similarity floor, so this is the only
+// signal distinguishing a strong hit from the fifth-best of a bad field.
 interface RuleChunk {
   content: string;
   source_title: string;
   source_url: string;
+  similarity: number;
+}
+
+/**
+ * A retrieved chunk with its rank and score, for the eval only.
+ *
+ * The generation path deliberately doesn't use this — `buildPrompt` numbers
+ * chunks by array position and needs nothing more. It exists so a judged eval
+ * can name the chunk it scored ("'The tie-breaking rule' at rank 3") instead of
+ * quoting an anonymous wall of text.
+ */
+export interface RetrievedChunk {
+  text: string;
+  sourceTitle: string;
+  sourceUrl: string;
+  similarity: number;
+  /** 1-based position in the returned ranking. */
+  rank: number;
+}
+
+function retrievedFrom(chunks: RuleChunk[]): RetrievedChunk[] {
+  return chunks.map((c, i) => ({
+    text: c.content,
+    sourceTitle: c.source_title,
+    sourceUrl: c.source_url,
+    similarity: c.similarity,
+    rank: i + 1,
+  }));
 }
 
 // Exported because the eval reports "every out-of-corpus query still returned k
 // chunks" — a claim that has to be made against the real k, not a copy of it.
-export const MATCH_COUNT = 5;
+export const MATCH_COUNT = 3;
 
 function citationsFrom(chunks: RuleChunk[]): Citation[] {
   return chunks.map((c) => ({
@@ -127,7 +161,13 @@ const NO_MATCH_MESSAGE =
 
 // Same model + dimension as ingestion — non-negotiable, or vectors don't compare.
 // Note the task type: RETRIEVAL_QUERY here, vs RETRIEVAL_DOCUMENT at ingestion.
-async function embedQuery(question: string): Promise<number[]> {
+//
+// Exported for the answer-relevance metric, which compares the question against
+// questions reverse-generated from the answer. Both sides must be embedded the
+// way a query is embedded, so it calls this rather than its own copy — a second
+// embedding path that drifted on task type or dimension would produce cosine
+// scores that look plausible and mean nothing.
+export async function embedQuery(question: string): Promise<number[]> {
   const result = await genAI.models.embedContent({
     model: EMBEDDING_MODEL,
     contents: question,
@@ -245,6 +285,15 @@ export interface RagStreamResult {
    * different set and quietly grade the wrong thing.
    */
   contexts: string[];
+  /**
+   * The same chunks, with their titles, ranks and similarity scores.
+   *
+   * Server-side only for the same reason as `contexts`. Kept alongside rather
+   * than replacing it: `contexts` is the exact input the faithfulness judge
+   * grades against, and narrowing it to a projection of this would put a
+   * transformation between the model's prompt and the judge's evidence.
+   */
+  retrieved: RetrievedChunk[];
   stream: AsyncGenerator<string>;
   /**
    * Resolves once the stream finishes — including when the consumer abandons it
@@ -285,6 +334,7 @@ export async function askRulesStream(
         retrieval: { embedMs, searchMs },
       },
       contexts: [],
+      retrieved: [],
       stream: (async function* () {
         yield NO_MATCH_MESSAGE;
       })(),
@@ -331,6 +381,7 @@ export async function askRulesStream(
       retrieval: { embedMs, searchMs },
     },
     contexts: chunks.map((c) => c.content),
+    retrieved: retrievedFrom(chunks),
     stream,
     timings,
   };

@@ -21,6 +21,10 @@
 //     explicitly, and run.test.ts asserts the round trip.
 
 import type { EvalSummary, QuestionScore, SetScore } from "@/lib/eval/score";
+import { summariseRankPrecision } from "@/lib/eval/score";
+import type { ContextPrecisionSummary } from "@/lib/eval/precision";
+import type { AnswerRelevanceResult } from "@/lib/eval/relevance";
+import type { CorrectnessResult } from "@/lib/eval/correctness";
 
 /**
  * Bumped whenever the shape below changes incompatibly. parseRun refuses a run
@@ -94,6 +98,19 @@ export interface GenerationResult {
   };
   /** Undefined on runs that didn't judge. See FaithfulnessResult. */
   faithfulness?: FaithfulnessResult | null;
+  /**
+   * The Claude-judged metrics. Optional for exactly the same reason
+   * faithfulness is, and added the same way — which is what keeps
+   * RUN_SCHEMA_VERSION at 1 and every previously committed run readable.
+   *
+   * All three follow the same three-state encoding: absent means never
+   * measured, null means measured and got nothing, and a present object with a
+   * NaN score means judged but unscoreable. Collapsing any pair of those would
+   * turn a gap in the evidence into a finding.
+   */
+  contextPrecision?: ContextPrecisionSummary | null;
+  answerRelevance?: AnswerRelevanceResult | null;
+  correctness?: CorrectnessResult | null;
 }
 
 export interface LatencyStage {
@@ -140,27 +157,98 @@ function numFromJson(n: number | null | undefined): number {
 type SetScoreJson = Omit<SetScore, "recall"> & { recall: number | null };
 type QuestionScoreJson = Omit<QuestionScore, "recall"> & { recall: number | null };
 
-// `generation` is otherwise passed through untouched, but faithfulness.score is
-// NaN-able and so needs the same explicit mapping as recall. Without it a run
-// where the judge never succeeded would serialise NaN to null and read back as
-// 0 — a fabricated 0% faithfulness, which is the worst possible direction for
-// this particular number to be wrong in.
-type GenerationJson = Omit<GenerationResult, "faithfulness"> & {
-  faithfulness?: (Omit<FaithfulnessResult, "score"> & { score: number | null }) | null;
+// `generation` is otherwise passed through untouched, but every judged metric
+// carries at least one NaN-able score and so needs the same explicit mapping as
+// recall. Without it a run where the judge never succeeded would serialise NaN
+// to null and read back as 0 — a fabricated 0%, which is the worst possible
+// direction for any of these numbers to be wrong in.
+//
+// The NaN-able keys are listed per metric rather than discovered, because the
+// cost of forgetting one is silent and the cost of listing it is a line.
+type ScoreJson<T, K extends keyof T> = Omit<T, K> & { [P in K]: number | null };
+
+const FAITHFULNESS_SCORES = ["score"] as const;
+const PRECISION_SCORES = ["score", "uncoveredScore"] as const;
+const RELEVANCE_SCORES = ["score"] as const;
+const CORRECTNESS_SCORES = ["score", "factCoverage"] as const;
+
+type FaithfulnessJson = ScoreJson<FaithfulnessResult, "score">;
+type PrecisionJson = ScoreJson<ContextPrecisionSummary, "score" | "uncoveredScore">;
+type RelevanceJson = ScoreJson<AnswerRelevanceResult, "score">;
+type CorrectnessJson = ScoreJson<CorrectnessResult, "score" | "factCoverage">;
+
+/** NaN → null on the listed keys; every other field is copied untouched. */
+function encodeMetric<J>(m: object | null, keys: readonly string[]): J | null {
+  if (m === null) return null;
+  const out: Record<string, unknown> = { ...m };
+  for (const k of keys) out[k] = numToJson(out[k] as number);
+  return out as J;
+}
+
+/** null → NaN on the listed keys. The inverse of encodeMetric. */
+function decodeMetric<T>(m: object | null, keys: readonly string[]): T | null {
+  if (m === null) return null;
+  const out: Record<string, unknown> = { ...m };
+  for (const k of keys) out[k] = numFromJson(out[k] as number | null);
+  return out as T;
+}
+
+type GenerationJson = Omit<
+  GenerationResult,
+  "faithfulness" | "contextPrecision" | "answerRelevance" | "correctness"
+> & {
+  faithfulness?: FaithfulnessJson | null;
+  contextPrecision?: PrecisionJson | null;
+  answerRelevance?: RelevanceJson | null;
+  correctness?: CorrectnessJson | null;
 };
 
+// Both directions spread each metric in ONLY when the key was present. An
+// unconditional spread would turn "never measured" into an explicit null on the
+// way out, and the dashboard would stop being able to tell a run that skipped a
+// metric from one that ran it and got nothing.
 function generationToJson(g: GenerationResult | null): GenerationJson | null {
   if (!g) return null;
-  const { faithfulness: f, ...rest } = g;
-  if (f === undefined) return rest;
-  return { ...rest, faithfulness: f ? { ...f, score: numToJson(f.score) } : null };
+  const {
+    faithfulness: f,
+    contextPrecision: cp,
+    answerRelevance: ar,
+    correctness: c,
+    ...rest
+  } = g;
+  return {
+    ...rest,
+    ...(f !== undefined ? { faithfulness: encodeMetric<FaithfulnessJson>(f, FAITHFULNESS_SCORES) } : {}),
+    ...(cp !== undefined
+      ? { contextPrecision: encodeMetric<PrecisionJson>(cp, PRECISION_SCORES) }
+      : {}),
+    ...(ar !== undefined
+      ? { answerRelevance: encodeMetric<RelevanceJson>(ar, RELEVANCE_SCORES) }
+      : {}),
+    ...(c !== undefined ? { correctness: encodeMetric<CorrectnessJson>(c, CORRECTNESS_SCORES) } : {}),
+  };
 }
 
 function generationFromJson(g: GenerationJson | null): GenerationResult | null {
   if (!g) return null;
-  const { faithfulness: f, ...rest } = g;
-  if (f === undefined) return rest;
-  return { ...rest, faithfulness: f ? { ...f, score: numFromJson(f.score) } : null };
+  const {
+    faithfulness: f,
+    contextPrecision: cp,
+    answerRelevance: ar,
+    correctness: c,
+    ...rest
+  } = g;
+  return {
+    ...rest,
+    ...(f !== undefined ? { faithfulness: decodeMetric<FaithfulnessResult>(f, FAITHFULNESS_SCORES) } : {}),
+    ...(cp !== undefined
+      ? { contextPrecision: decodeMetric<ContextPrecisionSummary>(cp, PRECISION_SCORES) }
+      : {}),
+    ...(ar !== undefined
+      ? { answerRelevance: decodeMetric<AnswerRelevanceResult>(ar, RELEVANCE_SCORES) }
+      : {}),
+    ...(c !== undefined ? { correctness: decodeMetric<CorrectnessResult>(c, CORRECTNESS_SCORES) } : {}),
+  };
 }
 
 interface EvalRunJson {
@@ -173,6 +261,13 @@ interface EvalRunJson {
     latency: Nullable<EvalSummary["latency"]>;
     /** Omitted on write: derivable from `scores`, and duplicating it invites drift. */
     misses?: never;
+    /**
+     * Also omitted, for the same reason — and with a bonus: because it is
+     * derived from the rank-ordered `scores[].titles` every run already stores,
+     * runs committed before this metric existed report it too. A serialised
+     * field would have left them blank forever.
+     */
+    rankPrecision?: never;
   };
   scores: QuestionScoreJson[];
   generation: GenerationJson | null;
@@ -253,6 +348,7 @@ export function parseRun(text: string, filename = "<unknown>"): EvalRun {
       // Rebuilt from `scores` rather than read from the file, so the miss list
       // can never disagree with the per-question rows it's supposed to summarise.
       misses: scores.filter((s) => s.covered && !s.complete),
+      rankPrecision: summariseRankPrecision(scores),
     },
     scores,
     generation: generationFromJson(json.generation),

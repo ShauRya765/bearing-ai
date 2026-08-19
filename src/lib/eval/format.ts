@@ -42,6 +42,21 @@ export function trend(d: MetricDelta, higherIsBetter: boolean): Trend {
 }
 
 /**
+ * True when the metric has no baseline at all — this run measured it and the
+ * previous one did not.
+ *
+ * `trend()` collapses this into "none" together with the NaN case, but the two
+ * are different claims: a NaN delta means "measured twice, not comparable",
+ * while this means "measured once". A first measurement must never be painted
+ * as an improvement, and it should not be silently indistinguishable from an
+ * unchanged one either — 99.7% faithfulness on its first run is a starting
+ * point, not a rise.
+ */
+export function isFirstMeasurement(d: MetricDelta): boolean {
+  return d.previous === null;
+}
+
+/**
  * The delta as a label: "+4.1", "−2.8", "0.0", or a dash when there is nothing
  * to compare. Uses a real minus sign (U+2212) rather than a hyphen so a negative
  * number lines up with a positive one in a tabular-nums column.

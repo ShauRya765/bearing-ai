@@ -10,10 +10,16 @@
 // system fails is the only version of this that is worth trusting.
 
 import { diffRuns } from "@/lib/eval/diff";
-import { deltaCount, deltaPp, pct } from "@/lib/eval/format";
+import { deltaPp, pct } from "@/lib/eval/format";
 import { loadHistory } from "@/lib/eval/runs-store";
-import { MetricTile, RecallBar } from "@/components/eval/Metrics";
+import { rankPrecision } from "@/lib/eval/score";
+import { Disclosure, MetricTile, RecallBar } from "@/components/eval/Metrics";
 import { FaithfulnessPanel, MissPanel, RefusalPanel } from "@/components/eval/Findings";
+import {
+    AnswerRelevancePanel,
+    ContextPrecisionPanel,
+    CorrectnessPanel,
+} from "@/components/eval/Judged";
 import { QuestionSet } from "@/components/eval/QuestionSet";
 import { LatencyTable, RunHistory, RunProvenance, Warnings } from "@/components/eval/Runs";
 
@@ -22,36 +28,28 @@ import { LatencyTable, RunHistory, RunProvenance, Warnings } from "@/components/
 // cheaper than being caught by them.
 const LIMITS: { title: string; body: string }[] = [
     {
-        title: "Faithfulness is not correctness",
-        body: "The judge grades each claim against the passages the answer was generated from, and nothing else. An answer faithfully derived from the wrong retrieved chunk scores 100%, and so does one derived from a corpus card that is itself wrong. Faithfulness bounds invention, not truth — it is the floor under answer quality, not the ceiling.",
-    },
-    {
-        title: "The judge is a model from the same family as the generator",
-        body: "Faithfulness here is graded by Gemini on answers written by Gemini, which is a system partly marking its own work. Shared blind spots — a number both models read the same wrong way — pass unnoticed. A judge from a different vendor, or a human sample audit over the same answers, would be stronger evidence than this. The judge model is recorded in every run and a change to it raises a comparability warning, because a faithfulness delta across two judges measures the judges.",
-    },
-    {
-        title: "Claim decomposition is itself a judgement call",
-        body: "The score is supported claims over total claims, so how an answer gets split into claims moves the denominator. A verbose answer broken into fifteen claims and a terse one broken into three are not scored on the same scale, which is why the average is taken per question rather than per claim. Run-to-run variation of a point or two is decomposition noise, not a change in the answers.",
-    },
-    {
-        title: "Recall@k measures retrieval, not the answer",
-        body: "It asks one question: did the passage that answers this land in the top k? A run can retrieve every correct source and still write something unsupported from it — which is what the faithfulness section above is for. The two are separate ceilings and both have to hold.",
-    },
-    {
         title: "The eval set was written by the same person as the corpus",
-        body: "That is the sharpest bias here. Questions are deliberately worded the way a user would ask rather than in the source's vocabulary, and adversarial ones are marked hard and scored separately — but a set authored alongside the corpus still cannot discover a topic its author never thought of. Production questions are the correction, and they are not in this page yet.",
+        body: "The sharpest bias here. Questions are worded the way a user would ask rather than in the source's vocabulary, and adversarial ones are marked hard and scored separately — but a set authored alongside the corpus cannot discover a topic its author never thought of. Production questions are the correction, and they are not on this page yet.",
     },
     {
-        title: "Out-of-corpus recall is undefined, not 100%",
-        body: "Questions the corpus doesn't cover have no expected source, so recall over them is a fraction with no denominator. They are excluded from the average and shown as a dash. Averaging them in as perfect scores would be the single easiest way to fake a good number here.",
+        title: "Every graded metric is one model's opinion of another's",
+        body: "Faithfulness is graded by Gemini on answers written by Gemini — a system partly marking its own work, where a shared blind spot passes unnoticed. Context precision, answer relevance and correctness are graded by Claude, so a mistake has to survive two model families; that is stronger, and still well short of a human audit. Every judge model is recorded per run and a change to any of them raises a warning above, because a delta across two judges measures the judges.",
+    },
+    {
+        title: "Undefined metrics are dashes, never zeros",
+        body: "Out-of-corpus questions have no expected source, so recall over them is a fraction with no denominator; they are excluded rather than counted as perfect, which would be the easiest way to fake a good number here. The same rule holds throughout: a judge that failed, a metric never run, and a metric that ran and found nothing are three different states and stay distinguishable.",
+    },
+    {
+        title: "Labels are a floor, not the truth",
+        body: "Rank precision credits a chunk only if the question's expected list names it, so a genuinely useful neighbouring card is scored as noise — read it against the judged context precision beside it. Correctness relies on gold facts read from canada.ca on a stated date, and IRCC edits those pages. Both are comparable run-to-run only while the labels are unchanged, and a changed set raises a warning.",
     },
     {
         title: "A small corpus makes recall@k easy",
-        body: "With few enough sources competing for k slots, retrieval can score highly without being discriminating. Read the recall figure against the corpus size in the provenance line, and treat a rising corpus with flat recall as the real result. The corpus went from 16 sources to 62 on 2026-08-15 for exactly this reason: at 16 sources and k=5, nearly a third of the corpus came back for every query, and a high recall figure was close to unavoidable.",
+        body: "With few enough sources competing for k slots, retrieval can score highly without being discriminating. Read recall against the corpus size in the provenance line, and treat a rising corpus with flat recall as the real result. The corpus went from 16 sources to 62 on 2026-08-15 for exactly this reason: at 16 and k=5, nearly a third of it came back for every query.",
     },
     {
         title: "Latency is measured from one machine, sequentially",
-        body: "These are wall-clock figures from a developer laptop against a shared database, not production percentiles under concurrency. Useful for spotting a stage that got slower; not a capacity claim.",
+        body: "Wall-clock figures from a developer laptop against a shared database, not production percentiles under concurrency. Useful for spotting a stage that got slower; not a capacity claim.",
     },
 ];
 
@@ -105,13 +103,24 @@ export default function EvalPage() {
 
             <Warnings warnings={diff.warnings} />
 
-            {/* Headline numbers */}
+            {/* Eight tiles, two rows: retrieval, then answers. One number per
+                metric — the supporting counts (fully retrieved, clean answers,
+                judge failures) live in the panel that explains them, where they
+                were already being repeated. */}
             <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <MetricTile
                     label={`Recall@${meta.matchCount}`}
                     value={pct(summary.overall.recall)}
-                    sub={`${summary.overall.total} covered questions`}
+                    sub={`${summary.overall.allHit}/${summary.overall.total} fully retrieved`}
                     delta={diff.recall.overall}
+                    higherIsBetter
+                    format={deltaPp}
+                />
+                <MetricTile
+                    label="Rank precision"
+                    value={pct(summary.rankPrecision.overall)}
+                    sub="how highly the right source ranked"
+                    delta={diff.rankPrecision.overall}
                     higherIsBetter
                     format={deltaPp}
                 />
@@ -122,14 +131,6 @@ export default function EvalPage() {
                     delta={diff.recall.hard}
                     higherIsBetter
                     format={deltaPp}
-                />
-                <MetricTile
-                    label="Fully retrieved"
-                    value={`${summary.overall.allHit}/${summary.overall.total}`}
-                    sub="every expected source in top k"
-                    delta={diff.allHit}
-                    higherIsBetter
-                    format={deltaCount}
                 />
                 <MetricTile
                     label="Refusals"
@@ -147,10 +148,24 @@ export default function EvalPage() {
                 />
             </section>
 
-            {/* Answer quality sits in its own row rather than competing with the
-                retrieval tiles: it is measured differently (by a model, not by set
-                arithmetic) and carries caveats the retrieval numbers don't. */}
             <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <MetricTile
+                    label="Context precision"
+                    value={
+                        generation?.contextPrecision
+                            ? pct(generation.contextPrecision.score)
+                            : "—"
+                    }
+                    sub={
+                        generation?.contextPrecision
+                            ? "retrieved chunks judged relevant"
+                            : "not measured in this run"
+                    }
+                    delta={diff.contextPrecision ?? undefined}
+                    higherIsBetter
+                    format={deltaPp}
+                    warn={!generation?.contextPrecision}
+                />
                 <MetricTile
                     label="Faithfulness"
                     value={
@@ -167,34 +182,36 @@ export default function EvalPage() {
                     warn={!generation?.faithfulness}
                 />
                 <MetricTile
-                    label="Fully supported"
+                    label="Answer relevance"
                     value={
-                        generation?.faithfulness
-                            ? `${generation.faithfulness.clean}/${generation.faithfulness.judged}`
+                        generation?.answerRelevance
+                            ? pct(generation.answerRelevance.score)
                             : "—"
                     }
-                    sub="answers with no unsupported claim"
-                    warn={!generation?.faithfulness}
+                    sub={
+                        generation?.answerRelevance
+                            ? `${generation.answerRelevance.judged} answers scored`
+                            : "not measured in this run"
+                    }
+                    delta={diff.answerRelevance ?? undefined}
+                    higherIsBetter
+                    format={deltaPp}
+                    warn={!generation?.answerRelevance}
                 />
                 <MetricTile
-                    label="Unsupported claims"
+                    label="Correctness"
                     value={
-                        generation?.faithfulness
-                            ? String(generation.faithfulness.unsupported.length)
-                            : "—"
+                        generation?.correctness ? pct(generation.correctness.score) : "—"
                     }
-                    sub="listed in full below"
-                    warn={!generation?.faithfulness}
-                />
-                <MetricTile
-                    label="Judge failures"
-                    value={
-                        generation?.faithfulness
-                            ? String(generation.faithfulness.failed)
-                            : "—"
+                    sub={
+                        generation?.correctness
+                            ? `${generation.correctness.gold} gold-labelled of ${generation.correctness.covered} covered`
+                            : "not measured in this run"
                     }
-                    sub="unjudged, excluded from the average"
-                    warn={!generation?.faithfulness}
+                    delta={diff.correctness ?? undefined}
+                    higherIsBetter
+                    format={deltaPp}
+                    warn={!generation?.correctness}
                 />
             </section>
 
@@ -227,22 +244,65 @@ export default function EvalPage() {
                         delta={diff.recall.hard}
                         indent
                     />
+                    <div className="space-y-5 border-t pt-5">
+                        <RecallBar
+                            label="Rank precision, all covered questions"
+                            recall={summary.rankPrecision.overall}
+                            allHit={summary.overall.allHit}
+                            total={summary.overall.total}
+                            delta={diff.rankPrecision.overall}
+                            caption="mean average precision — where in the top k the expected sources landed"
+                        />
+                        <RecallBar
+                            label="Typical questions"
+                            recall={summary.rankPrecision.easy}
+                            allHit={summary.easy.allHit}
+                            total={summary.easy.total}
+                            delta={diff.rankPrecision.easy}
+                            caption="&nbsp;"
+                            indent
+                        />
+                        <RecallBar
+                            label="Hard questions"
+                            recall={summary.rankPrecision.hard}
+                            allHit={summary.hard.allHit}
+                            total={summary.hard.total}
+                            delta={diff.rankPrecision.hard}
+                            caption="&nbsp;"
+                            indent
+                        />
+                    </div>
                     <p className="max-w-[74ch] border-t pt-4 text-xs leading-relaxed text-muted-foreground">
-                        Averaged per question, not per expected source — a question needing two
-                        sources counts the same as one needing a single source, otherwise the
-                        handful of two-source questions would quietly dominate the figure.{" "}
-                        <span className="text-foreground">Hard</span> marks questions chosen to be
-                        adversarial rather than typical: they share no vocabulary with the source
-                        that answers them, span two sources, or sit next to a neighbour that could
-                        plausibly be retrieved instead. Scoring them separately stops an easy
-                        average from hiding a real weakness.
+                        Recall asks whether the right card came back at all; rank precision asks
+                        where it landed —{" "}
+                        <span className="text-foreground">
+                            {
+                                latest.scores.filter(
+                                    (s) => s.complete && rankPrecision(s) < 0.5,
+                                ).length
+                            }{" "}
+                            questions here scored full recall while ranking in the bottom half
+                        </span>
+                        . Rank 1 scores 1.0, rank 5 scores 0.2, never found scores 0; dividing by
+                        sources expected rather than sources found keeps it bounded by recall.
+                        Both average per question, so the few two-source questions can&apos;t
+                        dominate.{" "}
+                        <span className="text-foreground">Hard</span> questions share no
+                        vocabulary with their source, span two sources, or sit beside a plausible
+                        decoy — scored separately so an easy average can&apos;t hide a weakness.
                     </p>
                 </div>
             </section>
 
             <MissPanel diff={diff} />
 
+            <ContextPrecisionPanel generation={generation} diff={diff} />
+
             <FaithfulnessPanel generation={generation} diff={diff} />
+
+            <AnswerRelevancePanel generation={generation} diff={diff} />
+
+            <CorrectnessPanel generation={generation} diff={diff} />
 
             <RefusalPanel
                 generation={generation}
@@ -254,26 +314,41 @@ export default function EvalPage() {
 
             <LatencyTable diff={diff} />
 
-            {/* The evidence behind every number above. */}
-            <QuestionSet run={latest} />
+            {/* The evidence behind the numbers, and the caveats on them. All
+                collapsed: this is material for checking a figure, not a thing
+                to read top to bottom — and burying it in the scroll was how the
+                page stopped being readable. */}
+            <section className="space-y-2">
+                <Disclosure
+                    label="What this does not measure"
+                    count={LIMITS.length}
+                >
+                    <div className="divide-y">
+                        {LIMITS.map((l) => (
+                            <div key={l.title} className="py-3 first:pt-0 last:pb-0">
+                                <p className="text-sm font-semibold text-foreground">
+                                    {l.title}
+                                </p>
+                                <p className="mt-1.5 max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
+                                    {l.body}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </Disclosure>
 
-            <RunHistory runs={all} />
+                <Disclosure
+                    label="Every question, and how it did"
+                    count={latest.scores.length}
+                >
+                    <QuestionSet run={latest} />
+                </Disclosure>
 
-            {/* Limits */}
-            <section>
-                <p className="mb-3 font-mono text-[0.7rem] uppercase tracking-wider text-muted-foreground/70">
-                    What this does not measure
-                </p>
-                <div className="divide-y rounded-xl border bg-card">
-                    {LIMITS.map((l) => (
-                        <div key={l.title} className="p-5">
-                            <p className="text-sm font-semibold text-foreground">{l.title}</p>
-                            <p className="mt-1.5 max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
-                                {l.body}
-                            </p>
-                        </div>
-                    ))}
-                </div>
+                {all.length > 1 && (
+                    <Disclosure label="Run history" count={all.length}>
+                        <RunHistory runs={all} />
+                    </Disclosure>
+                )}
             </section>
 
             {/* Reproduce */}
@@ -286,12 +361,12 @@ export default function EvalPage() {
                         npx tsx --tsconfig tsconfig.json scripts/bench-retrieve.ts --full --judge --save
                     </pre>
                     <p className="mt-3 max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
-                        Scoring is a pure function over retrieved source titles, unit tested against
-                        fixed inputs, and shared by the command line and this page — so the two
-                        cannot disagree about the same run. The same is true of faithfulness: the
-                        judging prompt, the parsing and the arithmetic are pure and tested, and only
-                        the model call itself touches the network. The command writes a JSON
-                        artifact; committing it is what publishes these numbers.
+                        Every score is a pure function — unit tested against fixed inputs and
+                        shared by the command line and this page, so the two cannot disagree about
+                        one run. That holds for the judged metrics too: prompt, parsing and
+                        arithmetic are pure and tested, and only the model call touches the
+                        network. The command writes a JSON artifact; committing it is what
+                        publishes these numbers.
                     </p>
                 </div>
             </section>

@@ -57,6 +57,136 @@ test("with no previous run every delta is null, not zero", () => {
   assert.deepEqual(diff.warnings, []);
 });
 
+test("an unmeasured judged metric is null, not a delta of zero", () => {
+  const withPrecision = (score: number): GenerationResult => ({
+    reps: 1,
+    latency: [],
+    refusals: { total: 1, refused: 1, answered: [] },
+    contextPrecision: {
+      judgeModel: "claude-opus-5",
+      score,
+      judged: 1,
+      failed: 0,
+      uncoveredScore: 0,
+      uncoveredJudged: 1,
+      topRankIrrelevant: [],
+      uncoveredRelevant: [],
+    },
+  });
+
+  // Current run didn't measure it at all: the whole delta is null, so the page
+  // renders "not measured" rather than a number.
+  const unmeasured = diffRuns(run([q("a", true)]), run([q("a", true)]));
+  assert.equal(unmeasured.contextPrecision, null);
+  assert.equal(unmeasured.answerRelevance, null);
+  assert.equal(unmeasured.correctness, null);
+
+  // Measured now, absent before: a current value with no baseline.
+  const first = diffRuns(
+    run([q("a", true)], { generation: withPrecision(0.6) }),
+    run([q("a", true)]),
+  );
+  assert.equal(first.contextPrecision!.current, 0.6);
+  assert.equal(first.contextPrecision!.previous, null);
+  assert.equal(first.contextPrecision!.delta, null);
+  assert.ok(
+    first.warnings.some((warning) => /did not measure context precision/.test(warning)),
+  );
+
+  // Measured in both: a real delta.
+  const moved = diffRuns(
+    run([q("a", true)], { generation: withPrecision(0.4) }),
+    run([q("a", true)], { generation: withPrecision(0.6) }),
+  );
+  assert.ok(Math.abs(moved.contextPrecision!.delta! - -0.2) < 1e-12);
+});
+
+test("out-of-corpus precision is diffed apart from covered precision", () => {
+  // They move in opposite directions when things improve, so one delta cannot
+  // stand for both.
+  const gen = (score: number, uncoveredScore: number): GenerationResult => ({
+    reps: 1,
+    latency: [],
+    refusals: { total: 1, refused: 1, answered: [] },
+    contextPrecision: {
+      judgeModel: "claude-opus-5",
+      score,
+      judged: 1,
+      failed: 0,
+      uncoveredScore,
+      uncoveredJudged: 1,
+      topRankIrrelevant: [],
+      uncoveredRelevant: [],
+    },
+  });
+
+  const diff = diffRuns(
+    run([q("a", true)], { generation: gen(0.8, 0.1) }),
+    run([q("a", true)], { generation: gen(0.6, 0.4) }),
+  );
+  assert.ok(Math.abs(diff.contextPrecision!.delta! - 0.2) < 1e-12);
+  assert.ok(Math.abs(diff.uncoveredPrecision!.delta! - -0.3) < 1e-12);
+});
+
+test("changing a Claude judge warns separately from the Gemini one", () => {
+  // Two vendors now grade this dashboard. A single shared judge check would
+  // stay silent when only one of them moved.
+  const gen = (judgeModel: string): GenerationResult => ({
+    reps: 1,
+    latency: [],
+    refusals: { total: 1, refused: 1, answered: [] },
+    answerRelevance: {
+      judgeModel,
+      embeddingModel: "gemini-embedding-001",
+      score: 0.8,
+      judged: 1,
+      skippedRefusals: 0,
+      failed: 0,
+      lowest: [],
+    },
+  });
+
+  const diff = diffRuns(
+    run([q("a", true)], { generation: gen("claude-opus-5") }),
+    run([q("a", true)], { generation: gen("claude-sonnet-5") }),
+  );
+  assert.ok(
+    diff.warnings.some((w) => /Answer relevance judge changed/.test(w)),
+    diff.warnings.join(" | "),
+  );
+});
+
+test("rank precision moves when only the ranking changed and recall cannot see it", () => {
+  const ranked = (question: string, rank: number): QuestionScore => {
+    const titles = ["a", "b", "c", "d", "e"];
+    titles[rank - 1] = "Target";
+    return scoreQuestion(
+      { q: question, expect: ["Target"] },
+      { titles, chunksUsed: 5, embedMs: 40, searchMs: 12 },
+    );
+  };
+
+  const before = run([ranked("x", 1)]);
+  const after = run([ranked("x", 4)]);
+  const diff = diffRuns(after, before);
+
+  // Recall is blind to this: the source came back both times.
+  assert.equal(diff.recall.overall.delta, 0);
+  // Rank precision is not.
+  assert.equal(diff.rankPrecision.overall.current, 0.25);
+  assert.equal(diff.rankPrecision.overall.previous, 1);
+  assert.equal(diff.rankPrecision.overall.delta, -0.75);
+});
+
+test("rank precision compares against runs that predate the metric", () => {
+  // The field is derived from scores[].titles rather than serialised, so a
+  // previous run has one whether or not it was written with the metric in mind.
+  // Nothing here should ever be null the way an unmeasured judged metric is.
+  const diff = diffRuns(run([q("a", true)]), run([q("a", false)]));
+  assert.equal(diff.rankPrecision.overall.previous, 0);
+  assert.equal(diff.rankPrecision.overall.delta, 1);
+});
+
 test("misses are bucketed by what changed, not just listed", () => {
   const previous = run([q("regressed", true), q("fixed", false), q("stuck", false)]);
   const current = run([q("regressed", false), q("fixed", true), q("stuck", false)]);
