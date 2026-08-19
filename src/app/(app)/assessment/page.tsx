@@ -107,7 +107,7 @@ export default function Home() {
             <TrackView name="assessment_view" />
             <ScoreBar score={score} gate={gate} />
 
-            <main className="flex-1 p-8">
+            <main className="flex-1 p-4 sm:p-8">
                 <div className="mx-auto max-w-2xl space-y-6">
                     <p className="text-sm text-muted-foreground leading-relaxed">
                         Fill in your profile below — the score up top recalculates as you type.

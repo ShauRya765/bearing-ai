@@ -26,7 +26,7 @@ export function RunProvenance({ run }: { run: EvalRun }) {
     ];
 
     return (
-        <dl className="flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-[0.7rem]">
+        <dl className="flex flex-wrap gap-x-4 gap-y-1.5 font-mono text-[0.7rem] sm:gap-x-5">
             {facts.map(([k, v]) => (
                 <div key={k} className="flex gap-1.5">
                     <dt className="text-muted-foreground/60">{k}</dt>
@@ -101,13 +101,17 @@ export function LatencyTable({ diff }: { diff: RunDiff }) {
                 Latency
             </p>
             <div className="overflow-x-auto rounded-xl border bg-card">
-                <table className="w-full min-w-[34rem] text-left text-sm">
+                <table className="w-full min-w-[20rem] text-left text-sm sm:min-w-[34rem]">
                     <thead>
                         <tr className="border-b text-[0.65rem] uppercase tracking-wider text-muted-foreground/70">
-                            <th className="px-4 py-2.5 font-normal">Stage</th>
-                            <th className="px-4 py-2.5 text-right font-normal">p50</th>
-                            <th className="px-4 py-2.5 text-right font-normal">p95</th>
-                            <th className="px-4 py-2.5 font-normal">Note</th>
+                            <th className="px-3 py-2.5 font-normal sm:px-4">Stage</th>
+                            <th className="px-3 py-2.5 text-right font-normal sm:px-4">p50</th>
+                            <th className="px-3 py-2.5 text-right font-normal sm:px-4">p95</th>
+                            {/* Ancillary — dropped below sm so the four real
+                                columns fit a phone without a sideways scroll. */}
+                            <th className="hidden px-4 py-2.5 font-normal sm:table-cell">
+                                Note
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -116,8 +120,8 @@ export function LatencyTable({ diff }: { diff: RunDiff }) {
                                 key={r.stage}
                                 className={i < rows.length - 1 ? "border-b border-border/50" : ""}
                             >
-                                <td className="px-4 py-2.5 text-foreground">{r.stage}</td>
-                                <td className="px-4 py-2.5 text-right">
+                                <td className="px-3 py-2.5 text-foreground sm:px-4">{r.stage}</td>
+                                <td className="px-3 py-2.5 text-right sm:px-4">
                                     <span className="font-mono tabular-nums text-foreground">
                                         {ms(r.p50)}
                                     </span>
@@ -131,10 +135,10 @@ export function LatencyTable({ diff }: { diff: RunDiff }) {
                                         </span>
                                     )}
                                 </td>
-                                <td className="px-4 py-2.5 text-right font-mono tabular-nums text-muted-foreground">
+                                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground sm:px-4">
                                     {ms(r.p95)}
                                 </td>
-                                <td className="px-4 py-2.5 text-xs text-muted-foreground">
+                                <td className="hidden px-4 py-2.5 text-xs text-muted-foreground sm:table-cell">
                                     {r.note}
                                 </td>
                             </tr>
@@ -163,15 +167,19 @@ export function RunHistory({ runs }: { runs: EvalRun[] }) {
                 Run history
             </p>
             <div className="overflow-x-auto rounded-xl border bg-card">
-                <table className="w-full min-w-[38rem] text-left text-sm">
+                <table className="w-full min-w-[22rem] text-left text-sm sm:min-w-[38rem]">
                     <thead>
                         <tr className="border-b text-[0.65rem] uppercase tracking-wider text-muted-foreground/70">
-                            <th className="px-4 py-2.5 font-normal">Date</th>
-                            <th className="px-4 py-2.5 font-normal">Commit</th>
-                            <th className="px-4 py-2.5 text-right font-normal">Recall@k</th>
-                            <th className="px-4 py-2.5 text-right font-normal">Hard</th>
-                            <th className="px-4 py-2.5 text-right font-normal">Refused</th>
-                            <th className="px-4 py-2.5 text-right font-normal">Questions</th>
+                            <th className="px-3 py-2.5 font-normal sm:px-4">Date</th>
+                            {/* Dropped below sm. Questions is NOT droppable —
+                                the caption tells you to read it before Recall. */}
+                            <th className="hidden px-4 py-2.5 font-normal sm:table-cell">
+                                Commit
+                            </th>
+                            <th className="px-3 py-2.5 text-right font-normal sm:px-4">Recall@k</th>
+                            <th className="px-3 py-2.5 text-right font-normal sm:px-4">Hard</th>
+                            <th className="px-3 py-2.5 text-right font-normal sm:px-4">Refused</th>
+                            <th className="px-3 py-2.5 text-right font-normal sm:px-4">Questions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -180,7 +188,7 @@ export function RunHistory({ runs }: { runs: EvalRun[] }) {
                                 key={r.meta.startedAt}
                                 className={i < runs.length - 1 ? "border-b border-border/50" : ""}
                             >
-                                <td className="px-4 py-2.5 whitespace-nowrap text-foreground">
+                                <td className="whitespace-nowrap px-3 py-2.5 text-foreground sm:px-4">
                                     {shortDate(r.meta.startedAt)}
                                     {i === 0 && (
                                         <span className="ml-2 rounded bg-primary/15 px-1.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-wide text-primary">
@@ -188,21 +196,21 @@ export function RunHistory({ runs }: { runs: EvalRun[] }) {
                                         </span>
                                     )}
                                 </td>
-                                <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">
+                                <td className="hidden px-4 py-2.5 font-mono text-xs text-muted-foreground sm:table-cell">
                                     {r.meta.gitSha ?? NONE}
                                 </td>
-                                <td className="px-4 py-2.5 text-right font-mono tabular-nums text-foreground">
+                                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-foreground sm:px-4">
                                     {pct(r.summary.overall.recall)}
                                 </td>
-                                <td className="px-4 py-2.5 text-right font-mono tabular-nums text-muted-foreground">
+                                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground sm:px-4">
                                     {pct(r.summary.hard.recall)}
                                 </td>
-                                <td className="px-4 py-2.5 text-right font-mono tabular-nums text-muted-foreground">
+                                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground sm:px-4">
                                     {r.generation
                                         ? `${r.generation.refusals.refused}/${r.generation.refusals.total}`
                                         : NONE}
                                 </td>
-                                <td className="px-4 py-2.5 text-right font-mono tabular-nums text-muted-foreground">
+                                <td className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground sm:px-4">
                                     {r.meta.questions.covered}
                                     <span className="text-muted-foreground/50">
                                         {" "}

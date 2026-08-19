@@ -28,7 +28,7 @@ function Panel({
             <p className="mb-3 font-mono text-[0.7rem] uppercase tracking-wider text-muted-foreground/70">
                 {eyebrow}
             </p>
-            <div className="rounded-xl border bg-card p-5">
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
                 <p className="max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
                     {what}
                 </p>
@@ -315,7 +315,11 @@ export function CorrectnessPanel({
                         above.
                     </p>
                     <Meta>
-                        {pct(c.factCoverage)} deterministic fact coverage (a floor — it
+                        {/* {" "} not a newline: JSX drops the whitespace between an
+                            expression and text on the following line, which
+                            rendered this as "73.3%deterministic". */}
+                        {pct(c.factCoverage)}{" "}
+                        deterministic fact coverage (a floor — it
                         can&apos;t see a paraphrase) · {c.failed} judge failures · judged by{" "}
                         {c.judgeModel}
                     </Meta>

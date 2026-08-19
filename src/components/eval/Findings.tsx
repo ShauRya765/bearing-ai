@@ -84,7 +84,7 @@ function MissBucket({
     const t = TONE[tone];
 
     return (
-        <div className={`rounded-xl border p-4 ${t.border}`}>
+        <div className={`rounded-xl border p-3.5 sm:p-4 ${t.border}`}>
             <p className="flex items-center gap-2">
                 <span className={`h-1.5 w-1.5 rounded-full ${t.dot}`} aria-hidden="true" />
                 <span className={`text-sm font-semibold ${t.text}`}>
@@ -115,7 +115,7 @@ export function MissPanel({ diff }: { diff: RunDiff }) {
             </p>
 
             {nothing ? (
-                <div className="rounded-xl border bg-card p-5">
+                <div className="rounded-xl border bg-card p-4 sm:p-5">
                     <p className="text-sm font-medium text-clear">
                         Every covered question retrieved every expected source.
                     </p>
@@ -140,7 +140,7 @@ export function MissPanel({ diff }: { diff: RunDiff }) {
 
                     {persistentMisses.length + untrackedMisses.length + fixedMisses.length >
                         0 && (
-                        <div className="rounded-xl border bg-card px-4 pb-3 pt-1">
+                        <div className="rounded-xl border bg-card px-3 pb-3 pt-1 sm:px-4">
                             <Disclosure
                                 label="Standing failures — failed in both runs"
                                 count={persistentMisses.length}
@@ -186,7 +186,7 @@ export function RefusalPanel({
                 Refusal — the generation layer
             </p>
 
-            <div className="rounded-xl border bg-card p-5">
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
                 <p className="max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
                     {uncoveredTotal} questions are deliberately outside the corpus; the correct
                     answer to each is &ldquo;I don&apos;t have a rule for that&rdquo;.{" "}
@@ -210,7 +210,7 @@ export function RefusalPanel({
                     </p>
                 ) : (
                     <>
-                        <div className="mt-4 flex items-baseline gap-3">
+                        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                             <span className="font-mono text-2xl font-semibold tabular-nums text-foreground">
                                 {generation.refusals.refused}/{generation.refusals.total}
                             </span>
@@ -277,7 +277,7 @@ export function FaithfulnessPanel({
                 Faithfulness — is the prose supported?
             </p>
 
-            <div className="rounded-xl border bg-card p-5">
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
                 <p className="max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
                     Each answer is split into atomic claims and every claim checked against the
                     passages that answer was generated from — not against the world, so a claim

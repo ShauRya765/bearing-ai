@@ -60,10 +60,12 @@ export function Disclosure({
                 >
                     ▸
                 </span>
-                <span className="flex-1 text-xs font-medium text-foreground">{label}</span>
+                <span className="min-w-0 flex-1 text-xs font-medium text-foreground">
+                    {label}
+                </span>
                 {count !== undefined && (
                     <span
-                        className={`font-mono text-xs tabular-nums ${
+                        className={`shrink-0 font-mono text-xs tabular-nums ${
                             tone === "bad" ? "text-destructive" : "text-muted-foreground"
                         }`}
                     >
@@ -71,7 +73,7 @@ export function Disclosure({
                     </span>
                 )}
             </summary>
-            <div className="border-t border-border/50 px-3 py-3">{children}</div>
+            <div className="border-t border-border/50 px-2.5 py-3 sm:px-3">{children}</div>
         </details>
     );
 }
@@ -149,13 +151,18 @@ export function MetricTile({
 }) {
     return (
         <div
-            className={`rounded-xl border bg-card px-4 py-3.5 ${warn ? "border-primary/40" : ""}`}
+            className={`rounded-xl border bg-card px-3 py-3 sm:px-4 sm:py-3.5 ${
+                warn ? "border-primary/40" : ""
+            }`}
         >
             <p className="text-[0.65rem] uppercase tracking-wider text-muted-foreground/70">
                 {label}
             </p>
-            <div className="mt-1.5 flex items-baseline gap-2">
-                <span className="font-mono text-2xl font-semibold tabular-nums text-foreground">
+            {/* Wraps rather than overflows: at two-up on a phone the figure and
+                its delta badge do not fit on one line, and "first measured" is
+                wider still. */}
+            <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="font-mono text-xl font-semibold tabular-nums text-foreground sm:text-2xl">
                     {value}
                 </span>
                 {delta && format && higherIsBetter !== undefined && (
@@ -198,14 +205,14 @@ export function RecallBar({
     const width = defined ? `${Math.max(recall * 100, 0.5)}%` : "0%";
 
     return (
-        <div className={indent ? "pl-4" : ""}>
+        <div className={indent ? "pl-2 sm:pl-4" : ""}>
             <div className="flex items-baseline justify-between gap-3">
                 <span
-                    className={`text-sm ${indent ? "text-muted-foreground" : "font-medium text-foreground"}`}
+                    className={`min-w-0 text-sm ${indent ? "text-muted-foreground" : "font-medium text-foreground"}`}
                 >
                     {label}
                 </span>
-                <span className="flex items-baseline gap-2">
+                <span className="flex shrink-0 items-baseline gap-2">
                     <span className="font-mono text-sm tabular-nums text-foreground">
                         {pct(recall)}
                     </span>

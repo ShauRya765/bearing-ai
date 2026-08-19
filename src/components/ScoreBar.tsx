@@ -19,7 +19,7 @@ export function ScoreBar({ score, gate }: { score: CrsScore; gate: GateResult })
 
     return (
         <div className="sticky top-0 z-20 border-b bg-background/85 backdrop-blur-sm">
-            <div className="flex items-center gap-x-6 gap-y-2 px-8 py-3 flex-wrap">
+            <div className="flex items-center gap-x-4 gap-y-2 px-4 py-3 flex-wrap sm:gap-x-6 sm:px-8">
                 {/* Score */}
                 <div className="flex items-baseline gap-1.5">
                     <span className="font-mono text-2xl font-bold leading-none text-foreground">

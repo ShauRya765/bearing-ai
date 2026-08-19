@@ -68,21 +68,23 @@ function TopicGroup({
 
     return (
         <details open className="group border-b last:border-b-0">
-            <summary className="flex cursor-pointer list-none items-baseline gap-2 px-4 py-2.5 hover:bg-muted/40">
+            <summary className="flex cursor-pointer list-none items-baseline gap-2 px-3 py-2.5 hover:bg-muted/40 sm:px-4">
                 <span
                     className="font-mono text-[0.65rem] text-muted-foreground/50 transition-transform group-open:rotate-90"
                     aria-hidden="true"
                 >
                     ▸
                 </span>
-                <span className="flex-1 text-sm font-medium text-foreground">{title}</span>
+                <span className="min-w-0 flex-1 text-sm font-medium text-foreground">
+                    {title}
+                </span>
                 <span
-                    className={`font-mono text-xs tabular-nums ${clean ? "text-muted-foreground" : "text-destructive"}`}
+                    className={`shrink-0 font-mono text-xs tabular-nums ${clean ? "text-muted-foreground" : "text-destructive"}`}
                 >
                     {passed}/{scores.length}
                 </span>
             </summary>
-            <ul className="border-t border-border/50 bg-background/40 px-4 py-1.5 pl-9">
+            <ul className="border-t border-border/50 bg-background/40 px-3 py-1.5 pl-4 sm:px-4 sm:pl-9">
                 {scores.map((s) => (
                     <CoveredRow key={s.question} score={s} />
                 ))}
@@ -105,23 +107,23 @@ function UncoveredGroup({
 
     return (
         <details open className="group border-b last:border-b-0">
-            <summary className="flex cursor-pointer list-none items-baseline gap-2 px-4 py-2.5 hover:bg-muted/40">
+            <summary className="flex cursor-pointer list-none items-baseline gap-2 px-3 py-2.5 hover:bg-muted/40 sm:px-4">
                 <span
                     className="font-mono text-[0.65rem] text-muted-foreground/50 transition-transform group-open:rotate-90"
                     aria-hidden="true"
                 >
                     ▸
                 </span>
-                <span className="flex-1 text-sm font-medium text-foreground">
+                <span className="min-w-0 flex-1 text-sm font-medium text-foreground">
                     Out of corpus — the correct answer is a refusal
                 </span>
-                <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
                     {generation
                         ? `${scores.length - leaked.size}/${scores.length}`
                         : `${scores.length}`}
                 </span>
             </summary>
-            <ul className="border-t border-border/50 bg-background/40 px-4 py-1.5 pl-9">
+            <ul className="border-t border-border/50 bg-background/40 px-3 py-1.5 pl-4 sm:px-4 sm:pl-9">
                 {scores.map((s) => {
                     const declined = generation ? !leaked.has(s.question) : null;
                     return (
