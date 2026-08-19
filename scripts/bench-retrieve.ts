@@ -4,7 +4,9 @@
 //
 //     --reps N          repetitions per question for the latency table (default 3)
 //     --full            also measure latency + refusals (costs tokens)
-//     --judge           also grade answer faithfulness with an LLM judge (implies --full)
+//     --judge           also grade the answers with LLM judges (implies --full)
+//     --skip-faithfulness   run only the Claude-judged metrics; skip the Gemini
+//                       faithfulness pass (that tile then reads "not measured")
 //     --save            write the run to src/lib/eval/runs/ for the /eval dashboard
 //
 // Default is retrieval-only, because that is the run you want to be able to do
@@ -24,11 +26,21 @@
 // failures (see withRetry): a judged run is ~330 calls over half an hour, and one
 // 503 in the middle of it should not discard everything before it.
 //
-// --judge adds the faithfulness pass: every answer that wasn't a refusal is
-// broken into claims and each claim is checked against the passages that answer
-// was generated from. It roughly doubles the model calls, which is why it is a
-// separate flag rather than part of --full. See src/lib/eval/judge.ts for what
-// the number does and does not mean.
+// --judge adds four graded metrics, which is why it is a separate flag rather
+// than part of --full — it multiplies the model calls several times over.
+//
+//   faithfulness      (judge.ts)       is every claim supported by the passages
+//                                      the model was given?  — judged by Gemini
+//   context precision (precision.ts)   were the retrieved chunks relevant at all?
+//   answer relevance  (relevance.ts)   does the answer address the question asked?
+//   correctness       (correctness.ts) is it RIGHT, per canada.ca — the only one
+//                                      graded against something other than okf/
+//
+// The last three are judged by Claude rather than Gemini, so a mistake both the
+// generator and its grader would make the same way has to survive two model
+// families. Faithfulness stays on Gemini deliberately: switching its judge would
+// make its delta against every already-committed run measure the judges instead
+// of the answers. Each module documents what its number does and does not mean.
 //
 // --save writes the run to src/lib/eval/runs/ as a committed JSON artifact, which
 // is what the /eval dashboard renders and diffs. The console output above is for
@@ -63,8 +75,26 @@ import {
   type GenerationResult,
   type LatencyStage,
 } from "@/lib/eval/run";
+import {
+  judgePrecision,
+  summarisePrecision,
+  PRECISION_SCHEMA,
+  type PrecisionVerdict,
+} from "@/lib/eval/precision";
+import {
+  judgeRelevance,
+  summariseRelevance,
+  RELEVANCE_SCHEMA,
+  type RelevanceVerdict,
+} from "@/lib/eval/relevance";
+import {
+  judgeCorrectness,
+  summariseCorrectness,
+  CORRECTNESS_SCHEMA,
+  type CorrectnessVerdict,
+} from "@/lib/eval/correctness";
 import { RUNS_DIR } from "@/lib/eval/runs-store";
-import type { RagTimings } from "@/lib/rag/retrieve";
+import type { RagTimings, RetrievedChunk } from "@/lib/rag/retrieve";
 
 const PACE_MS = 250;
 
@@ -220,6 +250,11 @@ async function writeRun(input: {
   console.log(`Commit it to publish these numbers on /eval.`);
 }
 
+/** An undefined metric prints as a dash, never as a digit — same rule as format.ts. */
+function fmtPct(value: number): string {
+  return Number.isNaN(value) ? "—" : `${(value * 100).toFixed(1)}%`;
+}
+
 function bar(fraction: number, width = 24): string {
   if (Number.isNaN(fraction)) return "·".repeat(width);
   const filled = Math.round(fraction * width);
@@ -235,6 +270,20 @@ async function main() {
   };
 
   const judge = flag("--judge");
+  /**
+   * Skips the Gemini faithfulness pass, leaving the three Claude-judged metrics.
+   *
+   * Retrieval and generation still run — they are not metrics, they are the
+   * inputs the judges grade, and the committed artifacts store titles rather
+   * than chunk text or answers, so neither can be recovered from a previous run.
+   * The saving is the faithfulness pass alone.
+   *
+   * The cost of using it: the artifact this run writes will have NO faithfulness
+   * figure, and the dashboard renders the latest run — so that tile reads "not
+   * measured" until a run grades it again. It is not carried forward from the
+   * previous run on purpose: that run graded different answers.
+   */
+  const skipFaithfulness = flag("--skip-faithfulness");
   // Judging grades answers, and there are no answers without a generation pass.
   const full = flag("--full") || judge;
   const save = flag("--save");
@@ -292,7 +341,9 @@ async function main() {
       `  ${label.padEnd(18)} ${bar(s.recall)}  ${(s.recall * 100).toFixed(1)}%   ` +
         `${s.allHit}/${s.total} questions got every source`,
     );
-  line("Recall@5 overall", summary.overall);
+  // Derived, never written out: a hardcoded "@5" printed "Recall@5 … 87.3%" for
+  // a k=3 run, which is the exact mislabelling recall@k invites.
+  line(`Recall@${MATCH_COUNT} overall`, summary.overall);
   line("  easy questions", summary.easy);
   line("  hard questions", summary.hard);
 
@@ -349,21 +400,33 @@ async function main() {
   // pipeline pass. Re-retrieving them for the judge could return a different set
   // and grade the answer against passages the model never saw.
   const contexts = new Map<string, string[]>();
+  // The same chunks with their titles and ranks, for the precision judge. Kept
+  // beside `contexts` rather than replacing it: the faithfulness judge must
+  // grade against the exact strings the model was given, with no projection in
+  // between.
+  const retrieved = new Map<string, RetrievedChunk[]>();
   let done = 0;
 
   for (let rep = 0; rep < reps; rep++) {
     for (const item of EVAL_QUESTIONS) {
       let captured: string[] = [];
+      let capturedChunks: RetrievedChunk[] = [];
       // The whole exchange retries as one unit. Retrying only the initial call
       // would leave a half-consumed stream behind and a timings promise that
       // never settles.
       const { answer, t } = await withRetry(
         `generate "${item.q.slice(0, 40)}"`,
         async () => {
-          const { stream, timings, contexts: ctx } = await askRulesStream(item.q);
+          const {
+            stream,
+            timings,
+            contexts: ctx,
+            retrieved: chunks,
+          } = await askRulesStream(item.q);
           let text = "";
           for await (const piece of stream) text += piece;
           captured = ctx;
+          capturedChunks = chunks;
           return { answer: text, t: await timings };
         },
       );
@@ -371,6 +434,7 @@ async function main() {
       if (rep === 0) {
         answers.set(item.q, answer);
         contexts.set(item.q, captured);
+        retrieved.set(item.q, capturedChunks);
       }
 
       done++;
@@ -382,7 +446,9 @@ async function main() {
 
   const stages: [string, (t: RagTimings) => number | null, string][] = [
     ["Embed the question", (t) => t.embedMs, "One API call, 768-dim"],
-    ["Vector search", (t) => t.searchMs, "pgvector, top-5"],
+    // This note is serialised into the artifact and rendered on /eval, so a
+    // hardcoded k publishes a wrong one the moment MATCH_COUNT moves.
+    ["Vector search", (t) => t.searchMs, `pgvector, top-${MATCH_COUNT}`],
     ["Prompt assembly", (t) => t.promptMs, "In-process, no I/O"],
     ["First token from model", (t) => t.firstTokenMs, "Streaming"],
     ["Full streamed answer", (t) => t.generateMs, "Length-dependent"],
@@ -428,7 +494,15 @@ async function main() {
   // ---------- Faithfulness pass (--judge only) ----------
   let faithfulness: GenerationResult["faithfulness"] = undefined;
 
-  if (judge) {
+  if (judge && skipFaithfulness) {
+    console.log(
+      `\n## Faithfulness\n\n  Skipped (--skip-faithfulness). The artifact will ` +
+        `record it as NOT MEASURED rather than carrying the previous run's figure\n` +
+        `  forward — that run graded different answers.`,
+    );
+  }
+
+  if (judge && !skipFaithfulness) {
     const { judgeGenerate } = await import("@/lib/eval/judge-gemini");
 
     // Refusals are skipped, not scored: an answer that asserts nothing about the
@@ -490,6 +564,205 @@ async function main() {
     }
   }
 
+  // ---------- Claude-judged pass (--judge only) ----------
+  //
+  // A second vendor on purpose. The page already concedes that faithfulness is
+  // Gemini grading Gemini, "a system partly marking its own work"; these three
+  // are graded by Claude, so a blind spot has to survive two model families.
+  // Faithfulness deliberately stays on Gemini — moving it would make its delta
+  // against every committed run measure the judges instead of the answers.
+  let contextPrecision: GenerationResult["contextPrecision"] = undefined;
+  let answerRelevance: GenerationResult["answerRelevance"] = undefined;
+  let correctness: GenerationResult["correctness"] = undefined;
+
+  if (judge) {
+    const { claudeJudge, CLAUDE_JUDGE_MODEL } = await import("@/lib/eval/judge-claude");
+    const { embedQuery, EMBEDDING_MODEL } = await import("@/lib/rag/retrieve");
+
+    // Retry lives out here, wrapping the transport, so a demand spike is never
+    // recorded as the judge failing to grade — same reasoning as the
+    // faithfulness pass above.
+    const graded =
+      (label: string, schema: Record<string, unknown>) => (prompt: string) =>
+        withRetry(label, () => claudeJudge(prompt, schema));
+
+    // ----- Context precision -----
+    console.log(
+      `\nJudging context precision: ${EVAL_QUESTIONS.length} questions with ` +
+        `${CLAUDE_JUDGE_MODEL}\n`,
+    );
+
+    const precisionVerdicts: PrecisionVerdict[] = [];
+    for (const [i, item] of EVAL_QUESTIONS.entries()) {
+      precisionVerdicts.push(
+        await judgePrecision({
+          question: item.q,
+          covered: item.expect.length > 0,
+          chunks: retrieved.get(item.q) ?? [],
+          generate: graded(`precision "${item.q.slice(0, 30)}"`, PRECISION_SCHEMA),
+        }),
+      );
+      process.stdout.write(`\r  ${i + 1}/${EVAL_QUESTIONS.length}`.padEnd(40));
+      await new Promise((res) => setTimeout(res, PACE_MS));
+    }
+    console.log("\n");
+
+    const p = summarisePrecision(precisionVerdicts, CLAUDE_JUDGE_MODEL);
+    contextPrecision = p;
+
+    console.log("## Context precision\n");
+    console.log(
+      `  ${bar(p.score)}  ${fmtPct(p.score)}   ${p.judged} covered questions judged`,
+    );
+    console.log(
+      `  ${bar(p.uncoveredScore)}  ${fmtPct(p.uncoveredScore)}   ` +
+        `${p.uncoveredJudged} out-of-corpus questions — LOWER is better here`,
+    );
+    console.log(
+      `\n  ${p.failed} judge failures (excluded from the averages, NOT scored as 0).`,
+    );
+    if (p.topRankIrrelevant.length) {
+      console.log(
+        `\n  Led with an irrelevant chunk (${p.topRankIrrelevant.length}):\n`,
+      );
+      for (const t of p.topRankIrrelevant.slice(0, 15)) {
+        console.log(`    "${t.question}"`);
+        console.log(`      rank 1: ${t.sourceTitle} — ${t.note}`);
+      }
+    }
+    if (p.uncoveredRelevant.length) {
+      console.log(
+        `\n  Out-of-corpus questions that retrieved something RELEVANT ` +
+          `(${p.uncoveredRelevant.length}) — the scope boundary may be leaking:\n`,
+      );
+      for (const u of p.uncoveredRelevant.slice(0, 15)) {
+        console.log(`    "${u.question}" → ${u.sourceTitle} — ${u.note}`);
+      }
+    }
+
+    // ----- Answer relevance -----
+    // Refusals are skipped for the same reason faithfulness skips them: a
+    // refusal is the CORRECT answer to an out-of-corpus question and a terrible
+    // embedding match for it, so scoring it would punish the system for exactly
+    // what the refusal metric rewards.
+    const toScore = EVAL_QUESTIONS.filter(
+      (item) => !refused(answers.get(item.q) ?? ""),
+    );
+    const skippedRefusals = EVAL_QUESTIONS.length - toScore.length;
+
+    console.log(
+      `\nScoring answer relevance: ${toScore.length} answers ` +
+        `(${skippedRefusals} refusals skipped)\n`,
+    );
+
+    const relevanceVerdicts: RelevanceVerdict[] = [];
+    for (const [i, item] of toScore.entries()) {
+      relevanceVerdicts.push(
+        await judgeRelevance({
+          question: item.q,
+          answer: answers.get(item.q) ?? "",
+          generate: graded(`relevance "${item.q.slice(0, 30)}"`, RELEVANCE_SCHEMA),
+          embed: (text) =>
+            withRetry(`embed "${text.slice(0, 30)}"`, () => embedQuery(text)),
+        }),
+      );
+      process.stdout.write(`\r  ${i + 1}/${toScore.length}`.padEnd(40));
+      await new Promise((res) => setTimeout(res, PACE_MS));
+    }
+    console.log("\n");
+
+    const r = summariseRelevance(
+      relevanceVerdicts,
+      skippedRefusals,
+      CLAUDE_JUDGE_MODEL,
+      EMBEDDING_MODEL,
+    );
+    answerRelevance = r;
+
+    console.log("## Answer relevance\n");
+    console.log(`  ${bar(r.score)}  ${fmtPct(r.score)}   ${r.judged} answers scored`);
+    console.log(
+      `\n  Skipped ${r.skippedRefusals} refusals, ${r.failed} failures ` +
+        `(excluded from the average, NOT scored as 0).`,
+    );
+    if (r.lowest.length) {
+      console.log(`\n  Weakest answers:\n`);
+      for (const l of r.lowest.slice(0, 10)) {
+        console.log(`    ${fmtPct(l.score)}  "${l.question}"`);
+        console.log(`      answered instead: ${l.generated[0] ?? "—"}`);
+      }
+    }
+
+    // ----- Correctness (gold subset only) -----
+    const gold = EVAL_QUESTIONS.filter((item) => item.gold);
+    if (gold.length === 0) {
+      console.log(
+        `\n## Correctness\n\n  No gold-labelled questions yet — correctness not ` +
+          `measured. Add \`gold\` records to src/lib/eval/questions.ts, each cited ` +
+          `to canada.ca with the date it was read.`,
+      );
+    } else {
+      console.log(
+        `\nGrading correctness: ${gold.length} gold-labelled questions of ` +
+          `${COVERED.length} covered\n`,
+      );
+
+      const correctnessVerdicts: CorrectnessVerdict[] = [];
+      for (const [i, item] of gold.entries()) {
+        correctnessVerdicts.push(
+          await judgeCorrectness({
+            question: item.q,
+            answer: answers.get(item.q) ?? "",
+            gold: item.gold!,
+            generate: graded(
+              `correctness "${item.q.slice(0, 30)}"`,
+              CORRECTNESS_SCHEMA,
+            ),
+          }),
+        );
+        process.stdout.write(`\r  ${i + 1}/${gold.length}`.padEnd(40));
+        await new Promise((res) => setTimeout(res, PACE_MS));
+      }
+      console.log("\n");
+
+      const c = summariseCorrectness(
+        correctnessVerdicts,
+        new Map(gold.map((item) => [item.q, item.gold!.source])),
+        CLAUDE_JUDGE_MODEL,
+        COVERED.length,
+      );
+      correctness = c;
+
+      console.log("## Correctness\n");
+      console.log(
+        `  ${bar(c.score)}  ${fmtPct(c.score)}   ${c.judged}/${c.gold} gold-labelled ` +
+          `questions (of ${c.covered} covered — this figure speaks for the subset only)`,
+      );
+      console.log(
+        `  ${bar(c.factCoverage)}  ${fmtPct(c.factCoverage)}   deterministic fact ` +
+          `coverage, the floor under the judged figure`,
+      );
+      console.log(
+        `\n  ${c.failed} judge failures (excluded from the average, NOT scored as wrong).`,
+      );
+      if (c.contradictions.length) {
+        console.log(`\n  WRONG — asserted something the source forbids:\n`);
+        for (const w of c.contradictions) {
+          console.log(`    "${w.question}"`);
+          console.log(`      claimed: ${w.fact}`);
+          console.log(`      source:  ${w.source}`);
+        }
+      }
+      if (c.missing.length) {
+        console.log(`\n  Gold facts not stated (${c.missing.length}):\n`);
+        for (const m of c.missing.slice(0, 15)) {
+          console.log(`    "${m.question}"`);
+          console.log(`      missing: ${m.fact} — ${m.note}`);
+        }
+      }
+    }
+  }
+
   if (save) {
     await writeRun({
       startedAt,
@@ -506,8 +779,13 @@ async function main() {
           answered: answeredInstead,
         },
         // Omitted entirely on an unjudged run, so the dashboard can tell "not
-        // measured" from "measured and found nothing".
+        // measured" from "measured and found nothing". Each metric spreads in
+        // independently: a run may measure some and not others, and collapsing
+        // an absent one to null would claim it was tried.
         ...(faithfulness ? { faithfulness } : {}),
+        ...(contextPrecision ? { contextPrecision } : {}),
+        ...(answerRelevance ? { answerRelevance } : {}),
+        ...(correctness ? { correctness } : {}),
       },
     });
   }

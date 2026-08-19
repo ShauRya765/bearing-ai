@@ -1,0 +1,3962 @@
+{
+  "meta": {
+    "schema": 1,
+    "startedAt": "2026-08-16T22:40:28.949Z",
+    "gitSha": "3974b77",
+    "embeddingModel": "gemini-embedding-001",
+    "generationModel": "gemini-3.6-flash",
+    "matchCount": 3,
+    "corpus": {
+      "chunks": 62,
+      "sources": 62
+    },
+    "questions": {
+      "total": 164,
+      "covered": 154,
+      "hard": 87,
+      "uncovered": 10
+    }
+  },
+  "summary": {
+    "overall": {
+      "recall": 0.8733766233766234,
+      "allHit": 132,
+      "total": 154
+    },
+    "easy": {
+      "recall": 0.9701492537313433,
+      "allHit": 65,
+      "total": 67
+    },
+    "hard": {
+      "recall": 0.7988505747126436,
+      "allHit": 67,
+      "total": 87
+    },
+    "uncovered": {
+      "total": 10,
+      "alwaysFullK": true
+    },
+    "latency": {
+      "embedP50": 142.74700000000303,
+      "embedP95": 183.39458299999978,
+      "searchP50": 89.36687499999971,
+      "searchP95": 100.13916600000084
+    }
+  },
+  "scores": [
+    {
+      "question": "Ontario picked me from the pool. How much is that actually worth?",
+      "hard": false,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority application process",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [],
+      "missing": [
+        "Provincial nomination"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 262.192584,
+      "searchMs": 1016.9671249999999,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's the difference between a base and an enhanced nomination?",
+      "hard": false,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "Additional points (the 600-point group)",
+        "General, program-specific and category-based rounds"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 183.39458299999978,
+      "searchMs": 99.33254200000033,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is 600 points basically a guaranteed invite?",
+      "hard": false,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "General, program-specific and category-based rounds",
+        "How rounds of invitations work",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 162.553625,
+      "searchMs": 99.4393329999998,
+      "chunksUsed": 3
+    },
+    {
+      "question": "A province wants me but it's not through Express Entry. Do I still get the points?",
+      "hard": true,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "Additional points (the 600-point group)",
+        "Express Entry and Quebec"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 194.15770900000007,
+      "searchMs": 214.33775000000014,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How do I actually claim a nomination once I have the certificate?",
+      "hard": false,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "OINP Workforce Priority application process",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 198.15141700000004,
+      "searchMs": 220.113875,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does every province nominate people the same way Ontario does?",
+      "hard": true,
+      "expect": [
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process"
+      ],
+      "hit": [
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 196.24487500000032,
+      "searchMs": 211.16070899999977,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I did a two-year diploma at a college in Toronto. Does that add anything?",
+      "hard": false,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Getting two or more credentials assessed",
+        "CRS education points"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 166.22116600000027,
+      "searchMs": 96.1097920000002,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does a degree from a Canadian university's overseas campus count?",
+      "hard": true,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Educational credential assessment (ECA)",
+        "Getting two or more credentials assessed"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 181.27537500000017,
+      "searchMs": 93.3085000000001,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I was on a scholarship that required me to go home after. Does my Canadian diploma still count?",
+      "hard": true,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Educational credential assessment (ECA)",
+        "Getting two or more credentials assessed"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 169.2680419999997,
+      "searchMs": 98.37291699999969,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Most of my program was English language classes. Is that a problem?",
+      "hard": true,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "Which Express Entry program fits",
+        "Skill transferability"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 180.37874999999985,
+      "searchMs": 587.543541,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How many extra points for a master's I earned in Canada?",
+      "hard": false,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "CRS education points",
+        "Getting two or more credentials assessed"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 157.88954100000046,
+      "searchMs": 97.26399999999921,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I graduated from an Ontario college last year. What does that add to my CRS score?",
+      "hard": true,
+      "expect": [
+        "Canadian study additional points"
+      ],
+      "covered": true,
+      "titles": [
+        "Canadian study additional points",
+        "CRS education points",
+        "Getting two or more credentials assessed"
+      ],
+      "hit": [
+        "Canadian study additional points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 154.39816700000029,
+      "searchMs": 95.1436249999997,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I have two part-time jobs. Do they count as full-time experience?",
+      "hard": false,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Work experience hours — full-time vs part-time",
+        "Self-employment and work while studying",
+        "Continuous work and the look-back windows"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 160.09508300000016,
+      "searchMs": 87.85520799999904,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I work 45 hours a week. Does the extra time get me there faster?",
+      "hard": true,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Work experience hours — full-time vs part-time",
+        "CRS Canadian work experience points",
+        "Continuous work and the look-back windows"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 169.5142080000005,
+      "searchMs": 92.22458299999926,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does my unpaid internship count toward my experience?",
+      "hard": true,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Self-employment and work while studying",
+        "Work experience hours — full-time vs part-time",
+        "Skilled work experience (TEER 0–3)"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 150.4947089999987,
+      "searchMs": 89.63291600000048,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How many hours is a year of experience?",
+      "hard": false,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Work experience hours — full-time vs part-time",
+        "Continuous work and the look-back windows",
+        "Skilled work experience (TEER 0–3)"
+      ],
+      "hit": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 160.9846660000003,
+      "searchMs": 91.31187500000124,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I took three months off in the middle. Does my experience have to be continuous?",
+      "hard": true,
+      "expect": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "covered": true,
+      "titles": [
+        "Continuous work and the look-back windows",
+        "The 12-months-in-3-years category rule",
+        "Canadian Experience Class"
+      ],
+      "hit": [],
+      "missing": [
+        "Work experience hours — full-time vs part-time"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 212.20100000000093,
+      "searchMs": 90.17345899999964,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's the minimum English level to even be eligible?",
+      "hard": false,
+      "expect": [
+        "CLB 7 in all abilities"
+      ],
+      "covered": true,
+      "titles": [
+        "Federal Skilled Trades language minimums",
+        "Approved language tests",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "CLB 7 in all abilities"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 167.44816699999865,
+      "searchMs": 99.55216600000131,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I've seen CLB 5, 6 and 7 quoted as the minimum. Which one applies to me federally?",
+      "hard": true,
+      "expect": [
+        "CLB 7 in all abilities"
+      ],
+      "covered": true,
+      "titles": [
+        "CEC language minimums by TEER",
+        "CLB 7 in all abilities",
+        "Federal Skilled Trades language minimums"
+      ],
+      "hit": [
+        "CLB 7 in all abilities"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 173.9903749999994,
+      "searchMs": 91.7111670000013,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My English is CLB 6 across the board. Does that get me into the pool?",
+      "hard": true,
+      "expect": [
+        "CLB 7 in all abilities"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Federal Skilled Trades language minimums",
+        "Approved language tests"
+      ],
+      "hit": [],
+      "missing": [
+        "CLB 7 in all abilities"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 194.97095799999988,
+      "searchMs": 86.89891700000044,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My reading is weak but the other three are strong. Is that a problem?",
+      "hard": true,
+      "expect": [
+        "CLB 7 in all abilities",
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Federal Skilled Trades language minimums",
+        "Second official language points"
+      ],
+      "hit": [
+        "First official language points"
+      ],
+      "missing": [
+        "CLB 7 in all abilities"
+      ],
+      "recall": 0.5,
+      "complete": false,
+      "embedMs": 176.5686659999992,
+      "searchMs": 86.65191700000105,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Can I average my four test scores together?",
+      "hard": true,
+      "expect": [
+        "CLB 7 in all abilities",
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "Getting two or more credentials assessed",
+        "Approved language tests",
+        "First official language points"
+      ],
+      "hit": [
+        "First official language points"
+      ],
+      "missing": [
+        "CLB 7 in all abilities"
+      ],
+      "recall": 0.5,
+      "complete": false,
+      "embedMs": 161.98866700000144,
+      "searchMs": 89.83108299999913,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is it worth pushing my speaking from an 8 to a 9?",
+      "hard": true,
+      "expect": [
+        "First official language points",
+        "Skill transferability"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Skill transferability",
+        "CRS age points"
+      ],
+      "hit": [
+        "First official language points",
+        "Skill transferability"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 171.92824999999903,
+      "searchMs": 89.96520800000144,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How many points per skill at CLB 9?",
+      "hard": false,
+      "expect": [
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Skill transferability",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "First official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 171.63729199999943,
+      "searchMs": 96.54779200000121,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's the single most effective way to raise my score?",
+      "hard": true,
+      "expect": [
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "CRS age points",
+        "Skill transferability"
+      ],
+      "hit": [
+        "First official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 225.7347920000011,
+      "searchMs": 87.30370799999946,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does having a spouse change my language points?",
+      "hard": true,
+      "expect": [
+        "First official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "Spouse or common-law partner factors",
+        "When you are scored as if you have no spouse",
+        "CRS age points"
+      ],
+      "hit": [],
+      "missing": [
+        "First official language points"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 168.84941699999945,
+      "searchMs": 88.43525000000045,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How many points can a weaker second language get me?",
+      "hard": false,
+      "expect": [
+        "Second official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "First official language points",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "Second official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 173.95937500000036,
+      "searchMs": 102.88654199999837,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I tested in both English and French. What does the weaker one earn?",
+      "hard": false,
+      "expect": [
+        "Second official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "French-language bonus points",
+        "First official language points"
+      ],
+      "hit": [
+        "Second official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 163.85183399999914,
+      "searchMs": 96.04958299999998,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is there a cap on second language points?",
+      "hard": false,
+      "expect": [
+        "Second official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "First official language points",
+        "Skill transferability"
+      ],
+      "hit": [
+        "Second official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 168.21066699999938,
+      "searchMs": 88.9186660000014,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My English is already strong. Any reason to learn French?",
+      "hard": true,
+      "expect": [
+        "French-language bonus points",
+        "Second official language points"
+      ],
+      "covered": true,
+      "titles": [
+        "French-language bonus points",
+        "Second official language points",
+        "First official language points"
+      ],
+      "hit": [
+        "French-language bonus points",
+        "Second official language points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 147.0974580000002,
+      "searchMs": 89.30179199999839,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I took the TEF and scored NCLC 8 everywhere. What do I get?",
+      "hard": false,
+      "expect": [
+        "French-language bonus points"
+      ],
+      "covered": true,
+      "titles": [
+        "French-language bonus points",
+        "First official language points",
+        "French-language proficiency category"
+      ],
+      "hit": [
+        "French-language bonus points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 158.39054100000067,
+      "searchMs": 91.23141699999906,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I speak French but never took an English test. Do I still get the bonus?",
+      "hard": true,
+      "expect": [
+        "French-language bonus points"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "French-language bonus points",
+        "Approved language tests"
+      ],
+      "hit": [
+        "French-language bonus points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 154.0838330000006,
+      "searchMs": 94.36645800000042,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Why do French speakers seem to get in with lower scores?",
+      "hard": true,
+      "expect": [
+        "French-language bonus points",
+        "Category-based selection"
+      ],
+      "covered": true,
+      "titles": [
+        "French-language proficiency category",
+        "French-language bonus points",
+        "Second official language points"
+      ],
+      "hit": [
+        "French-language bonus points"
+      ],
+      "missing": [
+        "Category-based selection"
+      ],
+      "recall": 0.5,
+      "complete": false,
+      "embedMs": 202.47266699999818,
+      "searchMs": 88.76458300000013,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a plumber certified in Alberta. Does the trade ticket help my score?",
+      "hard": false,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "Certificate of qualification (skilled trades)",
+        "Trade occupations category",
+        "Federal Skilled Trades Program"
+      ],
+      "hit": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 164.31508300000132,
+      "searchMs": 89.36687499999971,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is a trade certificate the same as a provincial nomination?",
+      "hard": true,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "Certificate of qualification (skilled trades)",
+        "Provincial nomination",
+        "Federal Skilled Trades: job offer or certificate of qualification"
+      ],
+      "hit": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 144.07670799999687,
+      "searchMs": 89.88537500000166,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Who issues a certificate of qualification?",
+      "hard": false,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "Certificate of qualification (skilled trades)",
+        "Federal Skilled Trades: job offer or certificate of qualification",
+        "Educational credential assessment (ECA)"
+      ],
+      "hit": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 137.17808400000285,
+      "searchMs": 88.30266599999959,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My English is CLB 6 and I have a trade ticket. What's it worth?",
+      "hard": true,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "First official language points",
+        "Federal Skilled Trades language minimums",
+        "CEC language minimums by TEER"
+      ],
+      "hit": [],
+      "missing": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 150.48704200000066,
+      "searchMs": 97.50358300000153,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm in the trades with only a high school diploma. Does that limit my CRS points?",
+      "hard": true,
+      "expect": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "covered": true,
+      "titles": [
+        "CRS education points",
+        "Skill transferability",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [],
+      "missing": [
+        "Certificate of qualification (skilled trades)"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 160.24608300000182,
+      "searchMs": 97.12954199999876,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Can my degree and my work history combine into extra points?",
+      "hard": false,
+      "expect": [
+        "Skill transferability"
+      ],
+      "covered": true,
+      "titles": [
+        "Skill transferability",
+        "Getting two or more credentials assessed",
+        "CRS education points"
+      ],
+      "hit": [
+        "Skill transferability"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 150.56262499999866,
+      "searchMs": 89.59591700000237,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is there a ceiling on the combination points?",
+      "hard": false,
+      "expect": [
+        "Skill transferability"
+      ],
+      "covered": true,
+      "titles": [
+        "Skill transferability",
+        "How the CRS score is built",
+        "First official language points"
+      ],
+      "hit": [
+        "Skill transferability"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 149.91012499999852,
+      "searchMs": 90.07666700000118,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do my foreign work years pair with anything?",
+      "hard": false,
+      "expect": [
+        "Skill transferability"
+      ],
+      "covered": true,
+      "titles": [
+        "Remote work and Canadian work experience",
+        "Skill transferability",
+        "CRS Canadian work experience points"
+      ],
+      "hit": [
+        "Skill transferability"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 162.86254199999894,
+      "searchMs": 91.76525000000038,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Why do nurses seem to get invited with lower scores than me?",
+      "hard": false,
+      "expect": [
+        "Category-based selection"
+      ],
+      "covered": true,
+      "titles": [
+        "Healthcare and social services occupations category",
+        "The tie-breaking rule",
+        "General, program-specific and category-based rounds"
+      ],
+      "hit": [],
+      "missing": [
+        "Category-based selection"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 150.6130830000002,
+      "searchMs": 89.2556250000016,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My score is high but my job isn't on any list. Can I still be picked in a targeted round?",
+      "hard": true,
+      "expect": [
+        "Category-based selection"
+      ],
+      "covered": true,
+      "titles": [
+        "General, program-specific and category-based rounds",
+        "Skilled military recruits category",
+        "Category-based selection"
+      ],
+      "hit": [
+        "Category-based selection"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 158.15224999999919,
+      "searchMs": 90.953125,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Which job fields get their own rounds?",
+      "hard": false,
+      "expect": [
+        "Category-based selection"
+      ],
+      "covered": true,
+      "titles": [
+        "General, program-specific and category-based rounds",
+        "Skilled military recruits category",
+        "Category-based selection"
+      ],
+      "hit": [
+        "Category-based selection"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 153.68762499999866,
+      "searchMs": 86.80362500000047,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I've been working in Canada on a permit for a year. Which program fits me?",
+      "hard": false,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "Continuous work and the look-back windows",
+        "Canadian Experience Class",
+        "Which Express Entry program fits"
+      ],
+      "hit": [
+        "Canadian Experience Class"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 148.29599999999846,
+      "searchMs": 89.29545800000051,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My Canadian job was TEER 3. Does that qualify me?",
+      "hard": true,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "TEER 4 and TEER 5 work and Express Entry",
+        "NOC 2021 and the TEER categories",
+        "Skilled work experience (TEER 0–3)"
+      ],
+      "hit": [],
+      "missing": [
+        "Canadian Experience Class"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 148.2642080000005,
+      "searchMs": 87.11074999999983,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I worked in Canada five years ago. Is that still usable?",
+      "hard": true,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "Remote work and Canadian work experience",
+        "Continuous work and the look-back windows",
+        "CRS Canadian work experience points"
+      ],
+      "hit": [],
+      "missing": [
+        "Canadian Experience Class"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 150.98416700000234,
+      "searchMs": 90.11745799999699,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I've got nine months of Canadian experience. Is that enough for the federal program?",
+      "hard": true,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "Continuous work and the look-back windows",
+        "The 12-months-in-3-years category rule",
+        "Which Express Entry program fits"
+      ],
+      "hit": [],
+      "missing": [
+        "Canadian Experience Class"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 155.7930410000008,
+      "searchMs": 90.69837499999994,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My Canadian job is TEER 4. Which federal program can I use?",
+      "hard": true,
+      "expect": [
+        "Canadian Experience Class"
+      ],
+      "covered": true,
+      "titles": [
+        "TEER 4 and TEER 5 work and Express Entry",
+        "NOC 2021 and the TEER categories",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [],
+      "missing": [
+        "Canadian Experience Class"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 160.25274999999965,
+      "searchMs": 94.61766700000226,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What is Express Entry, in plain terms?",
+      "hard": false,
+      "expect": [
+        "Express Entry"
+      ],
+      "covered": true,
+      "titles": [
+        "Express Entry",
+        "Which Express Entry program fits",
+        "Creating an Express Entry profile"
+      ],
+      "hit": [
+        "Express Entry"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 139.80933300000106,
+      "searchMs": 90.80074999999852,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Which programs does the system actually cover?",
+      "hard": false,
+      "expect": [
+        "Express Entry"
+      ],
+      "covered": true,
+      "titles": [
+        "Which Express Entry program fits",
+        "Express Entry",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [
+        "Express Entry"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 141.8402500000011,
+      "searchMs": 88.39104199999929,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How does anyone get picked out of the pool?",
+      "hard": true,
+      "expect": [
+        "Express Entry"
+      ],
+      "covered": true,
+      "titles": [
+        "Creating an Express Entry profile",
+        "How rounds of invitations work",
+        "General, program-specific and category-based rounds"
+      ],
+      "hit": [],
+      "missing": [
+        "Express Entry"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 165.8444159999999,
+      "searchMs": 91.6819170000017,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My employer in Toronto offered me a permanent job. Is there an Ontario stream for that?",
+      "hard": false,
+      "expect": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority application process",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 157.48404200000004,
+      "searchMs": 86.4945829999997,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My job is TEER 5. Can Ontario still nominate me, and do I get the 600 points?",
+      "hard": true,
+      "expect": [
+        "OINP Ontario Workforce Priority stream",
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "TEER 4 and TEER 5 work and Express Entry",
+        "NOC 2021 and the TEER categories"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "missing": [
+        "Provincial nomination"
+      ],
+      "recall": 0.5,
+      "complete": false,
+      "embedMs": 152.33883299999798,
+      "searchMs": 89.2457089999989,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I let my Express Entry profile expire after Ontario nominated me. Does that matter?",
+      "hard": true,
+      "expect": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process",
+        "The tie-breaking rule"
+      ],
+      "hit": [],
+      "missing": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 163.48504200000025,
+      "searchMs": 88.68920799999978,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a doctor billing OHIP with no employer. Can I still apply through Ontario?",
+      "hard": true,
+      "expect": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "Physician exemption for self-employed Canadian experience",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 144.31424999999945,
+      "searchMs": 91.34629199999836,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does the Ontario job offer have to be permanent, or will a contract do?",
+      "hard": false,
+      "expect": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Workforce Priority application process"
+      ],
+      "hit": [
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 157.80358400000114,
+      "searchMs": 89.84749999999985,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does Ontario care how old my language test is when I apply to that stream?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "Approved language tests",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 156.89383299999827,
+      "searchMs": 90.2310830000024,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What CLB does Ontario want if my job offer is TEER 4?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "CEC language minimums by TEER",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 151.55766700000095,
+      "searchMs": 90.2642909999995,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How much experience does Ontario need if I've been in the job six months?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "The 12-months-in-3-years category rule",
+        "Canadian Experience Class"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 137.2042500000025,
+      "searchMs": 93.29195899999831,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I only finished high school but I'm a welder. Can Ontario still take me?",
+      "hard": true,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority eligibility requirements",
+        "OINP closed streams (replaced June 2026)",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 139.02512500000012,
+      "searchMs": 89.97333299999809,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I just graduated from a college in Ottawa. Does Ontario waive anything for me?",
+      "hard": true,
+      "expect": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority eligibility requirements",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 136.04337499999383,
+      "searchMs": 89.35133400000632,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How long do I have to submit my Ontario application once I'm invited?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority application process"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "OINP closed streams (replaced June 2026)",
+        "How rounds of invitations work"
+      ],
+      "hit": [
+        "OINP Workforce Priority application process"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 154.33908399999927,
+      "searchMs": 91.70366600000125,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does Ontario run a draw, or do I need an employer to start it?",
+      "hard": true,
+      "expect": [
+        "OINP Workforce Priority application process"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [
+        "OINP Workforce Priority application process"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 156.9326660000006,
+      "searchMs": 87.16374999999971,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Ontario nominated me. How long before I have to file with IRCC?",
+      "hard": false,
+      "expect": [
+        "OINP Workforce Priority application process"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream",
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "hit": [
+        "OINP Workforce Priority application process"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 139.71504099999584,
+      "searchMs": 95.76950000000215,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My employer submitted something in a portal. What am I supposed to do next?",
+      "hard": true,
+      "expect": [
+        "OINP Workforce Priority application process"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "How rounds of invitations work",
+        "Express Entry"
+      ],
+      "hit": [
+        "OINP Workforce Priority application process"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 151.37879200000316,
+      "searchMs": 88.71083299999736,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What happened to the Masters Graduate stream in Ontario?",
+      "hard": false,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Ontario Workforce Priority stream",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 166.73041699999885,
+      "searchMs": 89.09004100000311,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is Human Capital Priorities still sending notifications of interest?",
+      "hard": true,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "General, program-specific and category-based rounds",
+        "OINP Workforce Priority application process"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 157.9226669999989,
+      "searchMs": 87.56854200000089,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My consultant said to apply through Employer Job Offer: In-Demand Skills. Is that still open?",
+      "hard": true,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "Job offer points removed (March 25, 2025)",
+        "OINP closed streams (replaced June 2026)",
+        "Express Entry"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 162.95204200000444,
+      "searchMs": 89.82774999999674,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a French speaker counting on Ontario's French-speaking skilled worker stream. Is it still there?",
+      "hard": true,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "French-language bonus points",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 140.4038750000036,
+      "searchMs": 89.51949999999488,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Why did my Ontario expression of interest disappear?",
+      "hard": true,
+      "expect": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "covered": true,
+      "titles": [
+        "OINP closed streams (replaced June 2026)",
+        "OINP Workforce Priority application process",
+        "OINP Ontario Workforce Priority stream"
+      ],
+      "hit": [
+        "OINP closed streams (replaced June 2026)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 158.0413750000007,
+      "searchMs": 95.67283300000418,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I have ten years of experience overseas and none in Canada. Which program is mine?",
+      "hard": true,
+      "expect": [
+        "Federal Skilled Worker Program"
+      ],
+      "covered": true,
+      "titles": [
+        "Which Express Entry program fits",
+        "The 12-months-in-3-years category rule",
+        "Senior managers with Canadian work experience category"
+      ],
+      "hit": [],
+      "missing": [
+        "Federal Skilled Worker Program"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 128.8656670000055,
+      "searchMs": 90.74945799999841,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's the 67 points thing I keep reading about?",
+      "hard": false,
+      "expect": [
+        "FSW selection factors: the 67-point grid"
+      ],
+      "covered": true,
+      "titles": [
+        "FSW selection factors: the 67-point grid",
+        "How the CRS score is built",
+        "CRS age points"
+      ],
+      "hit": [
+        "FSW selection factors: the 67-point grid"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 153.7309580000001,
+      "searchMs": 86.30891700000211,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is the 67-point score the same as the score that ranks me in the pool?",
+      "hard": true,
+      "expect": [
+        "FSW selection factors: the 67-point grid"
+      ],
+      "covered": true,
+      "titles": [
+        "FSW selection factors: the 67-point grid",
+        "The tie-breaking rule",
+        "How rounds of invitations work"
+      ],
+      "hit": [
+        "FSW selection factors: the 67-point grid"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 142.86470800000097,
+      "searchMs": 88.75991700000304,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do I get anything for my wife having studied in Canada?",
+      "hard": true,
+      "expect": [
+        "FSW adaptability points"
+      ],
+      "covered": true,
+      "titles": [
+        "Spouse or common-law partner factors",
+        "Canadian study additional points",
+        "FSW adaptability points"
+      ],
+      "hit": [
+        "FSW adaptability points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 169.20712499999354,
+      "searchMs": 86.44045900000492,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My consultant says my job offer is worth 10 points, but I read that job offer points were scrapped. Who's right?",
+      "hard": true,
+      "expect": [
+        "Arranged employment in the FSW grid",
+        "Job offer points removed (March 25, 2025)"
+      ],
+      "covered": true,
+      "titles": [
+        "Job offer points removed (March 25, 2025)",
+        "Arranged employment in the FSW grid",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [
+        "Arranged employment in the FSW grid",
+        "Job offer points removed (March 25, 2025)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 138.18249999999534,
+      "searchMs": 89.36904199999844,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How much is an LMIA job offer worth on my CRS now?",
+      "hard": false,
+      "expect": [
+        "Job offer points removed (March 25, 2025)"
+      ],
+      "covered": true,
+      "titles": [
+        "Job offer points removed (March 25, 2025)",
+        "Arranged employment in the FSW grid",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [
+        "Job offer points removed (March 25, 2025)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 128.08166700000584,
+      "searchMs": 88.06099999999424,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I was counting on 200 points for a senior management offer. Is that gone?",
+      "hard": true,
+      "expect": [
+        "Job offer points removed (March 25, 2025)"
+      ],
+      "covered": true,
+      "titles": [
+        "Senior managers with Canadian work experience category",
+        "Job offer points removed (March 25, 2025)",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [
+        "Job offer points removed (March 25, 2025)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 126.65299999999843,
+      "searchMs": 89.38029200000165,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a welder with no degree. Can I still immigrate federally?",
+      "hard": true,
+      "expect": [
+        "Federal Skilled Trades Program"
+      ],
+      "covered": true,
+      "titles": [
+        "Federal Skilled Trades Program",
+        "Trade occupations category",
+        "TEER 4 and TEER 5 work and Express Entry"
+      ],
+      "hit": [
+        "Federal Skilled Trades Program"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 118.63687499999651,
+      "searchMs": 86.74608299999818,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How many hours of trade experience do I need?",
+      "hard": false,
+      "expect": [
+        "Federal Skilled Trades work experience (3,120 hours)"
+      ],
+      "covered": true,
+      "titles": [
+        "Federal Skilled Trades work experience (3,120 hours)",
+        "Work experience hours — full-time vs part-time",
+        "Trade occupations category"
+      ],
+      "hit": [
+        "Federal Skilled Trades work experience (3,120 hours)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 141.65083400000003,
+      "searchMs": 90.10216599999694,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My trade experience is from a country where I wasn't licensed to do it. Does it count?",
+      "hard": true,
+      "expect": [
+        "Federal Skilled Trades work experience (3,120 hours)"
+      ],
+      "covered": true,
+      "titles": [
+        "Federal Skilled Trades work experience (3,120 hours)",
+        "Trade occupations category",
+        "The 12-months-in-3-years category rule"
+      ],
+      "hit": [
+        "Federal Skilled Trades work experience (3,120 hours)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 115.48229100000026,
+      "searchMs": 86.8034589999952,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do I need both a job offer and a trade certificate for the trades program?",
+      "hard": false,
+      "expect": [
+        "Federal Skilled Trades: job offer or certificate of qualification"
+      ],
+      "covered": true,
+      "titles": [
+        "Federal Skilled Trades: job offer or certificate of qualification",
+        "Trade occupations category",
+        "Certificate of qualification (skilled trades)"
+      ],
+      "hit": [
+        "Federal Skilled Trades: job offer or certificate of qualification"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 132.50320899999497,
+      "searchMs": 92.9128750000018,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My province doesn't certify my trade at all. What are my options?",
+      "hard": true,
+      "expect": [
+        "Federal Skilled Trades: job offer or certificate of qualification"
+      ],
+      "covered": true,
+      "titles": [
+        "Federal Skilled Trades: job offer or certificate of qualification",
+        "Certificate of qualification (skilled trades)",
+        "Federal Skilled Trades Program"
+      ],
+      "hit": [
+        "Federal Skilled Trades: job offer or certificate of qualification"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 135.45837500000198,
+      "searchMs": 88.54654100000334,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What English level do tradespeople need?",
+      "hard": false,
+      "expect": [
+        "Federal Skilled Trades language minimums"
+      ],
+      "covered": true,
+      "titles": [
+        "Federal Skilled Trades language minimums",
+        "Federal Skilled Trades Program",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Federal Skilled Trades language minimums"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 142.74700000000303,
+      "searchMs": 89.3237089999966,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My reading is much weaker than my speaking. Is that fatal for the trades program?",
+      "hard": true,
+      "expect": [
+        "Federal Skilled Trades language minimums"
+      ],
+      "covered": true,
+      "titles": [
+        "Federal Skilled Trades language minimums",
+        "Federal Skilled Trades Program",
+        "Which Express Entry program fits"
+      ],
+      "hit": [
+        "Federal Skilled Trades language minimums"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 119.41754200000287,
+      "searchMs": 88.44162499999948,
+      "chunksUsed": 3
+    },
+    {
+      "question": "There are three programs. How do I tell which one I fit?",
+      "hard": false,
+      "expect": [
+        "Which Express Entry program fits"
+      ],
+      "covered": true,
+      "titles": [
+        "Which Express Entry program fits",
+        "Creating an Express Entry profile",
+        "General, program-specific and category-based rounds"
+      ],
+      "hit": [
+        "Which Express Entry program fits"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 131.7430830000012,
+      "searchMs": 88.70437500000116,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Why does my friend's experience from six years ago count when mine doesn't?",
+      "hard": true,
+      "expect": [
+        "Continuous work and the look-back windows",
+        "Which Express Entry program fits"
+      ],
+      "covered": true,
+      "titles": [
+        "Skilled work experience (TEER 0–3)",
+        "Continuous work and the look-back windows",
+        "Self-employment and work while studying"
+      ],
+      "hit": [
+        "Continuous work and the look-back windows"
+      ],
+      "missing": [
+        "Which Express Entry program fits"
+      ],
+      "recall": 0.5,
+      "complete": false,
+      "embedMs": 133.77554200000304,
+      "searchMs": 89.29316599999584,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What actually counts as skilled experience?",
+      "hard": false,
+      "expect": [
+        "Skilled work experience (TEER 0–3)"
+      ],
+      "covered": true,
+      "titles": [
+        "Skilled work experience (TEER 0–3)",
+        "Canadian Experience Class",
+        "TEER 4 and TEER 5 work and Express Entry"
+      ],
+      "hit": [
+        "Skilled work experience (TEER 0–3)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 143.19533299999603,
+      "searchMs": 88.51754200000141,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My job title matches the code but the duties don't. Does that matter?",
+      "hard": true,
+      "expect": [
+        "Primary occupation and choosing your NOC"
+      ],
+      "covered": true,
+      "titles": [
+        "Primary occupation and choosing your NOC",
+        "NOC 2021 and the TEER categories",
+        "The 12-months-in-3-years category rule"
+      ],
+      "hit": [
+        "Primary occupation and choosing your NOC"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 128.73545799999556,
+      "searchMs": 90.50116700000217,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Which job do I put down if I've had several different ones?",
+      "hard": false,
+      "expect": [
+        "Primary occupation and choosing your NOC"
+      ],
+      "covered": true,
+      "titles": [
+        "Primary occupation and choosing your NOC",
+        "The 12-months-in-3-years category rule",
+        "Skilled work experience (TEER 0–3)"
+      ],
+      "hit": [
+        "Primary occupation and choosing your NOC"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 149.08941700000287,
+      "searchMs": 91.42241700000159,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What is a TEER category?",
+      "hard": false,
+      "expect": [
+        "NOC 2021 and the TEER categories"
+      ],
+      "covered": true,
+      "titles": [
+        "NOC 2021 and the TEER categories",
+        "TEER 4 and TEER 5 work and Express Entry",
+        "CEC language minimums by TEER"
+      ],
+      "hit": [
+        "NOC 2021 and the TEER categories"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 132.70970799999486,
+      "searchMs": 85.81425000000309,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Can I tell my skill level from the code itself?",
+      "hard": true,
+      "expect": [
+        "NOC 2021 and the TEER categories"
+      ],
+      "covered": true,
+      "titles": [
+        "Skill transferability",
+        "FSW selection factors: the 67-point grid",
+        "Primary occupation and choosing your NOC"
+      ],
+      "hit": [],
+      "missing": [
+        "NOC 2021 and the TEER categories"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 142.13341599999694,
+      "searchMs": 88.85900000000402,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I've been a retail salesperson for six years. Why doesn't that qualify me?",
+      "hard": true,
+      "expect": [
+        "TEER 4 and TEER 5 work and Express Entry"
+      ],
+      "covered": true,
+      "titles": [
+        "TEER 4 and TEER 5 work and Express Entry",
+        "Skilled work experience (TEER 0–3)",
+        "The 12-months-in-3-years category rule"
+      ],
+      "hit": [
+        "TEER 4 and TEER 5 work and Express Entry"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 123.3583340000041,
+      "searchMs": 92.95945799999754,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is there any route at all for someone in a job the federal programs won't take?",
+      "hard": true,
+      "expect": [
+        "TEER 4 and TEER 5 work and Express Entry"
+      ],
+      "covered": true,
+      "titles": [
+        "TEER 4 and TEER 5 work and Express Entry",
+        "Federal Skilled Trades Program",
+        "Federal Skilled Trades: job offer or certificate of qualification"
+      ],
+      "hit": [
+        "TEER 4 and TEER 5 work and Express Entry"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 129.00108300000284,
+      "searchMs": 88.68125000000146,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How far back can I go for my work experience?",
+      "hard": false,
+      "expect": [
+        "Continuous work and the look-back windows"
+      ],
+      "covered": true,
+      "titles": [
+        "Skilled work experience (TEER 0–3)",
+        "Continuous work and the look-back windows",
+        "The 12-months-in-3-years category rule"
+      ],
+      "hit": [
+        "Continuous work and the look-back windows"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 146.0995000000039,
+      "searchMs": 86.99104099999386,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My year of Canadian work was four years ago. Can I still use it to qualify?",
+      "hard": true,
+      "expect": [
+        "Continuous work and the look-back windows"
+      ],
+      "covered": true,
+      "titles": [
+        "Continuous work and the look-back windows",
+        "Skilled work experience (TEER 0–3)",
+        "Remote work and Canadian work experience"
+      ],
+      "hit": [
+        "Continuous work and the look-back windows"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 140.28129199999967,
+      "searchMs": 87.7086249999993,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I was self-employed in Canada. Does that count?",
+      "hard": false,
+      "expect": [
+        "Self-employment and work while studying"
+      ],
+      "covered": true,
+      "titles": [
+        "Physician exemption for self-employed Canadian experience",
+        "Self-employment and work while studying",
+        "Remote work and Canadian work experience"
+      ],
+      "hit": [
+        "Self-employment and work while studying"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 138.44745899999543,
+      "searchMs": 90.32741600000008,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I worked during my co-op term. Does that count?",
+      "hard": true,
+      "expect": [
+        "Self-employment and work while studying"
+      ],
+      "covered": true,
+      "titles": [
+        "Self-employment and work while studying",
+        "Work experience hours — full-time vs part-time",
+        "Remote work and Canadian work experience"
+      ],
+      "hit": [
+        "Self-employment and work while studying"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 140.68354199999885,
+      "searchMs": 88.98891699999513,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a physician paid fee-for-service and I've been told self-employment doesn't count. Is there an exception?",
+      "hard": true,
+      "expect": [
+        "Physician exemption for self-employed Canadian experience"
+      ],
+      "covered": true,
+      "titles": [
+        "Physician exemption for self-employed Canadian experience",
+        "Self-employment and work while studying",
+        "Physicians with Canadian work experience category"
+      ],
+      "hit": [
+        "Physician exemption for self-employed Canadian experience"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 139.61095799999748,
+      "searchMs": 88.57362500000454,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I work remotely from Manila for a Toronto company. Is that Canadian experience?",
+      "hard": true,
+      "expect": [
+        "Remote work and Canadian work experience"
+      ],
+      "covered": true,
+      "titles": [
+        "Remote work and Canadian work experience",
+        "Physician exemption for self-employed Canadian experience",
+        "Self-employment and work while studying"
+      ],
+      "hit": [
+        "Remote work and Canadian work experience"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 144.43883300000016,
+      "searchMs": 91.77791699999943,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does working from home in Canada still count as Canadian experience?",
+      "hard": false,
+      "expect": [
+        "Remote work and Canadian work experience"
+      ],
+      "covered": true,
+      "titles": [
+        "Remote work and Canadian work experience",
+        "Continuous work and the look-back windows",
+        "Canadian Experience Class"
+      ],
+      "hit": [
+        "Remote work and Canadian work experience"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 127.79587499999616,
+      "searchMs": 90.30545900000288,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do I need to get my foreign degree assessed?",
+      "hard": false,
+      "expect": [
+        "Educational credential assessment (ECA)"
+      ],
+      "covered": true,
+      "titles": [
+        "Educational credential assessment (ECA)",
+        "Getting two or more credentials assessed",
+        "CRS education points"
+      ],
+      "hit": [
+        "Educational credential assessment (ECA)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 133.31216700000368,
+      "searchMs": 90.53408299999865,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How old can my credential assessment be when I apply?",
+      "hard": false,
+      "expect": [
+        "Educational credential assessment (ECA)"
+      ],
+      "covered": true,
+      "titles": [
+        "Educational credential assessment (ECA)",
+        "Getting two or more credentials assessed",
+        "OINP Workforce Priority eligibility requirements"
+      ],
+      "hit": [
+        "Educational credential assessment (ECA)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 124.49725000000035,
+      "searchMs": 93.51058299999568,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do I need an assessment for my Canadian college diploma?",
+      "hard": true,
+      "expect": [
+        "Educational credential assessment (ECA)"
+      ],
+      "covered": true,
+      "titles": [
+        "Educational credential assessment (ECA)",
+        "Getting two or more credentials assessed",
+        "NOC 2021 and the TEER categories"
+      ],
+      "hit": [
+        "Educational credential assessment (ECA)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 146.2128339999981,
+      "searchMs": 100.13916600000084,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I have a diploma and a degree. Do I have to get both assessed?",
+      "hard": true,
+      "expect": [
+        "Getting two or more credentials assessed"
+      ],
+      "covered": true,
+      "titles": [
+        "Getting two or more credentials assessed",
+        "Educational credential assessment (ECA)",
+        "CRS education points"
+      ],
+      "hit": [
+        "Getting two or more credentials assessed"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 132.82395800000086,
+      "searchMs": 88.35741699999926,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My degree came back as not equal to a Canadian one. Is there anything I can still do?",
+      "hard": true,
+      "expect": [
+        "Getting two or more credentials assessed"
+      ],
+      "covered": true,
+      "titles": [
+        "Educational credential assessment (ECA)",
+        "Getting two or more credentials assessed",
+        "CRS education points"
+      ],
+      "hit": [
+        "Getting two or more credentials assessed"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 138.6643750000003,
+      "searchMs": 89.58212500000081,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Which English tests does IRCC accept?",
+      "hard": false,
+      "expect": [
+        "Approved language tests"
+      ],
+      "covered": true,
+      "titles": [
+        "Approved language tests",
+        "CLB 7 in all abilities",
+        "CEC language minimums by TEER"
+      ],
+      "hit": [
+        "Approved language tests"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 147.98920799999905,
+      "searchMs": 87.69008300000132,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I took the academic version of IELTS. Is that OK?",
+      "hard": true,
+      "expect": [
+        "Approved language tests"
+      ],
+      "covered": true,
+      "titles": [
+        "Approved language tests",
+        "Educational credential assessment (ECA)",
+        "CLB 7 in all abilities"
+      ],
+      "hit": [
+        "Approved language tests"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 141.85462499999994,
+      "searchMs": 87.61983300000429,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I retook just my speaking section. Will they take that result?",
+      "hard": true,
+      "expect": [
+        "Approved language tests"
+      ],
+      "covered": true,
+      "titles": [
+        "Second official language points",
+        "First official language points",
+        "Approved language tests"
+      ],
+      "hit": [
+        "Approved language tests"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 138.96966700000485,
+      "searchMs": 87.64904099999694,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My Canadian job is TEER 2. What language score do I actually need?",
+      "hard": true,
+      "expect": [
+        "CEC language minimums by TEER"
+      ],
+      "covered": true,
+      "titles": [
+        "CEC language minimums by TEER",
+        "CLB 7 in all abilities",
+        "NOC 2021 and the TEER categories"
+      ],
+      "hit": [
+        "CEC language minimums by TEER"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 131.2695840000015,
+      "searchMs": 87.94812499999534,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is CLB 7 really the minimum for everyone?",
+      "hard": true,
+      "expect": [
+        "CEC language minimums by TEER",
+        "CLB 7 in all abilities"
+      ],
+      "covered": true,
+      "titles": [
+        "CEC language minimums by TEER",
+        "CLB 7 in all abilities",
+        "First official language points"
+      ],
+      "hit": [
+        "CEC language minimums by TEER",
+        "CLB 7 in all abilities"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 130.89845899999636,
+      "searchMs": 88.06962500000373,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How is the 1,200 total made up?",
+      "hard": false,
+      "expect": [
+        "How the CRS score is built"
+      ],
+      "covered": true,
+      "titles": [
+        "How the CRS score is built",
+        "Additional points (the 600-point group)",
+        "Skill transferability"
+      ],
+      "hit": [
+        "How the CRS score is built"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 149.02554199999577,
+      "searchMs": 85.49533299999894,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's the most I can score without a partner?",
+      "hard": true,
+      "expect": [
+        "How the CRS score is built"
+      ],
+      "covered": true,
+      "titles": [
+        "When you are scored as if you have no spouse",
+        "CRS age points",
+        "First official language points"
+      ],
+      "hit": [],
+      "missing": [
+        "How the CRS score is built"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 132.54624999999942,
+      "searchMs": 90.13933299999917,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How many points do I lose turning 31?",
+      "hard": true,
+      "expect": [
+        "CRS age points"
+      ],
+      "covered": true,
+      "titles": [
+        "CRS age points",
+        "FSW selection factors: the 67-point grid",
+        "When you are scored as if you have no spouse"
+      ],
+      "hit": [
+        "CRS age points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 148.59266599999683,
+      "searchMs": 87.95604200000525,
+      "chunksUsed": 3
+    },
+    {
+      "question": "At what age do I stop getting points for being young?",
+      "hard": false,
+      "expect": [
+        "CRS age points"
+      ],
+      "covered": true,
+      "titles": [
+        "CRS age points",
+        "FSW selection factors: the 67-point grid",
+        "How the CRS score is built"
+      ],
+      "hit": [
+        "CRS age points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 138.28066599999875,
+      "searchMs": 101.54458399999567,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's a master's degree worth?",
+      "hard": false,
+      "expect": [
+        "CRS education points"
+      ],
+      "covered": true,
+      "titles": [
+        "CRS education points",
+        "Getting two or more credentials assessed",
+        "Canadian study additional points"
+      ],
+      "hit": [
+        "CRS education points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 134.9307919999992,
+      "searchMs": 86.35345800000505,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I have two diplomas. Is that worth more than one bachelor's?",
+      "hard": true,
+      "expect": [
+        "CRS education points"
+      ],
+      "covered": true,
+      "titles": [
+        "Getting two or more credentials assessed",
+        "CRS education points",
+        "Educational credential assessment (ECA)"
+      ],
+      "hit": [
+        "CRS education points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 126.32458300000144,
+      "searchMs": 85.03937499999302,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How much is my second year of Canadian work worth over the first?",
+      "hard": true,
+      "expect": [
+        "CRS Canadian work experience points"
+      ],
+      "covered": true,
+      "titles": [
+        "CRS Canadian work experience points",
+        "Continuous work and the look-back windows",
+        "Work experience hours — full-time vs part-time"
+      ],
+      "hit": [
+        "CRS Canadian work experience points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 119.37054099999659,
+      "searchMs": 88.13104200000089,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What do I get for five years of work in Canada?",
+      "hard": false,
+      "expect": [
+        "CRS Canadian work experience points"
+      ],
+      "covered": true,
+      "titles": [
+        "CRS Canadian work experience points",
+        "Canadian Experience Class",
+        "Continuous work and the look-back windows"
+      ],
+      "hit": [
+        "CRS Canadian work experience points"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 119.53079200000502,
+      "searchMs": 86.4060829999944,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How much can my husband's education add to my score?",
+      "hard": false,
+      "expect": [
+        "Spouse or common-law partner factors"
+      ],
+      "covered": true,
+      "titles": [
+        "Spouse or common-law partner factors",
+        "When you are scored as if you have no spouse",
+        "CRS education points"
+      ],
+      "hit": [
+        "Spouse or common-law partner factors"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 135.27733299999818,
+      "searchMs": 89.08625000000029,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My wife is already a permanent resident. Does that lower my score?",
+      "hard": true,
+      "expect": [
+        "When you are scored as if you have no spouse"
+      ],
+      "covered": true,
+      "titles": [
+        "Spouse or common-law partner factors",
+        "When you are scored as if you have no spouse",
+        "How the CRS score is built"
+      ],
+      "hit": [
+        "When you are scored as if you have no spouse"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 128.90437499999825,
+      "searchMs": 87.93887499999983,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My partner isn't coming with me. Which set of numbers applies?",
+      "hard": false,
+      "expect": [
+        "When you are scored as if you have no spouse"
+      ],
+      "covered": true,
+      "titles": [
+        "When you are scored as if you have no spouse",
+        "Spouse or common-law partner factors",
+        "How the CRS score is built"
+      ],
+      "hit": [
+        "When you are scored as if you have no spouse"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 131.1695000000036,
+      "searchMs": 85.31958299999678,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Should I be the main applicant, or should my spouse?",
+      "hard": true,
+      "expect": [
+        "Spouse or common-law partner factors",
+        "When you are scored as if you have no spouse"
+      ],
+      "covered": true,
+      "titles": [
+        "When you are scored as if you have no spouse",
+        "Spouse or common-law partner factors",
+        "How the CRS score is built"
+      ],
+      "hit": [
+        "Spouse or common-law partner factors",
+        "When you are scored as if you have no spouse"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 138.14237500000309,
+      "searchMs": 91.70316699999967,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's in the other 600 points?",
+      "hard": false,
+      "expect": [
+        "Additional points (the 600-point group)"
+      ],
+      "covered": true,
+      "titles": [
+        "How the CRS score is built",
+        "Additional points (the 600-point group)",
+        "CRS education points"
+      ],
+      "hit": [
+        "Additional points (the 600-point group)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 129.36079099999915,
+      "searchMs": 85.93374999999651,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I have a nomination and strong French. Do they stack on top of each other?",
+      "hard": true,
+      "expect": [
+        "Additional points (the 600-point group)"
+      ],
+      "covered": true,
+      "titles": [
+        "French-language bonus points",
+        "Additional points (the 600-point group)",
+        "Second official language points"
+      ],
+      "hit": [
+        "Additional points (the 600-point group)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 116.47541700000147,
+      "searchMs": 88.29974999999831,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My sister is a citizen living in Vancouver. Is that worth anything?",
+      "hard": false,
+      "expect": [
+        "Sibling in Canada (15 points)"
+      ],
+      "covered": true,
+      "titles": [
+        "Sibling in Canada (15 points)",
+        "Additional points (the 600-point group)",
+        "FSW adaptability points"
+      ],
+      "hit": [
+        "Sibling in Canada (15 points)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 110.96245799999451,
+      "searchMs": 99.43204200000037,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does my cousin in Calgary get me points?",
+      "hard": true,
+      "expect": [
+        "Sibling in Canada (15 points)"
+      ],
+      "covered": true,
+      "titles": [
+        "Sibling in Canada (15 points)",
+        "Additional points (the 600-point group)",
+        "Spouse or common-law partner factors"
+      ],
+      "hit": [
+        "Sibling in Canada (15 points)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 123.74900000000343,
+      "searchMs": 87.53970799999661,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My brother is in Canada on a work permit. Does he count?",
+      "hard": true,
+      "expect": [
+        "Sibling in Canada (15 points)"
+      ],
+      "covered": true,
+      "titles": [
+        "Sibling in Canada (15 points)",
+        "FSW adaptability points",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [
+        "Sibling in Canada (15 points)"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 133.6085000000021,
+      "searchMs": 86.80629100000078,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Who decides the cut-off score for a draw?",
+      "hard": true,
+      "expect": [
+        "How rounds of invitations work"
+      ],
+      "covered": true,
+      "titles": [
+        "How rounds of invitations work",
+        "The tie-breaking rule",
+        "Category-based selection"
+      ],
+      "hit": [
+        "How rounds of invitations work"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 122.02445799999987,
+      "searchMs": 87.6845420000027,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How long do I have to apply once I'm invited?",
+      "hard": false,
+      "expect": [
+        "How rounds of invitations work"
+      ],
+      "covered": true,
+      "titles": [
+        "How rounds of invitations work",
+        "The tie-breaking rule",
+        "OINP Workforce Priority application process"
+      ],
+      "hit": [
+        "How rounds of invitations work"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 127.71616700000595,
+      "searchMs": 84.78174999999464,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What are the different kinds of draws?",
+      "hard": false,
+      "expect": [
+        "General, program-specific and category-based rounds"
+      ],
+      "covered": true,
+      "titles": [
+        "Category-based selection",
+        "Express Entry",
+        "General, program-specific and category-based rounds"
+      ],
+      "hit": [
+        "General, program-specific and category-based rounds"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 117.5662910000101,
+      "searchMs": 88.41079199999513,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Why are the provincial draw scores so much higher than the others?",
+      "hard": true,
+      "expect": [
+        "General, program-specific and category-based rounds",
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Provincial nomination",
+        "General, program-specific and category-based rounds",
+        "The tie-breaking rule"
+      ],
+      "hit": [
+        "General, program-specific and category-based rounds",
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 103.27495899998758,
+      "searchMs": 88.45270800001163,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Two people have exactly the same score. Who gets picked?",
+      "hard": false,
+      "expect": [
+        "The tie-breaking rule"
+      ],
+      "covered": true,
+      "titles": [
+        "The tie-breaking rule",
+        "How rounds of invitations work",
+        "Category-based selection"
+      ],
+      "hit": [
+        "The tie-breaking rule"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 114.40416699998605,
+      "searchMs": 91.74695800000336,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is there any point submitting early if my score is too low anyway?",
+      "hard": true,
+      "expect": [
+        "The tie-breaking rule"
+      ],
+      "covered": true,
+      "titles": [
+        "The tie-breaking rule",
+        "CRS age points",
+        "How rounds of invitations work"
+      ],
+      "hit": [
+        "The tie-breaking rule"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 146.94204100000206,
+      "searchMs": 87.87520900000527,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How do I get into the pool in the first place?",
+      "hard": false,
+      "expect": [
+        "Creating an Express Entry profile"
+      ],
+      "covered": true,
+      "titles": [
+        "Creating an Express Entry profile",
+        "The tie-breaking rule",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "Creating an Express Entry profile"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 139.79562499999884,
+      "searchMs": 87.46441600000253,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do I have to apply separately to be considered for a category?",
+      "hard": true,
+      "expect": [
+        "Creating an Express Entry profile",
+        "The 12-months-in-3-years category rule"
+      ],
+      "covered": true,
+      "titles": [
+        "Category-based selection",
+        "General, program-specific and category-based rounds",
+        "Skilled military recruits category"
+      ],
+      "hit": [],
+      "missing": [
+        "Creating an Express Entry profile",
+        "The 12-months-in-3-years category rule"
+      ],
+      "recall": 0,
+      "complete": false,
+      "embedMs": 141.3008339999942,
+      "searchMs": 90.14741600000707,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I want to settle in Montreal. Does this system work for that?",
+      "hard": true,
+      "expect": [
+        "Express Entry and Quebec"
+      ],
+      "covered": true,
+      "titles": [
+        "Express Entry and Quebec",
+        "Additional points (the 600-point group)",
+        "Provincial nomination"
+      ],
+      "hit": [
+        "Express Entry and Quebec"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 117.7532499999943,
+      "searchMs": 97.03662500000792,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Can Quebec nominate me for the 600 points?",
+      "hard": true,
+      "expect": [
+        "Express Entry and Quebec",
+        "Provincial nomination"
+      ],
+      "covered": true,
+      "titles": [
+        "Express Entry and Quebec",
+        "Provincial nomination",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [
+        "Express Entry and Quebec",
+        "Provincial nomination"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 131.36408299999312,
+      "searchMs": 94.78429200001119,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How much experience do I need for a category draw?",
+      "hard": false,
+      "expect": [
+        "The 12-months-in-3-years category rule"
+      ],
+      "covered": true,
+      "titles": [
+        "Category-based selection",
+        "Education occupations category",
+        "The 12-months-in-3-years category rule"
+      ],
+      "hit": [
+        "The 12-months-in-3-years category rule"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 137.6483329999901,
+      "searchMs": 88.35754200001247,
+      "chunksUsed": 3
+    },
+    {
+      "question": "My twelve months in that occupation weren't back to back. Is that a problem?",
+      "hard": true,
+      "expect": [
+        "The 12-months-in-3-years category rule"
+      ],
+      "covered": true,
+      "titles": [
+        "The 12-months-in-3-years category rule",
+        "Continuous work and the look-back windows",
+        "Skilled work experience (TEER 0–3)"
+      ],
+      "hit": [
+        "The 12-months-in-3-years category rule"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 120.33012500000768,
+      "searchMs": 93.20695899998827,
+      "chunksUsed": 3
+    },
+    {
+      "question": "The category occupation isn't the job I'm applying under. Does it still count?",
+      "hard": true,
+      "expect": [
+        "The 12-months-in-3-years category rule"
+      ],
+      "covered": true,
+      "titles": [
+        "Primary occupation and choosing your NOC",
+        "The 12-months-in-3-years category rule",
+        "TEER 4 and TEER 5 work and Express Entry"
+      ],
+      "hit": [
+        "The 12-months-in-3-years category rule"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 140.42350000000442,
+      "searchMs": 88.39241699999548,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a nurse. Which category am I in?",
+      "hard": false,
+      "expect": [
+        "Healthcare and social services occupations category"
+      ],
+      "covered": true,
+      "titles": [
+        "Healthcare and social services occupations category",
+        "Category-based selection",
+        "Education occupations category"
+      ],
+      "hit": [
+        "Healthcare and social services occupations category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 120.0094170000084,
+      "searchMs": 89.29783299998962,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Does my nursing experience from back home count for that category?",
+      "hard": true,
+      "expect": [
+        "Healthcare and social services occupations category"
+      ],
+      "covered": true,
+      "titles": [
+        "Healthcare and social services occupations category",
+        "The 12-months-in-3-years category rule",
+        "Skilled work experience (TEER 0–3)"
+      ],
+      "hit": [
+        "Healthcare and social services occupations category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 126.20887499999662,
+      "searchMs": 108.71358300000429,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a software engineer. Is there a draw for me?",
+      "hard": false,
+      "expect": [
+        "Science, technology, engineering and math (STEM) category"
+      ],
+      "covered": true,
+      "titles": [
+        "Science, technology, engineering and math (STEM) category",
+        "Category-based selection",
+        "Express Entry"
+      ],
+      "hit": [
+        "Science, technology, engineering and math (STEM) category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 144.44704199999978,
+      "searchMs": 89.08354199999303,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a developer but my code isn't on the STEM list. Am I out?",
+      "hard": true,
+      "expect": [
+        "Science, technology, engineering and math (STEM) category"
+      ],
+      "covered": true,
+      "titles": [
+        "Science, technology, engineering and math (STEM) category",
+        "Category-based selection",
+        "The 12-months-in-3-years category rule"
+      ],
+      "hit": [
+        "Science, technology, engineering and math (STEM) category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 132.2897920000105,
+      "searchMs": 89.45612499999697,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Is the trades category the same thing as the trades program?",
+      "hard": true,
+      "expect": [
+        "Trade occupations category",
+        "Federal Skilled Trades Program"
+      ],
+      "covered": true,
+      "titles": [
+        "Trade occupations category",
+        "Federal Skilled Trades Program",
+        "Federal Skilled Trades language minimums"
+      ],
+      "hit": [
+        "Trade occupations category",
+        "Federal Skilled Trades Program"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 128.98312499999884,
+      "searchMs": 88.8746669999964,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm an early childhood educator. Is there a category for me?",
+      "hard": false,
+      "expect": [
+        "Education occupations category"
+      ],
+      "covered": true,
+      "titles": [
+        "Education occupations category",
+        "Healthcare and social services occupations category",
+        "Researchers with Canadian work experience category"
+      ],
+      "hit": [
+        "Education occupations category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 124.88037499999336,
+      "searchMs": 87.19100000000617,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm an aircraft mechanic. Which category covers me?",
+      "hard": false,
+      "expect": [
+        "Transport occupations category"
+      ],
+      "covered": true,
+      "titles": [
+        "Transport occupations category",
+        "Trade occupations category",
+        "The 12-months-in-3-years category rule"
+      ],
+      "hit": [
+        "Transport occupations category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 137.82983299999614,
+      "searchMs": 98.16120799999044,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do I need a particular job to qualify for the French draws?",
+      "hard": true,
+      "expect": [
+        "French-language proficiency category"
+      ],
+      "covered": true,
+      "titles": [
+        "Category-based selection",
+        "French-language proficiency category",
+        "French-language bonus points"
+      ],
+      "hit": [
+        "French-language proficiency category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 153.0484170000127,
+      "searchMs": 92.53258299999288,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What French level gets me into the French rounds?",
+      "hard": false,
+      "expect": [
+        "French-language proficiency category"
+      ],
+      "covered": true,
+      "titles": [
+        "French-language proficiency category",
+        "French-language bonus points",
+        "Second official language points"
+      ],
+      "hit": [
+        "French-language proficiency category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 138.48266700000386,
+      "searchMs": 87.44183299998986,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a surgeon who's only ever practised abroad. Can I be invited in a physicians round?",
+      "hard": true,
+      "expect": [
+        "Physicians with Canadian work experience category"
+      ],
+      "covered": true,
+      "titles": [
+        "Physicians with Canadian work experience category",
+        "Healthcare and social services occupations category",
+        "General, program-specific and category-based rounds"
+      ],
+      "hit": [
+        "Physicians with Canadian work experience category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 141.34987499999988,
+      "searchMs": 98.83995799999684,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a senior manager at a Toronto firm. Is there a round for that?",
+      "hard": false,
+      "expect": [
+        "Senior managers with Canadian work experience category"
+      ],
+      "covered": true,
+      "titles": [
+        "Senior managers with Canadian work experience category",
+        "General, program-specific and category-based rounds",
+        "Skilled military recruits category"
+      ],
+      "hit": [
+        "Senior managers with Canadian work experience category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 127.18983299999672,
+      "searchMs": 98.4386669999949,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I'm a postdoc at a Canadian university. Is there a category?",
+      "hard": false,
+      "expect": [
+        "Researchers with Canadian work experience category"
+      ],
+      "covered": true,
+      "titles": [
+        "Researchers with Canadian work experience category",
+        "Canadian study additional points",
+        "Physicians with Canadian work experience category"
+      ],
+      "hit": [
+        "Researchers with Canadian work experience category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 117.0070829999895,
+      "searchMs": 86.29075000000012,
+      "chunksUsed": 3
+    },
+    {
+      "question": "I served fifteen years in my country's army. Is there anything for military people?",
+      "hard": true,
+      "expect": [
+        "Skilled military recruits category"
+      ],
+      "covered": true,
+      "titles": [
+        "Skilled military recruits category",
+        "Transport occupations category",
+        "Senior managers with Canadian work experience category"
+      ],
+      "hit": [
+        "Skilled military recruits category"
+      ],
+      "missing": [],
+      "recall": 1,
+      "complete": true,
+      "embedMs": 140.16179199999897,
+      "searchMs": 96.31945799999812,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How much money do I need to show for proof of funds?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Federal Skilled Trades: job offer or certificate of qualification",
+        "How rounds of invitations work",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 144.82749999999942,
+      "searchMs": 89.24491700000362,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Can I include my brother as a dependant on my application?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Sibling in Canada (15 points)",
+        "Spouse or common-law partner factors",
+        "Additional points (the 600-point group)"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 138.79854199998954,
+      "searchMs": 85.8125,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How long does it take to get a work permit extension approved?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "Work experience hours — full-time vs part-time",
+        "Continuous work and the look-back windows"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 143.55841599999985,
+      "searchMs": 87.16966699999466,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's the application fee for permanent residence?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "How rounds of invitations work",
+        "Provincial nomination",
+        "Federal Skilled Worker Program"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 149.0200829999958,
+      "searchMs": 85.84791700000642,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do I need a police certificate from every country I've lived in?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Getting two or more credentials assessed",
+        "Educational credential assessment (ECA)",
+        "How the CRS score is built"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 113.47358400000667,
+      "searchMs": 97.78241599998728,
+      "chunksUsed": 3
+    },
+    {
+      "question": "How long does IRCC consider my IELTS result valid for my Express Entry profile?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Approved language tests",
+        "The tie-breaking rule",
+        "Creating an Express Entry profile"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 141.140459000002,
+      "searchMs": 85.64079099999799,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Can I appeal if my application gets refused?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Provincial nomination",
+        "How rounds of invitations work",
+        "Express Entry"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 153.7314999999944,
+      "searchMs": 89.09087500000896,
+      "chunksUsed": 3
+    },
+    {
+      "question": "What's the processing time for a PR card renewal?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "OINP Workforce Priority application process",
+        "How rounds of invitations work",
+        "Work experience hours — full-time vs part-time"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 134.26212499999383,
+      "searchMs": 92.90204100000847,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Do I need a medical exam, and who can do it?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "Educational credential assessment (ECA)",
+        "Physicians with Canadian work experience category",
+        "Physician exemption for self-employed Canadian experience"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 133.87654199999815,
+      "searchMs": 86.8947909999988,
+      "chunksUsed": 3
+    },
+    {
+      "question": "Can I travel outside Canada while my PR application is in progress?",
+      "hard": false,
+      "expect": [],
+      "covered": false,
+      "titles": [
+        "How rounds of invitations work",
+        "Express Entry",
+        "Provincial nomination"
+      ],
+      "hit": [],
+      "missing": [],
+      "recall": null,
+      "complete": false,
+      "embedMs": 146.48862499999814,
+      "searchMs": 96.49408399999083,
+      "chunksUsed": 3
+    }
+  ],
+  "generation": {
+    "reps": 1,
+    "latency": [
+      {
+        "stage": "Embed the question",
+        "p50": 149.92916599998716,
+        "p95": 172.87041700002737,
+        "note": "One API call, 768-dim"
+      },
+      {
+        "stage": "Vector search",
+        "p50": 104.42029099998763,
+        "p95": 171.2002499999944,
+        "note": "pgvector, top-3"
+      },
+      {
+        "stage": "Prompt assembly",
+        "p50": 0.016375000006519258,
+        "p95": 0.04145799999241717,
+        "note": "In-process, no I/O"
+      },
+      {
+        "stage": "First token from model",
+        "p50": 2921.112041999935,
+        "p95": 6275.055000000051,
+        "note": "Streaming"
+      },
+      {
+        "stage": "Full streamed answer",
+        "p50": 3180.9065409998875,
+        "p95": 6920.548958000014,
+        "note": "Length-dependent"
+      },
+      {
+        "stage": "End to end",
+        "p50": 3441.7813329999335,
+        "p95": 7198.450333000001,
+        "note": "Retrieval + full answer"
+      }
+    ],
+    "refusals": {
+      "total": 10,
+      "refused": 10,
+      "answered": []
+    },
+    "faithfulness": {
+      "judgeModel": "gemini-3.6-flash",
+      "score": 0.997260015117158,
+      "judged": 147,
+      "skippedRefusals": 17,
+      "failed": 0,
+      "unsupported": [
+        {
+          "question": "My reading is weak but the other three are strong. Is that a problem?",
+          "claim": "Reaching CLB 9 in every ability is necessary to get maximum direct points.",
+          "note": "Source 1 shows CLB 10 or higher gives max points (34 vs 31)."
+        },
+        {
+          "question": "Why do nurses seem to get invited with lower scores than me?",
+          "claim": "Candidates in non-category occupations with the same score wait.",
+          "note": "Source 1 specifies a software engineer waits, generalizing to non-category occupations is unsupported."
+        },
+        {
+          "question": "I'm a software engineer. Is there a draw for me?",
+          "claim": "Having the job title of software engineer is not automatically enough.",
+          "note": "Source 1 specifies software developer, not software engineer."
+        }
+      ],
+      "clean": 144
+    },
+    "contextPrecision": {
+      "judgeModel": "claude-opus-5",
+      "score": 0.7294372294372299,
+      "judged": 154,
+      "failed": 0,
+      "uncoveredScore": 0.03333333333333333,
+      "uncoveredJudged": 10,
+      "topRankIrrelevant": [
+        {
+          "question": "My English is CLB 6 across the board. Does that get me into the pool?",
+          "sourceTitle": "First official language points",
+          "note": "CRS point values per CLB, not pool eligibility thresholds"
+        },
+        {
+          "question": "Can I average my four test scores together?",
+          "sourceTitle": "Getting two or more credentials assessed",
+          "note": "About educational credential assessments, not test score averaging"
+        },
+        {
+          "question": "I worked in Canada five years ago. Is that still usable?",
+          "sourceTitle": "Remote work and Canadian work experience",
+          "note": "Defines Canadian work experience; no timing/look-back rules"
+        },
+        {
+          "question": "I let my Express Entry profile expire after Ontario nominated me. Does that matter?",
+          "sourceTitle": "OINP closed streams (replaced June 2026)",
+          "note": "Lists closed OINP streams; nothing on profile expiry consequences"
+        },
+        {
+          "question": "My consultant said to apply through Employer Job Offer: In-Demand Skills. Is that still open?",
+          "sourceTitle": "Job offer points removed (March 25, 2025)",
+          "note": "CRS job offer points removal; not OINP stream status"
+        },
+        {
+          "question": "Can I tell my skill level from the code itself?",
+          "sourceTitle": "Skill transferability",
+          "note": "CRS skill transferability points; nothing about NOC code structure"
+        },
+        {
+          "question": "I retook just my speaking section. Will they take that result?",
+          "sourceTitle": "Second official language points",
+          "note": "Second language CRS points, not retake acceptance"
+        },
+        {
+          "question": "How much experience do I need for a category draw?",
+          "sourceTitle": "Category-based selection",
+          "note": "General overview of category draws; no experience requirement stated"
+        }
+      ],
+      "uncoveredRelevant": [
+        {
+          "question": "How long does IRCC consider my IELTS result valid for my Express Entry profile?",
+          "sourceTitle": "Approved language tests",
+          "note": "Approved tests including IELTS, but no validity period stated"
+        }
+      ]
+    },
+    "answerRelevance": {
+      "judgeModel": "claude-opus-5",
+      "embeddingModel": "gemini-embedding-001",
+      "score": 0.7381274938177393,
+      "judged": 147,
+      "skippedRefusals": 17,
+      "failed": 0,
+      "lowest": [
+        {
+          "question": "Is 600 points basically a guaranteed invite?",
+          "score": 0.5407065844243307,
+          "generated": [
+            "Does receiving a provincial nomination guarantee an invitation to apply through Express Entry?",
+            "How many CRS points does a provincial nomination add to an Express Entry candidate's score?",
+            "What effect do the extra points from a provincial nomination have on a candidate's ranking in the Express Entry pool?"
+          ]
+        },
+        {
+          "question": "How do I get into the pool in the first place?",
+          "score": 0.5573723370182898,
+          "generated": [
+            "How do I enter the Express Entry pool?",
+            "What information do I need to declare in my Express Entry profile?",
+            "Which immigration programs make me eligible to be placed in the Express Entry pool?"
+          ]
+        },
+        {
+          "question": "What are the different kinds of draws?",
+          "score": 0.5748967636026711,
+          "generated": [
+            "What are the different types of Express Entry draws (rounds of invitations)?",
+            "How do category-based Express Entry rounds differ from general rounds?",
+            "Which categories can category-based Express Entry rounds target?"
+          ]
+        },
+        {
+          "question": "Which programs does the system actually cover?",
+          "score": 0.579140627035557,
+          "generated": [
+            "Which immigration programs are managed through Canada's Express Entry system?",
+            "How many programs does Express Entry cover, and what are they?",
+            "Is the Canadian Experience Class part of Express Entry?"
+          ]
+        },
+        {
+          "question": "How does anyone get picked out of the pool?",
+          "score": 0.5919002841719758,
+          "generated": [
+            "How does IRCC select candidates from the Express Entry pool?",
+            "What are the three types of Express Entry invitation rounds and who can be invited in each?",
+            "What is a category-based Express Entry round, and what determines whether a candidate qualifies for one?"
+          ]
+        },
+        {
+          "question": "What's the single most effective way to raise my score?",
+          "score": 0.5971014367276727,
+          "generated": [
+            "Why does having one language ability below CLB 9 hurt my CRS score so much?",
+            "What is the most effective way to increase my CRS score?",
+            "How does reaching CLB 9 in all four language abilities affect skill transferability points?"
+          ]
+        },
+        {
+          "question": "Is there any point submitting early if my score is too low anyway?",
+          "score": 0.5989469987081818,
+          "generated": [
+            "Is it worth creating an Express Entry profile before my CRS score is high enough to be competitive?",
+            "How does IRCC break ties when several candidates have the same lowest CRS score in a draw?",
+            "Does the date I submit my Express Entry profile affect whether I get an invitation if my score matches the cut-off?"
+          ]
+        },
+        {
+          "question": "What's in the other 600 points?",
+          "score": 0.6036927208362514,
+          "generated": [
+            "In the CRS, what does the \"other 600 points\" (Section D) consist of?",
+            "How many CRS points do you get for post-secondary education in Canada or for having a sibling in Canada?",
+            "Does the CRS still award points for a valid job offer?"
+          ]
+        },
+        {
+          "question": "How is the 1,200 total made up?",
+          "score": 0.6246841906449063,
+          "generated": [
+            "How are the 1,200 total CRS points broken down between the different sections?",
+            "What is the maximum number of points you can get from Section A (core/human capital factors) with and without a spouse?",
+            "How many points is Section D (additional points) worth in the CRS?"
+          ]
+        },
+        {
+          "question": "My employer submitted something in a portal. What am I supposed to do next?",
+          "score": 0.6256480837756997,
+          "generated": [
+            "Under the OINP Workforce Priority stream, how many days do I have to register an expression of interest after my employer submits a job offer through the employer portal?",
+            "After receiving an invitation to apply under the OINP Workforce Priority stream, how long do I have to submit my application once my employer has submitted their part?",
+            "What are the deadlines I need to meet in the OINP Workforce Priority stream after my employer submits a job offer through the employer portal?"
+          ]
+        }
+      ]
+    },
+    "correctness": {
+      "judgeModel": "claude-opus-5",
+      "score": 0.8784722222222222,
+      "judged": 48,
+      "gold": 48,
+      "covered": 154,
+      "failed": 0,
+      "factCoverage": 0.7326388888888888,
+      "contradictions": [],
+      "missing": [
+        {
+          "question": "I have two part-time jobs. Do they count as full-time experience?",
+          "fact": "1,560 hours",
+          "note": "only 30 hours/week; no 1,560 hours total",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/who-can-apply/federal-skilled-workers.html"
+        },
+        {
+          "question": "How many hours is a year of experience?",
+          "fact": "30 hours",
+          "note": "no mention of 30 hours/week",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/who-can-apply/federal-skilled-workers.html"
+        },
+        {
+          "question": "How many points per skill at CLB 9?",
+          "fact": "29",
+          "note": "only says 'slightly lower' with spouse",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        },
+        {
+          "question": "Does having a spouse change my language points?",
+          "fact": "136",
+          "note": "says 160 without spouse",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        },
+        {
+          "question": "Does having a spouse change my language points?",
+          "fact": "128",
+          "note": "says 150 with spouse",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        },
+        {
+          "question": "Is there a cap on second language points?",
+          "fact": "22",
+          "note": "22 not mentioned",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        },
+        {
+          "question": "I took the TEF and scored NCLC 8 everywhere. What do I get?",
+          "fact": "NCLC 7",
+          "note": "No NCLC 7 threshold mentioned for category draw",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        },
+        {
+          "question": "My Canadian job was TEER 3. Does that qualify me?",
+          "fact": "0, 1, 2, or 3",
+          "note": "never lists TEER 0,1,2,3 range",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/who-can-apply/canadian-experience-class.html"
+        },
+        {
+          "question": "What's the most I can score without a partner?",
+          "fact": "600",
+          "note": "says sources don't mention grand total",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        },
+        {
+          "question": "How many points do I lose turning 31?",
+          "fact": "105",
+          "note": "not stated; says sources lack CRS values",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        },
+        {
+          "question": "How many points do I lose turning 31?",
+          "fact": "99",
+          "note": "not stated",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        },
+        {
+          "question": "My sister is a citizen living in Vancouver. Is that worth anything?",
+          "fact": "citizen or permanent resident",
+          "note": "only citizen mentioned, not permanent resident",
+          "source": "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry/check-score/crs-criteria.html"
+        }
+      ]
+    }
+  }
+}

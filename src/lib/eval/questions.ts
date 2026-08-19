@@ -26,10 +26,39 @@
 // close to a neighbouring card and could plausibly retrieve the wrong one.
 // Scoring them separately keeps an easy average from hiding a real weakness.
 
+/**
+ * Verified ground truth for one question, taken from IRCC rather than from okf/.
+ *
+ * That distinction is the entire value of this field. Every other metric on the
+ * dashboard grades the system against its own corpus, so all of them score 100%
+ * on an answer that is faithfully derived from a card that is simply wrong.
+ * These facts come from canada.ca, so an answer can disagree with the corpus and
+ * still be right — and vice versa, which is the case worth catching.
+ *
+ * `source` and `accessed` are not decoration. IRCC changes these pages (job
+ * offer points were removed on 2025-03-25), so a fact with no date is a fact
+ * with no shelf life. The same convention docs/crs-verification-log.md uses.
+ */
+export interface GoldAnswer {
+  /** Facts a correct answer must convey. Paraphrase counts; a different number doesn't. */
+  mustState: string[];
+  /** Assertions that make the answer wrong. Usually the plausible near-miss value. */
+  mustNotState?: string[];
+  /** The canada.ca page these came from. */
+  source: string;
+  /** ISO date the page was read. */
+  accessed: string;
+}
+
 export interface EvalQuestion {
   q: string;
   expect: string[];
   hard?: boolean;
+  /**
+   * Present on the gold subset only. Correctness is reported over the questions
+   * that have this and never over the whole set — see src/lib/eval/correctness.ts.
+   */
+  gold?: GoldAnswer;
 }
 
 export const EVAL_QUESTIONS: EvalQuestion[] = [
@@ -275,6 +304,210 @@ export const EVAL_QUESTIONS: EvalQuestion[] = [
   { q: "Can I travel outside Canada while my PR application is in progress?", expect: [] },
 ];
 
+// ---------------------------------------------------------------------------
+// The gold subset — verified ground truth for the correctness metric
+// ---------------------------------------------------------------------------
+//
+// Kept in its own block rather than inline on each question, and grouped BY
+// SOURCE PAGE, because of what actually happens to these records: IRCC edits a
+// page, and someone has to re-check every fact that came from it. Grouped this
+// way that is one page open beside one block. Scattered through 164 inline
+// entries it is a search-and-hope.
+//
+// Every fact below was read from the cited page on the cited date. Nothing here
+// is from the okf/ corpus, from a model, or from memory — the entire value of
+// this metric is that it grades the system against a source the system cannot
+// see. If you add a record, open the page and read it.
+//
+// `mustNotState` is deliberately sparse. The deterministic check in
+// correctness.ts is a plain substring match and its hits force a score of zero,
+// so a forbidden string that a CORRECT answer might mention in passing ("it used
+// to be 50 points", "CLB 6 is not a threshold") would manufacture a failure.
+// Only distinctive wrong values that no correct answer would utter belong here;
+// everything subtler is left to the judge, which is told to count a forbidden
+// claim only when the answer asserts it as true.
+
+const EE = "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/express-entry";
+const SRC = {
+  fsw: `${EE}/who-can-apply/federal-skilled-workers.html`,
+  cec: `${EE}/who-can-apply/canadian-experience-class.html`,
+  fst: `${EE}/who-can-apply/federal-skilled-trades.html`,
+  lang: `${EE}/documents/language-requirements.html`,
+  crs: `${EE}/check-score/crs-criteria.html`,
+  pnp: "https://www.canada.ca/en/immigration-refugees-citizenship/services/immigrate-canada/provincial-nominees/express-entry/eligibility.html",
+} as const;
+
+const READ = "2026-08-15";
+
+function gold(
+  source: string,
+  facts: Record<string, { must: string[]; not?: string[] }>,
+): Record<string, GoldAnswer> {
+  return Object.fromEntries(
+    Object.entries(facts).map(([q, { must, not }]) => [
+      q,
+      { mustState: must, mustNotState: not, source, accessed: READ },
+    ]),
+  );
+}
+
+const GOLD: Record<string, GoldAnswer> = {
+  // --- Federal Skilled Worker Program ---
+  ...gold(SRC.fsw, {
+    "How many hours is a year of experience?": {
+      must: ["1,560 hours", "30 hours"],
+      // Safe to forbid: no correct answer about Canadian skilled work experience
+      // has a reason to mention the American full-year convention.
+      not: ["2,080 hours"],
+    },
+    "I have two part-time jobs. Do they count as full-time experience?": {
+      must: ["1,560 hours", "part-time"],
+    },
+    "I work 45 hours a week. Does the extra time get me there faster?": {
+      must: ["30 hours"],
+    },
+    "Does my unpaid internship count toward my experience?": {
+      must: ["paid work"],
+    },
+    "I took three months off in the middle. Does my experience have to be continuous?":
+      { must: ["1 year of continuous work", "1,560 hours"] },
+    "How far back can I go for my work experience?": { must: ["10 years"] },
+    "What actually counts as skilled experience?": {
+      must: ["TEER", "0, 1, 2, or 3", "paid"],
+    },
+    "What is a TEER category?": {
+      must: ["training, education, experience and responsibilities"],
+    },
+    "What's the 67 points thing I keep reading about?": {
+      must: ["67 points", "100"],
+    },
+    "Is the 67-point score the same as the score that ranks me in the pool?": {
+      must: ["67 points"],
+    },
+  }),
+
+  // --- Canadian Experience Class ---
+  ...gold(SRC.cec, {
+    "I've got nine months of Canadian experience. Is that enough for the federal program?":
+      { must: ["1 year", "1,560 hours"] },
+    "My Canadian job was TEER 3. Does that qualify me?": {
+      must: ["TEER", "0, 1, 2, or 3"],
+    },
+    "I worked in Canada five years ago. Is that still usable?": {
+      must: ["3 years before you apply"],
+    },
+    "My year of Canadian work was four years ago. Can I still use it to qualify?":
+      { must: ["3 years"] },
+    "I was self-employed in Canada. Does that count?": {
+      must: ["self-employment", "doesn't count"],
+    },
+    "I worked during my co-op term. Does that count?": {
+      must: ["full-time student", "doesn't count"],
+    },
+    "I work remotely from Manila for a Toronto company. Is that Canadian experience?":
+      { must: ["physically in Canada"] },
+    "Does working from home in Canada still count as Canadian experience?": {
+      must: ["physically in Canada"],
+    },
+  }),
+
+  // --- Federal Skilled Trades Program ---
+  ...gold(SRC.fst, {
+    "How many hours of trade experience do I need?": {
+      must: ["3,120 hours", "2 years"],
+    },
+    "Do I need both a job offer and a trade certificate for the trades program?":
+      { must: ["at least 1 year", "certificate of qualification"] },
+    "My province doesn't certify my trade at all. What are my options?": {
+      must: ["job offer"],
+    },
+    "My trade experience is from a country where I wasn't licensed to do it. Does it count?":
+      { must: ["qualified to practise"] },
+  }),
+
+  // --- Language requirements ---
+  ...gold(SRC.lang, {
+    "I've seen CLB 5, 6 and 7 quoted as the minimum. Which one applies to me federally?":
+      { must: ["CLB 7", "CLB 5"] },
+    "What English level do tradespeople need?": {
+      must: ["CLB 5", "CLB 4", "speaking", "reading"],
+    },
+    "My reading is much weaker than my speaking. Is that fatal for the trades program?":
+      { must: ["CLB 4", "CLB 5"] },
+    "Is CLB 7 really the minimum for everyone?": { must: ["CLB 5", "TEER"] },
+    "My Canadian job is TEER 2. What language score do I actually need?": {
+      must: ["CLB 5"],
+    },
+  }),
+
+  // --- Comprehensive Ranking System ---
+  ...gold(SRC.crs, {
+    "Ontario picked me from the pool. How much is that actually worth?": {
+      must: ["600"],
+    },
+    "I graduated from an Ontario college last year. What does that add to my CRS score?":
+      { must: ["15", "30"] },
+    "I took the TEF and scored NCLC 8 everywhere. What do I get?": {
+      must: ["25", "50", "NCLC 7"],
+    },
+    "I speak French but never took an English test. Do I still get the bonus?": {
+      must: ["25"],
+    },
+    "My sister is a citizen living in Vancouver. Is that worth anything?": {
+      must: ["15", "citizen or permanent resident"],
+    },
+    "My brother is in Canada on a work permit. Does he count?": {
+      must: ["citizen or permanent resident"],
+    },
+    "What's in the other 600 points?": {
+      must: ["600", "15", "50", "30"],
+    },
+    "My consultant says my job offer is worth 10 points, but I read that job offer points were scrapped. Who's right?":
+      { must: ["March 25, 2025"] },
+    "I was counting on 200 points for a senior management offer. Is that gone?": {
+      must: ["March 25, 2025"],
+    },
+    "What's the most I can score without a partner?": { must: ["500", "600"] },
+    "How many points do I lose turning 31?": { must: ["105", "99"] },
+    "At what age do I stop getting points for being young?": { must: ["45"] },
+    "What's a master's degree worth?": { must: ["135", "126"] },
+    "I have two diplomas. Is that worth more than one bachelor's?": {
+      must: ["128", "120"],
+    },
+    "How much is my second year of Canadian work worth over the first?": {
+      must: ["40", "53"],
+    },
+    "What do I get for five years of work in Canada?": { must: ["80", "70"] },
+    "How many points per skill at CLB 9?": { must: ["31", "29"] },
+    "Is it worth pushing my speaking from an 8 to a 9?": { must: ["23", "31"] },
+    "Does having a spouse change my language points?": { must: ["136", "128"] },
+    "Is there a cap on second language points?": { must: ["24", "22"] },
+  }),
+
+  // --- Provincial nominee programs ---
+  ...gold(SRC.pnp, {
+    "Can Quebec nominate me for the 600 points?": {
+      must: ["Quebec does not have a provincial nominee program"],
+    },
+  }),
+};
+
+// Attached here rather than written into each literal above, so the question
+// list stays scannable and a gold record for a question that no longer exists
+// fails loudly instead of sitting unused.
+for (const question of Object.keys(GOLD)) {
+  const item = EVAL_QUESTIONS.find((e) => e.q === question);
+  if (!item) {
+    throw new Error(
+      `Gold record for a question that is not in the eval set: "${question}". ` +
+        `Correctness would silently measure nothing for it.`,
+    );
+  }
+  item.gold = GOLD[question];
+}
+
 export const COVERED = EVAL_QUESTIONS.filter((q) => q.expect.length > 0);
 export const UNCOVERED = EVAL_QUESTIONS.filter((q) => q.expect.length === 0);
 export const HARD = COVERED.filter((q) => q.hard);
+/** The correctness subset. Every entry carries a canada.ca citation and a date. */
+export const GOLD_QUESTIONS = COVERED.filter((q) => q.gold);

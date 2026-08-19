@@ -98,7 +98,7 @@ export default function HowItWorksPage() {
     return (
         <>
             <TrackView name="how_it_works_view" />
-            <header className="h-16 shrink-0 border-b flex items-center px-8">
+            <header className="h-16 shrink-0 border-b flex items-center px-4 sm:px-8">
                 <div>
                     <h1 className="font-heading text-base font-semibold leading-none">How it works</h1>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -107,7 +107,7 @@ export default function HowItWorksPage() {
                 </div>
             </header>
 
-            <main className="flex-1 p-8 max-w-3xl space-y-14">
+            <main className="flex-1 p-4 sm:p-8 max-w-3xl space-y-10 sm:space-y-14">
                 {/* Hero */}
                 <section>
                     <p className="font-mono text-xs uppercase tracking-[0.14em] text-primary mb-3 flex items-center gap-2">

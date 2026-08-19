@@ -5,6 +5,8 @@ import { TrackView } from "@/components/TrackView";
 import { GATE_CATEGORIES } from "@/components/gate-rows";
 import type { DrawCategory } from "@/lib/crs/ruleset/types";
 import { ruleset_2026_08 as ruleset } from "@/lib/crs/ruleset/ruleset-2026-08";
+import { loadHistory } from "@/lib/eval/runs-store";
+import { ms, pct, runDate } from "@/lib/eval/format";
 import { SITE_DESCRIPTION, SITE_NAME, absoluteUrl } from "@/lib/site";
 
 const structuredData = {
@@ -47,56 +49,67 @@ const PRINCIPLES = [
   },
 ];
 
-// How an answer gets built, in the user's terms — no vectors, no embeddings.
-const STEPS = [
-  { n: "01", t: "You ask", d: "A question in plain English." },
-  { n: "02", t: "We find the rule", d: "Matched against the official IRCC pages." },
-  { n: "03", t: "We explain", d: "Only what those rules say, in plain words." },
-  { n: "04", t: "We show the source", d: "Every claim links back to canada.ca." },
-  { n: "05", t: "Or we refuse", d: "Not in the rules? We say so instead of guessing." },
-];
-
-// Measured 2026-07-28 by `scripts/bench-retrieve.ts --full --reps 1` (55 eval
-// questions against the live APIs) plus the node:test suites. Re-run and update
-// these together with the caveat below — a stale number here is worse than no
-// number.
+// Landing-page eval figures, read off the newest committed run artifact — the
+// same file /eval renders. They were hardcoded here until 2026-08-18 and went
+// stale twice (a "top-5" note survived the move to k=3, and the tiles still
+// quoted a 55-question set long after it reached 164). Deriving them means a
+// figure on the marketing page cannot outlive the run that produced it.
 //
-// Nearest-rank percentiles, every stage inclusive of its network round trip —
-// which is why "vector search" reads as ~105ms rather than the microseconds
-// pgvector actually spends scanning 12 rows. The HTTP hop dominates its own row.
-const PIPELINE = [
-  { stage: "Embed the question", p50: "170ms", p95: "271ms", note: "1 API call, 768-dim" },
-  { stage: "Vector search", p50: "105ms", p95: "238ms", note: "pgvector, top-5" },
-  { stage: "Prompt assembly", p50: "<1ms", p95: "<1ms", note: "In-process" },
-  { stage: "First token", p50: "2.44s", p95: "4.65s", note: "Dominates", hot: true },
-  { stage: "Full answer", p50: "2.55s", p95: "5.16s", note: "Length-dependent" },
-  { stage: "End to end", p50: "2.91s", p95: "5.51s", note: "Retrieval + generation" },
-];
+// Phrasing is deliberately end-user: "sources" not "chunks", no p95s. Anyone who
+// wants the engineering view follows the link to /eval, which has all of it.
+function evalHighlights() {
+  const { latest } = loadHistory();
+  if (!latest) return null;
 
-const EVALS = [
-  {
-    v: "45/45",
-    label: "Questions where it found every right source",
-    note: "21 of them worded to be deliberately awkward",
-  },
-  {
-    v: "10/10",
-    label: "Off-topic questions it refused to answer",
-    note: "Fees, medicals, appeals, processing times",
-  },
-  {
-    v: "2.9s",
-    label: "Typical time to a full cited answer",
-    note: "First words appear in about 2.4s",
-  },
-  {
-    v: "26/26",
-    label: "Automated tests passing",
-    note: "Including IRCC's own worked example",
-  },
-];
+  const { summary, generation, meta } = latest;
+  const endToEnd = generation?.latency.find((l) => l.stage === "End to end");
+  const correctness = generation?.correctness;
+  const refusals = generation?.refusals;
+
+  const tiles: { v: string; label: string; note: string }[] = [
+    {
+      v: pct(summary.overall.recall, 0),
+      label: "Of the sources a question needed, how many it found",
+      note: `${summary.overall.total} in-scope questions, ${meta.questions.hard} of them worded to be deliberately awkward`,
+    },
+  ];
+
+  if (refusals) {
+    tiles.push({
+      v: `${refusals.refused}/${refusals.total}`,
+      label: "Off-topic questions it refused to answer",
+      note: "Fees, medicals, appeals, processing times — none are in the rule library",
+    });
+  }
+
+  if (correctness) {
+    tiles.push({
+      v: pct(correctness.score, 0),
+      label: "Answers judged correct against canada.ca",
+      note: `Graded on the ${correctness.gold} questions with an official answer written down, not against our own library`,
+    });
+  }
+
+  if (endToEnd) {
+    tiles.push({
+      v: ms(endToEnd.p50),
+      label: "Typical time to a full cited answer",
+      note: "Measured end to end, one machine at a time",
+    });
+  }
+
+  return {
+    tiles,
+    questions: meta.questions.total,
+    corpus: meta.corpus.sources,
+    gitSha: meta.gitSha,
+    measuredOn: runDate(meta.startedAt),
+  };
+}
 
 export default function Landing() {
+  const evals = evalHighlights();
+
   // Resolve the animation's cutoffs here, on the server, so the client gets six
   // integers instead of the whole ruleset. recentDraws is newest-first, so the
   // first hit per category is the latest round — the same rule runGate applies.
@@ -137,6 +150,12 @@ export default function Landing() {
               className="hidden text-muted-foreground transition-colors hover:text-foreground sm:block"
             >
               Rules
+            </Link>
+            <Link
+              href="/eval"
+              className="hidden text-muted-foreground transition-colors hover:text-foreground sm:block"
+            >
+              Evaluation
             </Link>
             <Link
               href="/assessment"
@@ -238,38 +257,11 @@ export default function Landing() {
           <p className="mt-5 max-w-2xl leading-relaxed text-muted-foreground">
             You don&apos;t have to know the official terms. Ask &ldquo;do I need to
             redo my IELTS?&rdquo; and it finds the rule about test validity, even
-            though the two share almost no words.
+            though the two share almost no words. If the rules don&apos;t cover
+            your question, it says so instead of guessing.
           </p>
 
-          <ol className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {STEPS.map((s, i) => (
-              <li
-                key={s.n}
-                className="relative flex flex-col gap-2 rounded-xl border border-border bg-card p-5"
-              >
-                <span className="font-mono text-xs text-primary">{s.n}</span>
-                <span className="font-heading text-sm font-semibold leading-snug">
-                  {s.t}
-                </span>
-                <span className="text-xs leading-relaxed text-muted-foreground">
-                  {s.d}
-                </span>
-                {i < STEPS.length - 1 && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 text-border lg:block"
-                  >
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
-                      stroke="currentColor" strokeWidth="2">
-                      <path d="M4 12h15M13 6l6 6-6 6" />
-                    </svg>
-                  </span>
-                )}
-              </li>
-            ))}
-          </ol>
-
-          <div className="mt-6 rounded-xl border border-primary/25 bg-primary/[0.06] p-5 text-sm leading-relaxed">
+          <div className="mt-8 rounded-xl border border-primary/25 bg-primary/[0.06] p-5 text-sm leading-relaxed">
             <span className="font-semibold text-primary">
               The AI never decides anything.
             </span>{" "}
@@ -289,22 +281,26 @@ export default function Landing() {
       </section>
 
       {/* ---------- evals ---------- */}
+      {/* Rendered only when a run has been committed. A fresh clone that has
+          never benchmarked shows no section rather than empty tiles. */}
+      {evals && (
       <section className="border-b border-border/60">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-primary">
             Checked, not claimed
           </p>
           <h2 className="mt-4 max-w-3xl font-heading text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            We test it, and we&apos;ll show you the results.
+            We test it, and we publish the results — including the failures.
           </h2>
           <p className="mt-5 max-w-2xl leading-relaxed text-muted-foreground">
             &ldquo;Trust us&rdquo; isn&apos;t good enough for something you make
-            plans around. There&apos;s a fixed set of questions with the right
-            answers written down, and it runs against them.
+            plans around. A fixed set of {evals.questions} questions runs against
+            the system, and every figure below comes from that run — the same one
+            the dashboard shows, down to the questions it got wrong.
           </p>
 
           <dl className="mt-12 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-            {EVALS.map((e) => (
+            {evals.tiles.map((e) => (
               <div key={e.label} className="bg-card p-6">
                 <dd className="font-mono text-3xl font-semibold text-foreground">
                   {e.v}
@@ -319,96 +315,43 @@ export default function Landing() {
             ))}
           </dl>
 
+          <p className="mt-4 font-mono text-xs text-muted-foreground/70">
+            Measured {evals.measuredOn} · {evals.corpus} rule pages
+            {evals.gitSha ? ` · commit ${evals.gitSha}` : ""}
+          </p>
+
           <p className="mt-6 max-w-3xl text-xs leading-relaxed text-muted-foreground">
             <span className="text-foreground">
               Being straight about what that proves.
             </span>{" "}
-            Not as much as a perfect score suggests. The rule library is 12 pages,
-            and each question pulls the 5 closest — so nearly half the library
-            comes back every time, and the right page is almost always in that
-            handful. We tripled the questions and added deliberately awkward ones;
-            it still scored full marks, which tells us the test is too easy rather
-            than that the problem is solved. We expect this to drop as the library
-            grows, and we&apos;ll publish it when it does. Measured 28 July 2026
-            over 55 questions.
+            Less than the numbers suggest. The questions were written by the same
+            person as the rule library, so they can&apos;t find a topic nobody
+            thought of, and three of the four figures are one AI model grading
+            another. The dashboard lists every one of those limits, every question
+            that missed, and how each number moved since the last run.
           </p>
 
-          {/* Engineering detail. Deliberately set apart — an applicant doesn't
-              need p95s, but the people who ask how it's built do. */}
-          <div className="mt-14 rounded-xl border border-border bg-card">
-            <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border px-6 py-4">
-              <h3 className="font-heading text-sm font-semibold">
-                For engineers — where the time actually goes
-              </h3>
-              <span className="font-mono text-xs text-muted-foreground/70">
-                55 questions, live APIs
-              </span>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[34rem] text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left">
-                    <th className="px-6 py-2.5 font-medium text-muted-foreground">Stage</th>
-                    <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">p50</th>
-                    <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">p95</th>
-                    <th className="px-6 py-2.5 font-medium text-muted-foreground">Note</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {PIPELINE.map((r) => (
-                    <tr key={r.stage}>
-                      <td className={`px-6 py-2.5 ${r.hot ? "text-foreground" : "text-muted-foreground"}`}>
-                        {r.stage}
-                      </td>
-                      <td className={`px-3 py-2.5 text-right font-mono tabular-nums ${
-                        r.hot ? "text-primary" : "text-foreground/80"
-                      }`}>
-                        {r.p50}
-                      </td>
-                      <td className="px-3 py-2.5 text-right font-mono tabular-nums text-muted-foreground">
-                        {r.p95}
-                      </td>
-                      <td className="px-6 py-2.5 text-xs text-muted-foreground/70">{r.note}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="grid gap-5 border-t border-border px-6 py-5 text-xs leading-relaxed text-muted-foreground sm:grid-cols-2">
-              <p>
-                <span className="text-foreground">Retrieval isn&apos;t the bottleneck.</span>{" "}
-                Embedding plus search is ~320ms of a 3.6s answer — about 9%. The model
-                is nearly 90% of the wait before the first token. That&apos;s why a
-                dedicated vector database was never worth it: it would optimise the
-                cheapest stage, and at this corpus size the index scan isn&apos;t even
-                the expensive part of its own row — the HTTP round trip is.
-              </p>
-              <p>
-                <span className="text-foreground">Top-5, and refusal is the prompt&apos;s job.</span>{" "}
-                Going to top-20 would barely move search time but would inflate the
-                prompt, landing on the expensive stage — slower and less grounded at
-                once. The search RPC applies no similarity floor, so every query
-                returns 5 chunks; declining an out-of-corpus question is the system
-                prompt holding, which is exactly what the 3/3 refusal count measures.
-              </p>
-            </div>
-
-            <div className="border-t border-border px-6 py-4">
-              <a
-                href="https://www.shauryasharma.dev/blog/how-rag-works-in-truebearing-ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Read the full write-up on how retrieval works
-                <span aria-hidden="true">&#8599;</span>
-              </a>
-            </div>
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link
+              href="/eval"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+            >
+              See the full evaluation
+              <span aria-hidden="true">&rarr;</span>
+            </Link>
+            <a
+              href="https://www.shauryasharma.dev/blog/how-rag-works-in-truebearing-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Read the write-up on how retrieval works
+              <span aria-hidden="true">&#8599;</span>
+            </a>
           </div>
         </div>
       </section>
+      )}
 
       {/* ---------- principles ---------- */}
       <section className="border-b border-border/60">
@@ -502,6 +445,9 @@ export default function Landing() {
             </Link>
             <Link href="/how-it-works" className="transition-colors hover:text-foreground">
               How it works
+            </Link>
+            <Link href="/eval" className="transition-colors hover:text-foreground">
+              Evaluation
             </Link>
             <a
               href="https://www.shauryasharma.dev/blog/how-rag-works-in-truebearing-ai"

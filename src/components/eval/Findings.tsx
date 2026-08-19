@@ -9,7 +9,7 @@
 import type { RunDiff } from "@/lib/eval/diff";
 import type { GenerationResult } from "@/lib/eval/run";
 import { deltaPp, pct } from "@/lib/eval/format";
-import { DeltaBadge } from "@/components/eval/Metrics";
+import { DeltaBadge, Disclosure } from "@/components/eval/Metrics";
 import type { QuestionScore } from "@/lib/eval/score";
 
 type Tone = "bad" | "neutral" | "good";
@@ -28,6 +28,45 @@ const TONE: Record<Tone, { border: string; text: string; dot: string }> = {
     },
 };
 
+/** The rows themselves, shared by the open bucket and the collapsed ones. */
+function MissList({
+    scores,
+    showRetrieved = false,
+}: {
+    scores: QuestionScore[];
+    showRetrieved?: boolean;
+}) {
+    return (
+        <ul className="space-y-3">
+            {scores.map((s) => (
+                <li key={s.question} className="text-xs">
+                    <p className="text-foreground">
+                        {s.hard && (
+                            <span className="mr-1.5 rounded bg-muted px-1.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-wide text-muted-foreground">
+                                hard
+                            </span>
+                        )}
+                        &ldquo;{s.question}&rdquo;
+                    </p>
+                    {showRetrieved && (
+                        <p className="mt-1 font-mono text-[0.7rem] leading-relaxed text-muted-foreground">
+                            <span className="text-destructive/80">missing:</span>{" "}
+                            {s.missing.join(", ")}
+                            <br />
+                            {/* What came back instead is the actual debugging
+                                information — a missing title alone doesn't tell
+                                you which neighbour outranked it. */}
+                            <span className="text-muted-foreground/60">got:</span>{" "}
+                            {s.titles.slice(0, 3).join(", ")}
+                            {s.titles.length > 3 && "…"}
+                        </p>
+                    )}
+                </li>
+            ))}
+        </ul>
+    );
+}
+
 function MissBucket({
     title,
     explain,
@@ -45,7 +84,7 @@ function MissBucket({
     const t = TONE[tone];
 
     return (
-        <div className={`rounded-xl border p-4 ${t.border}`}>
+        <div className={`rounded-xl border p-3.5 sm:p-4 ${t.border}`}>
             <p className="flex items-center gap-2">
                 <span className={`h-1.5 w-1.5 rounded-full ${t.dot}`} aria-hidden="true" />
                 <span className={`text-sm font-semibold ${t.text}`}>
@@ -53,33 +92,9 @@ function MissBucket({
                 </span>
             </p>
             <p className="mt-1 text-xs text-muted-foreground">{explain}</p>
-            <ul className="mt-3 space-y-3">
-                {scores.map((s) => (
-                    <li key={s.question} className="text-xs">
-                        <p className="text-foreground">
-                            {s.hard && (
-                                <span className="mr-1.5 rounded bg-muted px-1.5 py-0.5 font-mono text-[0.6rem] uppercase tracking-wide text-muted-foreground">
-                                    hard
-                                </span>
-                            )}
-                            &ldquo;{s.question}&rdquo;
-                        </p>
-                        {showRetrieved && (
-                            <p className="mt-1 font-mono text-[0.7rem] leading-relaxed text-muted-foreground">
-                                <span className="text-destructive/80">missing:</span>{" "}
-                                {s.missing.join(", ")}
-                                <br />
-                                {/* What came back instead is the actual debugging
-                                    information — a missing title alone doesn't tell
-                                    you which neighbour outranked it. */}
-                                <span className="text-muted-foreground/60">got:</span>{" "}
-                                {s.titles.slice(0, 3).join(", ")}
-                                {s.titles.length > 3 && "…"}
-                            </p>
-                        )}
-                    </li>
-                ))}
-            </ul>
+            <div className="mt-3">
+                <MissList scores={scores} showRetrieved={showRetrieved} />
+            </div>
         </div>
     );
 }
@@ -100,7 +115,7 @@ export function MissPanel({ diff }: { diff: RunDiff }) {
             </p>
 
             {nothing ? (
-                <div className="rounded-xl border bg-card p-5">
+                <div className="rounded-xl border bg-card p-4 sm:p-5">
                     <p className="text-sm font-medium text-clear">
                         Every covered question retrieved every expected source.
                     </p>
@@ -113,31 +128,39 @@ export function MissPanel({ diff }: { diff: RunDiff }) {
                 </div>
             ) : (
                 <div className="space-y-3">
+                    {/* Regressions stay open. Everything else collapses: a new failure
+                        is the one thing on this page you must not have to click to
+                        find, and it is usually a short list or an empty one. */}
                     <MissBucket
                         title="New failures"
                         explain="Passed in the previous run, fails now. A regression."
                         scores={newMisses}
                         tone="bad"
                     />
-                    <MissBucket
-                        title="Standing failures"
-                        explain="Failed in both runs. A known weakness, not news."
-                        scores={persistentMisses}
-                        tone="neutral"
-                    />
-                    <MissBucket
-                        title="Newly tracked failures"
-                        explain="Failing, but the previous run never asked them — added to the set since. Not a regression."
-                        scores={untrackedMisses}
-                        tone="neutral"
-                    />
-                    <MissBucket
-                        title="Fixed"
-                        explain="Failed in the previous run, passes now."
-                        scores={fixedMisses}
-                        tone="good"
-                        showRetrieved={false}
-                    />
+
+                    {persistentMisses.length + untrackedMisses.length + fixedMisses.length >
+                        0 && (
+                        <div className="rounded-xl border bg-card px-3 pb-3 pt-1 sm:px-4">
+                            <Disclosure
+                                label="Standing failures — failed in both runs"
+                                count={persistentMisses.length}
+                            >
+                                <MissList scores={persistentMisses} showRetrieved />
+                            </Disclosure>
+                            <Disclosure
+                                label="Newly tracked — the previous run never asked these"
+                                count={untrackedMisses.length}
+                            >
+                                <MissList scores={untrackedMisses} showRetrieved />
+                            </Disclosure>
+                            <Disclosure
+                                label="Fixed — failed before, passes now"
+                                count={fixedMisses.length}
+                            >
+                                <MissList scores={fixedMisses} />
+                            </Disclosure>
+                        </div>
+                    )}
                 </div>
             )}
         </section>
@@ -163,19 +186,20 @@ export function RefusalPanel({
                 Refusal — the generation layer
             </p>
 
-            <div className="rounded-xl border bg-card p-5">
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
                 <p className="max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
-                    {uncoveredTotal} questions in the set are deliberately outside the corpus.
-                    The correct answer to each is &ldquo;I don&apos;t have a rule for
-                    that&rdquo;.{" "}
+                    {uncoveredTotal} questions are deliberately outside the corpus; the correct
+                    answer to each is &ldquo;I don&apos;t have a rule for that&rdquo;.{" "}
                     {alwaysFullK && (
                         <>
-                            Retrieval cannot produce that answer: every one of them still returned
-                            a full {matchCount} chunks, because the search applies no similarity
-                            floor. Refusing is entirely the prompt&apos;s job, so it can only be
-                            measured by asking for real.
+                            Retrieval can&apos;t produce it — all {matchCount} chunks come back
+                            regardless, since search applies no similarity floor — so refusing is
+                            the prompt&apos;s job.{" "}
                         </>
                     )}
+                    Detected by string-matching a fixed list of phrasings, which is a deliberate
+                    weakness: if the model starts declining in wording the list doesn&apos;t
+                    cover, this number drops, and that is a prompt change worth seeing.
                 </p>
 
                 {!generation ? (
@@ -186,7 +210,7 @@ export function RefusalPanel({
                     </p>
                 ) : (
                     <>
-                        <div className="mt-4 flex items-baseline gap-3">
+                        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                             <span className="font-mono text-2xl font-semibold tabular-nums text-foreground">
                                 {generation.refusals.refused}/{generation.refusals.total}
                             </span>
@@ -231,13 +255,6 @@ export function RefusalPanel({
                                 Every out-of-corpus question was declined.
                             </p>
                         )}
-
-                        <p className="mt-4 border-t pt-3 text-xs leading-relaxed text-muted-foreground">
-                            Measured by string-matching a fixed list of refusal phrasings. That is a
-                            deliberate weakness: if the model starts declining in wording the list
-                            doesn&apos;t cover, this number drops, which is a prompt change worth
-                            seeing rather than smoothing over with a fuzzier matcher.
-                        </p>
                     </>
                 )}
             </div>
@@ -257,18 +274,17 @@ export function FaithfulnessPanel({
     return (
         <section>
             <p className="mb-3 font-mono text-[0.7rem] uppercase tracking-wider text-muted-foreground/70">
-                Answer quality — is the prose supported?
+                Faithfulness — is the prose supported?
             </p>
 
-            <div className="rounded-xl border bg-card p-5">
+            <div className="rounded-xl border bg-card p-4 sm:p-5">
                 <p className="max-w-[74ch] text-xs leading-relaxed text-muted-foreground">
-                    Recall proves the right passage was retrieved. It says nothing about what the
-                    model then wrote with it. Every answer here is broken into atomic claims and
-                    each claim is checked against the passages that answer was generated from —
-                    not against the world. A claim that is true in reality but absent from the
-                    sources counts as <span className="text-foreground">unsupported</span>, because
-                    inventing a correct-sounding number is the failure this product exists to
-                    avoid.
+                    Each answer is split into atomic claims and every claim checked against the
+                    passages that answer was generated from — not against the world, so a claim
+                    that is true in reality but absent from the sources counts as{" "}
+                    <span className="text-foreground">unsupported</span>. It bounds invention,
+                    not truth: an answer faithfully drawn from the wrong chunk still scores 100%,
+                    and the judge is a Gemini model grading Gemini output.
                 </p>
 
                 {!f ? (
@@ -297,35 +313,18 @@ export function FaithfulnessPanel({
 
                         <p className="mt-2 font-mono text-[0.7rem] text-muted-foreground">
                             {f.clean}/{f.judged} answers fully supported · {f.skippedRefusals}{" "}
-                            refusals skipped · {f.failed} judge failures · judged by {f.judgeModel}
-                        </p>
-
-                        <p className="mt-3 max-w-[74ch] border-t pt-3 text-xs leading-relaxed text-muted-foreground">
-                            Refusals are skipped rather than scored: an answer that asserts nothing
-                            about the sources is trivially faithful, and counting those as perfect
-                            would let a system that refuses everything post 100% here. Judge
-                            failures are excluded from the average for the same reason NaN is never
-                            rendered as zero elsewhere on this page — an ungraded answer is not a
-                            failed one.
+                            refusals skipped (scoring them would let a system that refuses
+                            everything post 100%) · {f.failed} judge failures, excluded rather than
+                            scored zero · judged by {f.judgeModel}
                         </p>
 
                         {f.unsupported.length > 0 && (
-                            <div className="mt-4 rounded-xl border border-destructive/40 bg-destructive/[0.06] p-4">
-                                <p className="flex items-center gap-2">
-                                    <span
-                                        className="h-1.5 w-1.5 rounded-full bg-destructive"
-                                        aria-hidden="true"
-                                    />
-                                    <span className="text-sm font-semibold text-destructive">
-                                        Unsupported claims ({f.unsupported.length})
-                                    </span>
-                                </p>
-                                <p className="mt-1 text-xs text-muted-foreground">
-                                    Every sentence the judge could not find in the retrieved
-                                    passages, quoted. A faithfulness percentage nobody can check is
-                                    not evidence.
-                                </p>
-                                <ul className="mt-3 space-y-3">
+                            <Disclosure
+                                label="Unsupported claims"
+                                count={f.unsupported.length}
+                                tone="bad"
+                            >
+                                <ul className="space-y-3">
                                     {f.unsupported.map((u, i) => (
                                         <li key={`${u.question}-${i}`} className="text-xs">
                                             <p className="text-foreground">
@@ -343,7 +342,7 @@ export function FaithfulnessPanel({
                                         </li>
                                     ))}
                                 </ul>
-                            </div>
+                            </Disclosure>
                         )}
 
                         {f.unsupported.length === 0 && f.judged > 0 && (

@@ -49,3 +49,5 @@ CLAUDE.local.md
 .claude.json
 .claude.json.backup
 .mcp.json
+# Scratch files — never meant for the repo (CV scans landed here once).
+tmp/

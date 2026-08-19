@@ -82,10 +82,81 @@ export function scoreSet(scores: QuestionScore[]): SetScore {
   };
 }
 
+/**
+ * Average precision over a question's expected sources: how highly they were
+ * ranked, not merely whether they appeared.
+ *
+ * recall@k asks a yes/no question — did the card come back in the top k? It
+ * cannot separate a retriever that ranks the answer first from one that ranks it
+ * fifth behind four decoys, and at 62 sources with k=5 that ranking question is
+ * the one that discriminates.
+ *
+ * For each rank holding an expected source, precision@rank is the fraction of
+ * the top `rank` that is expected; the score averages those over EVERY expected
+ * source, found or not. Dividing by the number expected rather than the number
+ * found is deliberate: with a found-only denominator a question needing two
+ * cards that retrieved one of them at rank 1 would post a perfect 1.0 while
+ * silently missing half its evidence. This denominator keeps the metric bounded
+ * above by recall, so it can never claim good ranking for a source that never
+ * came back.
+ *
+ * NaN for out-of-corpus questions, for the same reason recall is: with nothing
+ * expected there is no ranking to be right or wrong about.
+ */
+export function rankPrecision(score: QuestionScore): number {
+  if (!score.covered) return NaN;
+
+  const expected = new Set(score.expect);
+  const seen = new Set<string>();
+  let found = 0;
+  let sum = 0;
+
+  score.titles.forEach((title, i) => {
+    // A title already counted must not be counted twice. One OKF concept is one
+    // chunk today, so duplicates shouldn't occur — but a chunking change that
+    // introduced them would otherwise inflate this score rather than break it.
+    if (!expected.has(title) || seen.has(title)) return;
+    seen.add(title);
+    found += 1;
+    sum += found / (i + 1);
+  });
+
+  return sum / score.expect.length;
+}
+
+/** Mean rank precision over covered questions. NaN for an empty set. */
+export function rankPrecisionSet(scores: QuestionScore[]): number {
+  const covered = scores.filter((s) => s.covered);
+  if (covered.length === 0) return NaN;
+  return covered.reduce((sum, s) => sum + rankPrecision(s), 0) / covered.length;
+}
+
+export interface RankPrecision {
+  overall: number;
+  easy: number;
+  hard: number;
+}
+
+/**
+ * Split out so `summarise` and `parseRun` derive this the same way. It is
+ * computed from `scores` on both paths rather than serialised, which is what
+ * lets every already-committed run gain the figure without being rewritten.
+ */
+export function summariseRankPrecision(scores: QuestionScore[]): RankPrecision {
+  const covered = scores.filter((s) => s.covered);
+  return {
+    overall: rankPrecisionSet(covered),
+    easy: rankPrecisionSet(covered.filter((s) => !s.hard)),
+    hard: rankPrecisionSet(covered.filter((s) => s.hard)),
+  };
+}
+
 export interface EvalSummary {
   overall: SetScore;
   easy: SetScore;
   hard: SetScore;
+  /** Mean average precision — see rankPrecision. Derived, never serialised. */
+  rankPrecision: RankPrecision;
   /** Out-of-corpus questions. Retrieval can't score these — see the note below. */
   uncovered: { total: number; alwaysFullK: boolean };
   latency: { embedP50: number; embedP95: number; searchP50: number; searchP95: number };
@@ -117,6 +188,7 @@ export function summarise(
     overall: scoreSet(covered),
     easy: scoreSet(covered.filter((s) => !s.hard)),
     hard: scoreSet(covered.filter((s) => s.hard)),
+    rankPrecision: summariseRankPrecision(covered),
     uncovered: {
       total: scores.length - covered.length,
       // When every out-of-corpus question still comes back with a full k chunks,

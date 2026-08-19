@@ -122,14 +122,14 @@ export default function RulesPage() {
     return (
         <>
             <TrackView name="rules_view" />
-            <header className="h-16 shrink-0 border-b flex items-center px-8">
+            <header className="h-16 shrink-0 border-b flex items-center px-4 sm:px-8">
                 <div>
                     <h1 className="font-heading text-base font-semibold leading-none">Rules</h1>
                     <p className="text-xs text-muted-foreground mt-1">Ask the corpus — answers only from retrieved sources</p>
                 </div>
             </header>
 
-            <main className="flex-1 p-8 max-w-3xl">
+            <main className="flex-1 p-4 sm:p-8 max-w-3xl">
                 <p className="text-sm text-muted-foreground leading-relaxed mb-6">
                     This answers strictly from the ingested IRCC knowledge base — if a question isn&apos;t
                     covered by the corpus, it says so instead of guessing. Every answer is followed by

@@ -43,6 +43,12 @@ export interface RunDiff {
   previous: EvalRun | null;
 
   recall: { overall: MetricDelta; easy: MetricDelta; hard: MetricDelta };
+  /**
+   * Mean average precision — how highly the expected sources ranked, not just
+   * whether they appeared. Never null: it is derived from `scores[].titles`,
+   * which every run has, so even runs made before the metric existed compare.
+   */
+  rankPrecision: { overall: MetricDelta; easy: MetricDelta; hard: MetricDelta };
   allHit: MetricDelta;
   latency: {
     embedP50: MetricDelta;
@@ -54,6 +60,15 @@ export interface RunDiff {
   refusalRate: MetricDelta | null;
   /** Mean per-question faithfulness. Null when the current run didn't judge. */
   faithfulness: MetricDelta | null;
+  /** Judged relevance of the retrieved chunks. Null when not measured. */
+  contextPrecision: MetricDelta | null;
+  /** Judged relevance of the retrieved chunks on OUT-OF-CORPUS questions, where
+   *  lower is better. Kept apart from the above for that reason. */
+  uncoveredPrecision: MetricDelta | null;
+  /** Does the answer address the question? Null when not measured. */
+  answerRelevance: MetricDelta | null;
+  /** Correctness over the gold subset. Null when not measured. */
+  correctness: MetricDelta | null;
 
   /** Passed before, fails now. The list to look at first. */
   newMisses: QuestionScore[];
@@ -88,6 +103,39 @@ function faithfulnessScore(run: EvalRun): number | null {
   const f = run.generation?.faithfulness;
   return f ? f.score : null;
 }
+
+/**
+ * Each judged metric extracted the same way as faithfulnessScore, and for the
+ * same reason: null must keep meaning "this run did not measure it", distinct
+ * from NaN ("it measured and got nothing") and from 0 ("it measured and the
+ * answer was zero").
+ */
+const METRICS = [
+  {
+    key: "contextPrecision" as const,
+    label: "Context precision",
+    get: (r: EvalRun) => r.generation?.contextPrecision?.score ?? null,
+    judge: (r: EvalRun) => r.generation?.contextPrecision?.judgeModel,
+  },
+  {
+    key: "uncoveredPrecision" as const,
+    label: "Out-of-corpus precision",
+    get: (r: EvalRun) => r.generation?.contextPrecision?.uncoveredScore ?? null,
+    judge: (r: EvalRun) => r.generation?.contextPrecision?.judgeModel,
+  },
+  {
+    key: "answerRelevance" as const,
+    label: "Answer relevance",
+    get: (r: EvalRun) => r.generation?.answerRelevance?.score ?? null,
+    judge: (r: EvalRun) => r.generation?.answerRelevance?.judgeModel,
+  },
+  {
+    key: "correctness" as const,
+    label: "Correctness",
+    get: (r: EvalRun) => r.generation?.correctness?.score ?? null,
+    judge: (r: EvalRun) => r.generation?.correctness?.judgeModel,
+  },
+];
 
 function comparabilityWarnings(
   current: EvalRun,
@@ -145,6 +193,54 @@ function comparabilityWarnings(
   if (judgeNow && !judgeBefore) {
     w.push(
       `Previous run was not judged, so faithfulness has no baseline to move from.`,
+    );
+  }
+
+  // The same two checks per Claude-judged metric. They cannot share the
+  // faithfulness check above: faithfulness is graded by Gemini and these by
+  // Claude, so there are now two judges in play and either can change alone.
+  for (const metric of METRICS) {
+    // uncoveredPrecision shares its judge and its result block with
+    // contextPrecision — warning twice about one model change is noise.
+    if (metric.key === "uncoveredPrecision") continue;
+
+    const now = metric.judge(current);
+    const before = metric.judge(previous);
+    if (now && before && now !== before) {
+      w.push(
+        `${metric.label} judge changed (${before} → ${now}). A delta across two ` +
+          `judges measures the judges, not the system.`,
+      );
+    }
+    if (now && !before) {
+      w.push(
+        `Previous run did not measure ${metric.label.toLowerCase()}, so it has ` +
+          `no baseline to move from.`,
+      );
+    }
+  }
+
+  // Answer relevance is a cosine similarity, so it is a property of the
+  // embedding space as much as of the answers. The embedding-model warning
+  // above is about recall and fires on meta; this one fires on the figure that
+  // was actually used to score relevance.
+  const embedNow = current.generation?.answerRelevance?.embeddingModel;
+  const embedBefore = previous.generation?.answerRelevance?.embeddingModel;
+  if (embedNow && embedBefore && embedNow !== embedBefore) {
+    w.push(
+      `Relevance embedding model changed (${embedBefore} → ${embedNow}). ` +
+        `Cosine similarities from two embedding spaces are not comparable.`,
+    );
+  }
+
+  // Correctness speaks only for its gold subset, so a change in that subset
+  // moves the number the same way a changed question set moves recall.
+  const goldNow = current.generation?.correctness?.gold;
+  const goldBefore = previous.generation?.correctness?.gold;
+  if (goldNow !== undefined && goldBefore !== undefined && goldNow !== goldBefore) {
+    w.push(
+      `Gold subset changed (${goldBefore} → ${goldNow} labelled questions). ` +
+        `Correctness moves with the subset, not only with the answers.`,
     );
   }
 
@@ -217,6 +313,20 @@ export function diffRuns(current: EvalRun, previous: EvalRun | null): RunDiff {
         pick((r) => r.summary.hard.recall),
       ),
     },
+    rankPrecision: {
+      overall: metricDelta(
+        current.summary.rankPrecision.overall,
+        pick((r) => r.summary.rankPrecision.overall),
+      ),
+      easy: metricDelta(
+        current.summary.rankPrecision.easy,
+        pick((r) => r.summary.rankPrecision.easy),
+      ),
+      hard: metricDelta(
+        current.summary.rankPrecision.hard,
+        pick((r) => r.summary.rankPrecision.hard),
+      ),
+    },
     allHit: metricDelta(
       current.summary.overall.allHit,
       pick((r) => r.summary.overall.allHit),
@@ -249,6 +359,16 @@ export function diffRuns(current: EvalRun, previous: EvalRun | null): RunDiff {
       if (score === null) return null;
       return metricDelta(score, previous ? faithfulnessScore(previous) : null);
     })(),
+    ...(Object.fromEntries(
+      METRICS.map((m) => {
+        const score = m.get(current);
+        if (score === null) return [m.key, null];
+        return [m.key, metricDelta(score, previous ? m.get(previous) : null)];
+      }),
+    ) as Pick<
+      RunDiff,
+      "contextPrecision" | "uncoveredPrecision" | "answerRelevance" | "correctness"
+    >),
     newMisses,
     fixedMisses,
     persistentMisses,

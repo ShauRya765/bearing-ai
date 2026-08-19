@@ -6,6 +6,7 @@ import {
   deltaCount,
   deltaMs,
   deltaPp,
+  isFirstMeasurement,
   ms,
   pct,
   runDate,
@@ -58,6 +59,25 @@ test("the same sign is good news for recall and bad news for latency", () => {
 test("no previous run means no trend, distinct from an unchanged one", () => {
   assert.equal(trend(d(0.9, null), true), "none");
   assert.equal(trend(d(0.9, 0.9), true), "flat");
+});
+
+test("a first measurement is distinguished from an incomparable one", () => {
+  // Both collapse to trend "none", which is why the badge needs a second
+  // question: was there a baseline at all?
+  const firstRun = d(0.997, null);
+  const undefinedMetric = d(NaN, 0.84);
+
+  assert.equal(trend(firstRun, true), "none");
+  assert.equal(trend(undefinedMetric, true), "none");
+
+  assert.equal(isFirstMeasurement(firstRun), true);
+  assert.equal(isFirstMeasurement(undefinedMetric), false);
+
+  // A measured pair is never a first measurement, including an unchanged one —
+  // otherwise a flat metric would relabel itself every run.
+  assert.equal(isFirstMeasurement(d(0.9, 0.9)), false);
+  // Zero is a real baseline, not a missing one.
+  assert.equal(isFirstMeasurement(d(0.5, 0)), false);
 });
 
 test("latency and counts get their own scales", () => {

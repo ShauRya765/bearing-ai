@@ -94,6 +94,110 @@ test("the miss list is rebuilt from the per-question scores, never read from the
   assert.deepEqual(restored.summary.misses.map((m) => m.question), ["miss"]);
 });
 
+test("the judged metrics keep undefined, null and NaN apart through a round trip", () => {
+  const generation = {
+    reps: 1,
+    latency: [],
+    refusals: { total: 1, refused: 1, answered: [] },
+  };
+
+  // 1. ABSENT — never measured. Must not appear in the file at all, or the
+  //    dashboard can no longer distinguish "not run" from "ran and found zero".
+  const notMeasured = serializeRun(run({ generation }));
+  const parsedAbsent = JSON.parse(notMeasured).generation;
+  for (const key of ["contextPrecision", "answerRelevance", "correctness"]) {
+    assert.ok(!(key in parsedAbsent), `${key} must be absent, not null`);
+    assert.equal(
+      parseRun(notMeasured).generation![key as "correctness"],
+      undefined,
+    );
+  }
+
+  // 2. NULL — measured, produced nothing usable. Survives as null.
+  const nulled = parseRun(
+    serializeRun(
+      run({
+        generation: {
+          ...generation,
+          contextPrecision: null,
+          answerRelevance: null,
+          correctness: null,
+        },
+      }),
+    ),
+  ).generation!;
+  assert.equal(nulled.contextPrecision, null);
+  assert.equal(nulled.answerRelevance, null);
+  assert.equal(nulled.correctness, null);
+
+  // 3. PRESENT with NaN — judged, but nothing was scoreable. This is the one
+  //    JSON cannot represent: stringify turns NaN into null and a null read as
+  //    a number is 0, which would publish a confident 0% and invent a crisis.
+  const judged = parseRun(
+    serializeRun(
+      run({
+        generation: {
+          ...generation,
+          contextPrecision: {
+            judgeModel: "claude-opus-5",
+            score: NaN,
+            judged: 0,
+            failed: 3,
+            uncoveredScore: NaN,
+            uncoveredJudged: 0,
+            topRankIrrelevant: [],
+            uncoveredRelevant: [],
+          },
+          answerRelevance: {
+            judgeModel: "claude-opus-5",
+            embeddingModel: "gemini-embedding-001",
+            score: NaN,
+            judged: 0,
+            skippedRefusals: 0,
+            failed: 3,
+            lowest: [],
+          },
+          correctness: {
+            judgeModel: "claude-opus-5",
+            score: NaN,
+            judged: 0,
+            gold: 2,
+            covered: 2,
+            failed: 2,
+            factCoverage: NaN,
+            contradictions: [],
+            missing: [],
+          },
+        },
+      }),
+    ),
+  ).generation!;
+
+  assert.ok(Number.isNaN(judged.contextPrecision!.score));
+  assert.ok(Number.isNaN(judged.contextPrecision!.uncoveredScore));
+  assert.ok(Number.isNaN(judged.answerRelevance!.score));
+  assert.ok(Number.isNaN(judged.correctness!.score));
+  assert.ok(Number.isNaN(judged.correctness!.factCoverage));
+  // Counts are not NaN-mapped and must come back as themselves.
+  assert.equal(judged.correctness!.gold, 2);
+  assert.equal(judged.contextPrecision!.failed, 3);
+});
+
+test("rank precision is derived on read, so older artifacts report it too", () => {
+  const text = serializeRun(run());
+  assert.ok(
+    !("rankPrecision" in JSON.parse(text).summary),
+    "rankPrecision must not be persisted — deriving it is what backfills old runs",
+  );
+
+  // Strip the field the way a file written before the metric existed would
+  // have: it simply isn't there. parseRun must still produce a real number.
+  const restored = parseRun(text);
+  assert.ok(!Number.isNaN(restored.summary.rankPrecision.overall));
+  assert.ok(restored.summary.rankPrecision.overall >= 0);
+  assert.ok(restored.summary.rankPrecision.overall <= 1);
+});
+
 test("a run from an incompatible schema is refused, not partially rendered", () => {
   const text = serializeRun(run()).replace(
     `"schema": ${RUN_SCHEMA_VERSION}`,
